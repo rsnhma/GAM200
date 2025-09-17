@@ -15,13 +15,16 @@ public class QTESystem : MonoBehaviour
     private Action onSuccess; // Callback for success
     private Action onFail;    // Callback for fail
 
-    public void BeginQTE(Action successCallback, Action failCallback = null)
+    /// <summary>
+    /// Start a QTE sequence of given length
+    /// </summary>
+    public void BeginQTE(int sequenceLength, Action successCallback, Action failCallback = null)
     {
         onSuccess = successCallback;
         onFail = failCallback;
 
         gameObject.SetActive(true);
-        GenerateQTESequence();
+        GenerateQTESequence(sequenceLength);
     }
 
     void Update()
@@ -48,12 +51,15 @@ public class QTESystem : MonoBehaviour
         }
     }
 
-    void GenerateQTESequence()
+    /// <summary>
+    /// Generate random arrow sequence
+    /// </summary>
+    void GenerateQTESequence(int length)
     {
         qteSequence.Clear();
         currentKeyIndex = 0;
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < length; i++)
         {
             int randomIndex = UnityEngine.Random.Range(0, possibleKeys.Length);
             KeyCode randomKey = possibleKeys[randomIndex];
