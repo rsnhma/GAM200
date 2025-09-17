@@ -4,6 +4,7 @@ public class CharacterMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
+    private bool canMove = true;
 
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -15,6 +16,13 @@ public class CharacterMovement : MonoBehaviour
 
     void Update()
     {
+
+        if (!canMove)
+        {
+            movement = Vector2.zero;
+            return;
+        }
+
         // WASD or Arrow keys (old Input Manager)
         movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
         movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
@@ -25,5 +33,16 @@ public class CharacterMovement : MonoBehaviour
     void FixedUpdate()
     {
         rb.linearVelocity = movement * moveSpeed;
+    }
+
+    public void FreezeMovement()
+    {
+        canMove = false;
+        movement = Vector2.zero;
+    }
+
+    public void UnfreezeMovement()
+    {
+        canMove = true;
     }
 }
