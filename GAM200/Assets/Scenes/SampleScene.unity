@@ -532,7 +532,7 @@ GameObject:
   - component: {fileID: 171830232}
   - component: {fileID: 171830233}
   m_Layer: 0
-  m_Name: Entry_Point2
+  m_Name: Entry_Point1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -546,12 +546,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 171830231}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.9, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 2.2999976, y: 0.07999999, z: 0}
+  m_LocalScale: {x: 0.15994234, y: 6.252256, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1760936416}
+  m_Father: {fileID: 632186937}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &171830233
 MonoBehaviour:
@@ -565,7 +565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a9f211c7d04584c9fae8c6dce10038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entryPointId: R4D1
+  entryPointId: R2D1
 --- !u!1 &176201973
 GameObject:
   m_ObjectHideFlags: 0
@@ -847,7 +847,7 @@ GameObject:
   - component: {fileID: 209471376}
   - component: {fileID: 209471378}
   - component: {fileID: 209471377}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -981,7 +981,7 @@ GameObject:
   - component: {fileID: 228237076}
   - component: {fileID: 228237078}
   - component: {fileID: 228237077}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1117,7 +1117,7 @@ GameObject:
   - component: {fileID: 352174852}
   - component: {fileID: 352174853}
   - component: {fileID: 352174854}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Locker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1772,7 +1772,7 @@ GameObject:
   - component: {fileID: 460437758}
   - component: {fileID: 460437760}
   - component: {fileID: 460437759}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2176,7 +2176,7 @@ GameObject:
   - component: {fileID: 500478877}
   - component: {fileID: 500478879}
   - component: {fileID: 500478878}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2491,7 +2491,7 @@ GameObject:
   - component: {fileID: 554543333}
   - component: {fileID: 554543335}
   - component: {fileID: 554543334}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2625,7 +2625,7 @@ GameObject:
   - component: {fileID: 595699523}
   - component: {fileID: 595699525}
   - component: {fileID: 595699524}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2748,6 +2748,95 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &618149888
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: moveSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: qteSystem
+      value: 
+      objectReference: {fileID: 404815213}
+    - target: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: lineOfSightRange
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940951488197543827, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_BodyType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2940951488197543827, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_GravityScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7405729044195340992, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.43
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -6.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8125137679952609765, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8789250016599124599, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_Name
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 8789250016599124599, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -2857,12 +2946,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621404080}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.6, y: -0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
+  m_LocalPosition: {x: 2.5999968, y: 0.17000067, z: 0}
+  m_LocalScale: {x: 0.15994234, y: 6.252257, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1458357760}
+  m_Father: {fileID: 868452733}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &621404082
 MonoBehaviour:
@@ -2876,7 +2965,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72a9f211c7d04584c9fae8c6dce10038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entryPointId: R4D2
+  entryPointId: R2D2
 --- !u!1 &631722160
 GameObject:
   m_ObjectHideFlags: 0
@@ -3022,6 +3111,7 @@ GameObject:
   - component: {fileID: 632186937}
   - component: {fileID: 632186939}
   - component: {fileID: 632186938}
+  - component: {fileID: 632186940}
   m_Layer: 0
   m_Name: R2D1
   m_TagString: Untagged
@@ -3041,7 +3131,8 @@ Transform:
   m_LocalPosition: {x: 0.4903245, y: -0.18, z: 0}
   m_LocalScale: {x: 0.028538994, y: 0.092827916, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 171830232}
   m_Father: {fileID: 461607271}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &632186938
@@ -3074,7 +3165,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -3145,6 +3236,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &632186940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 632186936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57b57bb2dd2728243a1aa8cbceebbf05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetScene: AV Room
+  entryPointId: R2D1
 --- !u!1 &638103251
 GameObject:
   m_ObjectHideFlags: 0
@@ -4001,6 +4106,7 @@ GameObject:
   - component: {fileID: 868452733}
   - component: {fileID: 868452735}
   - component: {fileID: 868452734}
+  - component: {fileID: 868452736}
   m_Layer: 0
   m_Name: R2D2
   m_TagString: Untagged
@@ -4020,7 +4126,8 @@ Transform:
   m_LocalPosition: {x: 0.4903245, y: 0.344, z: 0}
   m_LocalScale: {x: 0.028538994, y: 0.092827916, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 621404081}
   m_Father: {fileID: 461607271}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &868452734
@@ -4053,7 +4160,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -4124,6 +4231,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &868452736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868452732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57b57bb2dd2728243a1aa8cbceebbf05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetScene: AV Room
+  entryPointId: R2D2
 --- !u!1 &877963475
 GameObject:
   m_ObjectHideFlags: 0
@@ -5007,7 +5128,7 @@ GameObject:
   - component: {fileID: 1156568371}
   - component: {fileID: 1156568373}
   - component: {fileID: 1156568372}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5488,7 +5609,7 @@ GameObject:
   - component: {fileID: 1250969954}
   - component: {fileID: 1250969956}
   - component: {fileID: 1250969955}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5622,7 +5743,7 @@ GameObject:
   - component: {fileID: 1336132470}
   - component: {fileID: 1336132472}
   - component: {fileID: 1336132471}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Fountain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5880,7 +6001,6 @@ GameObject:
   - component: {fileID: 1458357760}
   - component: {fileID: 1458357762}
   - component: {fileID: 1458357761}
-  - component: {fileID: 1458357763}
   m_Layer: 0
   m_Name: R4D2
   m_TagString: Untagged
@@ -5900,8 +6020,7 @@ Transform:
   m_LocalPosition: {x: 0.4903246, y: -0.34503368, z: 0}
   m_LocalScale: {x: 0.028538994, y: 0.12664513, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 621404081}
+  m_Children: []
   m_Father: {fileID: 1647097731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1458357761
@@ -6005,21 +6124,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1458357763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1458357759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57b57bb2dd2728243a1aa8cbceebbf05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetScene: AV Room
-  entryPointId: R4D2
-  qteSystem: {fileID: 404815213}
 --- !u!1 &1576944559
 GameObject:
   m_ObjectHideFlags: 0
@@ -6240,7 +6344,7 @@ GameObject:
   - component: {fileID: 1644804978}
   - component: {fileID: 1644804980}
   - component: {fileID: 1644804979}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Hedge (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6815,7 +6919,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1746073099}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Fountain Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6858,7 +6962,6 @@ GameObject:
   - component: {fileID: 1760936416}
   - component: {fileID: 1760936418}
   - component: {fileID: 1760936417}
-  - component: {fileID: 1760936419}
   m_Layer: 0
   m_Name: R4D1
   m_TagString: Untagged
@@ -6878,8 +6981,7 @@ Transform:
   m_LocalPosition: {x: 0.4903246, y: 0.37633568, z: 0}
   m_LocalScale: {x: 0.028538994, y: 0.12664513, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 171830232}
+  m_Children: []
   m_Father: {fileID: 1647097731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1760936417
@@ -6983,21 +7085,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1760936419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1760936415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57b57bb2dd2728243a1aa8cbceebbf05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetScene: AV Room
-  entryPointId: R4D1
-  qteSystem: {fileID: 404815213}
 --- !u!1 &1794712605
 GameObject:
   m_ObjectHideFlags: 0
@@ -7143,7 +7230,7 @@ GameObject:
   - component: {fileID: 1852462960}
   - component: {fileID: 1852462959}
   - component: {fileID: 1852462958}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Locker Locked
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8292,6 +8379,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4016843658365633217, guid: 27fdea705963623429365eda82e2836d, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -8356,3 +8447,4 @@ SceneRoots:
   - {fileID: 1203654988}
   - {fileID: 953664883}
   - {fileID: 404815217}
+  - {fileID: 618149888}
