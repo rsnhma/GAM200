@@ -47,7 +47,7 @@ MonoBehaviour:
   m_ComponentVersion: 2
   m_LightType: 3
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.5
+  m_FalloffIntensity: 0.506
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_LightVolumeIntensity: 1
@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 276204870947737063}
   - component: {fileID: 2341376070898229221}
   - component: {fileID: 3906663190791753709}
+  - component: {fileID: 5389472357404336079}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -163,7 +164,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: 1302723820812287101, guid: 970b36af4bde9634b88ce139bf3c3b2d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -250,4 +251,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e7ab3aecac97411fb215d0feb31f852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  playerStats: {fileID: 11400000, guid: 396099b9c5f8dea4bb8bd5634e0d7c8e, type: 2}
+--- !u!114 &5389472357404336079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369999824901520090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bda086524bfb8934a97d605f47a49d58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerStats: {fileID: 11400000, guid: 396099b9c5f8dea4bb8bd5634e0d7c8e, type: 2}
+  onSanityChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 11500000, guid: fc77762249c839740908eee542492a3c, type: 3}
+        m_TargetAssemblyTypeName: UnityEngine.UI.Slider, UnityEngine.UI
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onSanityDepleted:
+    m_PersistentCalls:
+      m_Calls: []
+  sanityLight: {fileID: 1030650999435960143}
+  fullRadius: 5
+  minRadius: 1
+  fullIntensity: 0.506
+  fullAngle: 360
+  minAngle: 60
+  tunnelVisionThreshold: 0.4

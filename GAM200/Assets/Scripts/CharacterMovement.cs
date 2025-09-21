@@ -1,13 +1,15 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class CharacterMovement : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public float moveSpeed = 5f;
-    private bool canMove = true;
+    [Header("Stats Reference")]
+    public PlayerStats playerStats;
 
     private Rigidbody2D rb;
     private Vector2 movement;
+    private bool canMove = true;
+    private bool isSprinting;
 
     void Start()
     {
@@ -16,23 +18,23 @@ public class CharacterMovement : MonoBehaviour
 
     void Update()
     {
-
         if (!canMove)
         {
             movement = Vector2.zero;
             return;
         }
 
-        // WASD or Arrow keys (old Input Manager)
-        movement.x = Input.GetAxisRaw("Horizontal"); // A/D or Left/Right
-        movement.y = Input.GetAxisRaw("Vertical");   // W/S or Up/Down
+        movement.x = Input.GetAxisRaw("Horizontal");
+        movement.y = Input.GetAxisRaw("Vertical");
+        movement = movement.normalized;
 
-        movement = movement.normalized; // prevents diagonal speed boost
+        isSprinting = Input.GetKey(KeyCode.LeftShift);
     }
 
     void FixedUpdate()
     {
-        rb.linearVelocity = movement * moveSpeed;
+        float speed = isSprinting ? playerStats.sprintSpeed : playerStats.walkSpeed;
+        rb.linearVelocity = movement * speed;
     }
 
     public void FreezeMovement()
