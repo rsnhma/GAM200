@@ -10,7 +10,7 @@ public class EnemyBase : MonoBehaviour
     public LayerMask obstacleMask;
 
     [Header("Chase Settings")]
-    protected float moveSpeed;
+    protected float chaseSpeed;
     protected Transform player;
     protected bool isChasing = false;
 
@@ -45,7 +45,7 @@ public class EnemyBase : MonoBehaviour
     protected virtual void ChasePlayer()
     {
         Vector2 direction = (player.position - transform.position).normalized;
-        transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+        transform.position += (Vector3)(direction * chaseSpeed * Time.deltaTime);
     }
 
     public virtual void BeginChase() => isChasing = true;

@@ -1,15 +1,17 @@
 using UnityEngine;
+using System;
+using static NoiseSystem;
 
 public class MainEnemy : EnemyBase
 {
     [Header("QTE System")]
     public QTESystem qteSystem;
 
-    private TheEntityData entityData; // typed reference to SO
+    private TheEntityData entityData;
     private bool isCapturing = false;
     private float pauseTimer = 0f;
 
-    // Suspicion / lingering behaviour
+    // Suspicion / lingering
     private Vector2 lastKnownPosition;
     private bool isSuspicious = false;
     private float lingeringTimer = 0f;
@@ -18,17 +20,47 @@ public class MainEnemy : EnemyBase
     {
         base.Start();
 
-        // Explicit cast from baseData to TheEntityData
+        // Subscribe to noise events
+        NoiseSystem.OnNoiseEmitted += OnNoiseHeard;
+
         entityData = baseData as TheEntityData;
         if (entityData == null)
         {
             Debug.LogError("MainEnemy requires a TheEntityData ScriptableObject assigned!");
             return;
         }
-        
-        moveSpeed = entityData.chaseSpeed;
+
+        chaseSpeed = 7f; // Fixed chase speed
         lingeringTimer = entityData.chaseBreakTime;
-        BeginChase();
+        isChasing = false;
+    }
+
+    private void OnDestroy()
+    {
+        NoiseSystem.OnNoiseEmitted -= OnNoiseHeard; // cleanup
+    }
+
+ 
+    private void OnNoiseHeard(Vector2 position, float radius)
+    {
+        if (isCapturing) return;
+
+        bool isValidNoise = Mathf.Approximately(radius, NoiseTypes.SprintRadius) ||
+                            Mathf.Approximately(radius, NoiseTypes.LockerRadius) ||
+                            Mathf.Approximately(radius, NoiseTypes.PuzzleFailRadius);
+
+        if (isValidNoise)
+        {
+            float distance = Vector2.Distance(transform.position, position);
+            if (distance <= radius)
+            {
+                lastKnownPosition = position;
+                isSuspicious = true;
+                lingeringTimer = entityData.chaseBreakTime;
+                BeginChase(); // start moving toward noise source
+                Debug.Log($"MainEnemy alerted by noise (radius {radius}) at {position}");
+            }
+        }
     }
 
     protected override void Update()
@@ -78,7 +110,7 @@ public class MainEnemy : EnemyBase
     private void MoveTowards(Vector2 target)
     {
         Vector2 dir = (target - (Vector2)transform.position).normalized;
-        transform.position += (Vector3)(dir * moveSpeed * Time.deltaTime);
+        transform.position += (Vector3)(dir * chaseSpeed * Time.deltaTime);
     }
 
     private void TryCapturePlayer()
@@ -94,9 +126,7 @@ public class MainEnemy : EnemyBase
         isCapturing = false;
         pauseTimer = entityData.successPauseTime;
         player.GetComponent<CharacterMovement>().UnfreezeMovement();
-
         player.GetComponent<PlayerSanity>().LoseSanity(entityData.sanityLossOnSuccess);
-
         EndChase();
     }
 
@@ -104,9 +134,7 @@ public class MainEnemy : EnemyBase
     {
         isCapturing = false;
         player.GetComponent<CharacterMovement>().UnfreezeMovement();
-
         player.GetComponent<PlayerSanity>().LoseSanity(entityData.sanityLossOnFail);
-
         EndChase();
     }
 }

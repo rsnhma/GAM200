@@ -4,9 +4,16 @@ using UnityEngine;
 public class Locker : MonoBehaviour
 {
     private bool playerNearby = false;
-    private bool playerInside = true;
+    private bool playerInside = false;
     private GameObject player;
     [SerializeField] TextMeshProUGUI interactText;
+
+    [Header("Audio")]
+    public AudioSource audioSource;        
+    public AudioClip lockerSound;          
+
+    [Header("Noise Settings")]
+    public float noiseRadius = 8f;  // how far it alerts MainEnemy
 
     // Update is called once per frame
     void Update()
@@ -33,6 +40,9 @@ public class Locker : MonoBehaviour
 
         // Player Sprite
         player.GetComponent<SpriteRenderer>().enabled = false;
+
+        PlayLockerAudio();
+        EmitNoise();
     }
 
     void ExitLocker()
@@ -43,6 +53,22 @@ public class Locker : MonoBehaviour
 
         // Player Sprite
         player.GetComponent<SpriteRenderer>().enabled = true;
+
+        PlayLockerAudio();
+        EmitNoise();
+    }
+
+    private void PlayLockerAudio()
+    {
+        if (audioSource != null && lockerSound != null)
+        {
+            audioSource.PlayOneShot(lockerSound);
+        }
+    }
+
+    private void EmitNoise()
+    {
+        NoiseSystem.EmitNoise(player.transform.position, noiseRadius);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
