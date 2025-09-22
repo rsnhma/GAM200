@@ -2,20 +2,23 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal; // For Light2D
 
-public class PlayerSanity : MonoBehaviour
+public class PersistentPlayer : MonoBehaviour
 {
+    public static PersistentPlayer Instance;
+
     [Header("Stats")]
-    public float maxSanity = 100f;
+    public PlayerStats playerStats;
+
+    [Header("Sanity")]
+    public float currentSanity;
 
     [Header("Events")]
     public UnityEvent<float> onSanityChanged;
     public UnityEvent onSanityDepleted;
 
-    [Header("Light2D Reference")]
-    public Light2D sanityLight;
-
-    [Header("UI Reference")]
+    [Header("UI + Light")]
     public SanityUI sanityUI;
+    public Light2D sanityLight;
 
     [Header("Vision Settings")]
     public float fullRadius = 5f;
@@ -25,12 +28,7 @@ public class PlayerSanity : MonoBehaviour
     [Header("Tunnel Vision Settings")]
     public float fullAngle = 360f;
     public float minAngle = 60f;
-    public float tunnelVisionThreshold = 0.4f;
-
-    private float currentSanity;
-
-    // Singleton to persist across scenes
-    public static PlayerSanity Instance { get; private set; }
+    public float tunnelVisionThreshold = 0.4f; // 40% sanity
 
     private void Awake()
     {
@@ -44,7 +42,8 @@ public class PlayerSanity : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        currentSanity = maxSanity;
+        // Initialize sanity
+        currentSanity = playerStats.maxSanity;
     }
 
     private void Start()
@@ -55,7 +54,8 @@ public class PlayerSanity : MonoBehaviour
     public void LoseSanity(float amount)
     {
         currentSanity -= amount;
-        currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
+        currentSanity = Mathf.Clamp(currentSanity, 0, playerStats.maxSanity);
+
         UpdateSanityEffects();
 
         if (currentSanity <= 0)
@@ -65,17 +65,22 @@ public class PlayerSanity : MonoBehaviour
     public void GainSanity(float amount)
     {
         currentSanity += amount;
-        currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
+        currentSanity = Mathf.Clamp(currentSanity, 0, playerStats.maxSanity);
+
         UpdateSanityEffects();
     }
 
+    public float GetSanityPercent() => currentSanity / playerStats.maxSanity;
+
     private void UpdateSanityEffects()
     {
-        float sanityPercent = currentSanity / maxSanity;
+        float sanityPercent = GetSanityPercent();
 
+        // UI
         if (sanityUI != null)
             sanityUI.SetSanity(sanityPercent);
 
+        // Light2D
         if (sanityLight != null)
         {
             sanityLight.pointLightOuterRadius = Mathf.Lerp(minRadius, fullRadius, sanityPercent);
@@ -95,6 +100,4 @@ public class PlayerSanity : MonoBehaviour
 
         onSanityChanged?.Invoke(sanityPercent);
     }
-
-    public float GetSanityPercent() => currentSanity / maxSanity;
 }
