@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering.Universal; // For Light2D
+using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 public class PlayerSanity : MonoBehaviour
 {
@@ -29,12 +30,10 @@ public class PlayerSanity : MonoBehaviour
 
     private float currentSanity;
 
-    // Singleton to persist across scenes
     public static PlayerSanity Instance { get; private set; }
 
     private void Awake()
     {
-        // Singleton pattern
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -45,6 +44,14 @@ public class PlayerSanity : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         currentSanity = maxSanity;
+
+        // Subscribe to scene load
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
@@ -52,10 +59,21 @@ public class PlayerSanity : MonoBehaviour
         UpdateSanityEffects();
     }
 
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Try to find UI + Light in the new scene
+        if (sanityUI == null)
+            sanityUI = FindObjectOfType<SanityUI>();
+
+        if (sanityLight == null)
+            sanityLight = FindObjectOfType<Light2D>();
+
+        UpdateSanityEffects(); // Apply sanity to the new scene objects
+    }
+
     public void LoseSanity(float amount)
     {
-        currentSanity -= amount;
-        currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
+        currentSanity = Mathf.Clamp(currentSanity - amount, 0, maxSanity);
         UpdateSanityEffects();
 
         if (currentSanity <= 0)
@@ -64,8 +82,7 @@ public class PlayerSanity : MonoBehaviour
 
     public void GainSanity(float amount)
     {
-        currentSanity += amount;
-        currentSanity = Mathf.Clamp(currentSanity, 0, maxSanity);
+        currentSanity = Mathf.Clamp(currentSanity + amount, 0, maxSanity);
         UpdateSanityEffects();
     }
 
@@ -81,7 +98,6 @@ public class PlayerSanity : MonoBehaviour
             sanityLight.pointLightOuterRadius = Mathf.Lerp(minRadius, fullRadius, sanityPercent);
             sanityLight.intensity = fullIntensity * sanityPercent;
 
-            // Tunnel vision
             if (sanityPercent < tunnelVisionThreshold)
             {
                 float t = sanityPercent / tunnelVisionThreshold;
