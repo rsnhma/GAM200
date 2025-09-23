@@ -5,6 +5,7 @@ public class Locker : MonoBehaviour
 {
     private bool playerNearby = false;
     private bool playerInside = false;
+    public static bool IsPlayerInsideLocker = false;
     private GameObject player;
     [SerializeField] TextMeshProUGUI interactText;
 
@@ -34,6 +35,7 @@ public class Locker : MonoBehaviour
     void EnterLocker()
     {
         playerInside = true;
+        IsPlayerInsideLocker = true;
 
         // Player movement disabled
         player.GetComponent<CharacterMovement>().enabled = false;
@@ -48,6 +50,7 @@ public class Locker : MonoBehaviour
     void ExitLocker()
     {
         playerInside = false;
+        IsPlayerInsideLocker = false;
         // Player movement enabled
         player.GetComponent<CharacterMovement>().enabled = true;
 

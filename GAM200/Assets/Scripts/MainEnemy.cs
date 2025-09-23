@@ -30,11 +30,11 @@ public class MainEnemy : EnemyBase
             return;
         }
 
-        chaseSpeed = 7f; // Fixed chase speed
+        chaseSpeed = 3f; // Fixed chase speed
         lingeringTimer = entityData.chaseBreakTime;
         isChasing = false;
     }
-
+   
     private void OnDestroy()
     {
         NoiseSystem.OnNoiseEmitted -= OnNoiseHeard; // cleanup
@@ -100,11 +100,23 @@ public class MainEnemy : EnemyBase
             lingeringTimer = entityData.chaseBreakTime;
         }
 
-        lingeringTimer -= Time.deltaTime;
         MoveTowards(lastKnownPosition);
 
-        if (Vector2.Distance(transform.position, lastKnownPosition) < 0.5f || lingeringTimer <= 0)
+        // If player is in locker and enemy is at the locker, linger a bit
+        if (Vector2.Distance(transform.position, lastKnownPosition) < 0.5f)
+        {
+            if (Locker.IsPlayerInsideLocker)
+            {
+                lingeringTimer = Mathf.Max(lingeringTimer, 2f); // linger 2 sec minimum
+            }
+        }
+
+        // Reduce timer once per frame
+        lingeringTimer -= Time.deltaTime;
+        if (lingeringTimer <= 0)
+        {
             EndChase();
+        }
     }
 
     private void MoveTowards(Vector2 target)
@@ -115,6 +127,7 @@ public class MainEnemy : EnemyBase
 
     private void TryCapturePlayer()
     {
+        if (Locker.IsPlayerInsideLocker) return;
         isCapturing = true;
         player.GetComponent<CharacterMovement>().FreezeMovement();
 
