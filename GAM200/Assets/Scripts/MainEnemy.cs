@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using static NoiseSystem;
+using UnityEngine.InputSystem;
 
 public class MainEnemy : EnemyBase
 {
@@ -17,9 +18,20 @@ public class MainEnemy : EnemyBase
     private float lingeringTimer = 0f;
     private bool hasExtendedLingering = false;
 
+    // Cache player components to avoid repeated GetComponent calls
+    private CharacterMovement playerMovement;
+    private PlayerSanity playerSanity;
+
     protected override void Start()
     {
         base.Start();
+
+        // Cache player components
+        if (player != null)
+        {
+            playerMovement = player.GetComponent<CharacterMovement>();
+            playerSanity = player.GetComponent<PlayerSanity>();
+        }
 
         // Subscribe to noise events
         NoiseSystem.OnNoiseEmitted += OnNoiseHeard;
@@ -35,13 +47,12 @@ public class MainEnemy : EnemyBase
         lingeringTimer = entityData.chaseBreakTime;
         isChasing = false;
     }
-   
+
     private void OnDestroy()
     {
         NoiseSystem.OnNoiseEmitted -= OnNoiseHeard; // cleanup
     }
 
- 
     private void OnNoiseHeard(Vector2 position, float radius)
     {
         if (isCapturing) return;
@@ -125,31 +136,102 @@ public class MainEnemy : EnemyBase
         Vector2 dir = (target - (Vector2)transform.position).normalized;
         transform.position += (Vector3)(dir * chaseSpeed * Time.deltaTime);
     }
-
     private void TryCapturePlayer()
     {
         if (Locker.IsPlayerInsideLocker) return;
 
-        isCapturing = true;
-        player.GetComponent<CharacterMovement>().FreezeMovement();
+        // Safety checks
+        if (player == null || playerMovement == null)
+        {
+            Debug.LogError("Player references are null!");
+            return;
+        }
 
-        qteSystem.BeginQTE((int)entityData.qteDuration, OnEscapeSuccess, OnEscapeFail);
+        isCapturing = true;
+        playerMovement.FreezeMovement();
+
+        // Disable player input component if it exists
+        PlayerInput playerInput = player.GetComponent<PlayerInput>();
+        if (playerInput != null)
+        {
+            playerInput.enabled = false;
+        }
+
+        QTESystem.Instance.BeginQTE((int)entityData.qteDuration, OnEscapeSuccess, OnEscapeFail);
     }
 
     private void OnEscapeSuccess()
     {
+        if (this == null) return;
+
         isCapturing = false;
         pauseTimer = entityData.successPauseTime;
-        player.GetComponent<CharacterMovement>().UnfreezeMovement();
-        player.GetComponent<PlayerSanity>().LoseSanity(entityData.sanityLossOnSuccess);
+
+        // Re-enable player input
+        PlayerInput playerInput = player.GetComponent<PlayerInput>();
+        if (playerInput != null)
+        {
+            playerInput.enabled = true;
+        }
+
+        if (playerMovement != null)
+        {
+            playerMovement.UnfreezeMovement();
+        }
+
+        if (PlayerSanity.Instance != null)
+        {
+            PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnSuccess);
+        }
+        else
+        {
+            Debug.LogError("PlayerSanity.Instance is null!");
+        }
+
         EndChase();
     }
 
     private void OnEscapeFail()
     {
+        if (this == null) return;
+
         isCapturing = false;
-        player.GetComponent<CharacterMovement>().UnfreezeMovement();
-        player.GetComponent<PlayerSanity>().LoseSanity(entityData.sanityLossOnFail);
+
+        // Re-enable player input
+        PlayerInput playerInput = player.GetComponent<PlayerInput>();
+        if (playerInput != null)
+        {
+            playerInput.enabled = true;
+        }
+
+        if (playerMovement != null)
+        {
+            playerMovement.UnfreezeMovement();
+        }
+
+        if (PlayerSanity.Instance != null)
+        {
+            PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnFail);
+        }
+        else
+        {
+            Debug.LogError("PlayerSanity.Instance is null!");
+        }
+
         EndChase();
+    }
+
+
+    public override void EndChase()
+    {
+        isChasing = false;
+        // Don't disable immediately - wait for cleanup to complete
+        StartCoroutine(DisableAfterFrame());
+    }
+
+    private System.Collections.IEnumerator DisableAfterFrame()
+    {
+        yield return new WaitForEndOfFrame();
+        gameObject.SetActive(false);
     }
 }
