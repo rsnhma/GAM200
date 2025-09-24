@@ -14,6 +14,7 @@ public class EnemyBase : MonoBehaviour
     protected Transform player;
     protected bool isChasing = false;
 
+
     protected virtual void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;

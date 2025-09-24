@@ -15,6 +15,7 @@ public class MainEnemy : EnemyBase
     private Vector2 lastKnownPosition;
     private bool isSuspicious = false;
     private float lingeringTimer = 0f;
+    private bool hasExtendedLingering = false;
 
     protected override void Start()
     {
@@ -98,24 +99,24 @@ public class MainEnemy : EnemyBase
         {
             isSuspicious = true;
             lingeringTimer = entityData.chaseBreakTime;
+            hasExtendedLingering = false;
+        }
+
+        // Always tick down
+        lingeringTimer -= Time.deltaTime;
+
+        if (Locker.IsPlayerInsideLocker && !hasExtendedLingering)
+        {
+            // Give extra linger time once
+            lingeringTimer += 2f;
+            hasExtendedLingering = true;
         }
 
         MoveTowards(lastKnownPosition);
 
-        // If player is in locker and enemy is at the locker, linger a bit
-        if (Vector2.Distance(transform.position, lastKnownPosition) < 0.5f)
+        if (lingeringTimer <= 0f)
         {
-            if (Locker.IsPlayerInsideLocker)
-            {
-                lingeringTimer = Mathf.Max(lingeringTimer, 2f); // linger 2 sec minimum
-            }
-        }
-
-        // Reduce timer once per frame
-        lingeringTimer -= Time.deltaTime;
-        if (lingeringTimer <= 0)
-        {
-            EndChase();
+            EndChase(); // leave regardless of locker state
         }
     }
 
@@ -128,6 +129,7 @@ public class MainEnemy : EnemyBase
     private void TryCapturePlayer()
     {
         if (Locker.IsPlayerInsideLocker) return;
+
         isCapturing = true;
         player.GetComponent<CharacterMovement>().FreezeMovement();
 
