@@ -179,4 +179,12 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
+  enemyManager: {fileID: 0}
   qteSystem: {fileID: 0}
+  roamSpeed: 1.5
+  minRoamTime: 1
+  maxRoamTime: 3
+  obstacleCheckDistance: 0.5
+  obstacleLayers:
+    serializedVersion: 2
+    m_Bits: 8
