@@ -34,8 +34,10 @@ public class PlayerSanity : MonoBehaviour
 
     private void Awake()
     {
+        // Handle singleton pattern
         if (Instance != null && Instance != this)
         {
+            Debug.Log("Destroying duplicate PlayerSanity instance");
             Destroy(gameObject);
             return;
         }
@@ -47,42 +49,85 @@ public class PlayerSanity : MonoBehaviour
 
         // Subscribe to scene load
         SceneManager.sceneLoaded += OnSceneLoaded;
+
+        Debug.Log("PlayerSanity instance created and set as singleton");
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        // Only clear instance if this is the current instance
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     private void Start()
     {
         UpdateSanityEffects();
+        Debug.Log($"PlayerSanity Start called. Current sanity: {currentSanity}");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Debug.Log($"Scene loaded: {scene.name}. Finding UI and Light components...");
+
         // Try to find UI + Light in the new scene
         if (sanityUI == null)
+        {
             sanityUI = FindObjectOfType<SanityUI>();
+            Debug.Log(sanityUI != null ? "SanityUI found in new scene" : "SanityUI not found in new scene");
+        }
 
         if (sanityLight == null)
-            sanityLight = FindObjectOfType<Light2D>();
+        {
+            // Look for the light that's a child of the player
+            sanityLight = GetComponentInChildren<Light2D>();
+            if (sanityLight == null)
+            {
+                // If not found as child, try to find any Light2D in the scene that might be the player's light
+                Light2D[] lights = FindObjectsOfType<Light2D>();
+                foreach (Light2D light in lights)
+                {
+                    if (light.gameObject.CompareTag("Player") || light.transform.parent?.CompareTag("Player") == true)
+                    {
+                        sanityLight = light;
+                        break;
+                    }
+                }
+            }
+            Debug.Log(sanityLight != null ? "SanityLight found in new scene" : "SanityLight not found in new scene");
+        }
 
         UpdateSanityEffects(); // Apply sanity to the new scene objects
+        Debug.Log("Sanity effects updated after scene load");
     }
 
     public void LoseSanity(float amount)
     {
+        Debug.Log($"LoseSanity called with amount: {amount}");
+
         currentSanity = Mathf.Clamp(currentSanity - amount, 0, maxSanity);
+        Debug.Log($"Current sanity after loss: {currentSanity}");
+
         UpdateSanityEffects();
 
         if (currentSanity <= 0)
+        {
+            Debug.Log("Sanity depleted! Invoking event.");
             onSanityDepleted?.Invoke();
+        }
     }
 
     public void GainSanity(float amount)
     {
+        Debug.Log($"GainSanity called with amount: {amount}");
+
         currentSanity = Mathf.Clamp(currentSanity + amount, 0, maxSanity);
+        Debug.Log($"Current sanity after gain: {currentSanity}");
+
         UpdateSanityEffects();
     }
 
@@ -91,7 +136,14 @@ public class PlayerSanity : MonoBehaviour
         float sanityPercent = currentSanity / maxSanity;
 
         if (sanityUI != null)
+        {
             sanityUI.SetSanity(sanityPercent);
+            Debug.Log($"SanityUI updated with percent: {sanityPercent}");
+        }
+        else
+        {
+            Debug.LogWarning("SanityUI reference is null in UpdateSanityEffects");
+        }
 
         if (sanityLight != null)
         {
@@ -107,10 +159,21 @@ public class PlayerSanity : MonoBehaviour
             {
                 sanityLight.pointLightOuterAngle = fullAngle;
             }
+            Debug.Log($"SanityLight updated. Radius: {sanityLight.pointLightOuterRadius}, Intensity: {sanityLight.intensity}");
+        }
+        else
+        {
+            Debug.LogWarning("SanityLight reference is null in UpdateSanityEffects");
         }
 
         onSanityChanged?.Invoke(sanityPercent);
     }
 
     public float GetSanityPercent() => currentSanity / maxSanity;
+
+    // Helper method to check if instance is valid
+    public static bool IsInstanceValid()
+    {
+        return Instance != null;
+    }
 }
