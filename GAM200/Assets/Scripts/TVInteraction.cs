@@ -11,6 +11,15 @@ public class TVInteraction : MonoBehaviour
     public MainEnemy enemyPrefab;   // Assign your enemy prefab here
     public Transform spawnPoint;    // Position of TV (enemy crawls out here)
 
+    private void Start()
+    {
+        // If enemy is already active from previous scene, don't allow interaction
+        if (EnemyManager.Instance != null && EnemyManager.Instance.isEnemyActive)
+        {
+            this.enabled = false; // Disable this TV interaction
+        }
+    }
+
     private void Update()
     {
         if (playerNearby && VHSItem.hasVHS)
@@ -36,7 +45,10 @@ public class TVInteraction : MonoBehaviour
         interactText.gameObject.SetActive(false);
 
         // TODO: Play actual cutscene here
-        yield return new WaitForSeconds(2f); // buffer time before chase
+        yield return new WaitForSeconds(4f); // Cutscene time
+
+        // Buffer time for player to react
+        yield return new WaitForSeconds(2f);
 
         SpawnEnemy();
     }
@@ -45,8 +57,8 @@ public class TVInteraction : MonoBehaviour
     {
         if (enemyPrefab != null && spawnPoint != null)
         {
-            MainEnemy enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
-            enemy.BeginChase();
+            // Use the EnemyManager to spawn the enemy
+            EnemyManager.Instance.ActivateEnemy(spawnPoint.position);
             Debug.Log("Enemy spawned and begins chase!");
         }
         else

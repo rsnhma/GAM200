@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 325130037}
   - component: {fileID: 325130038}
   - component: {fileID: 325130039}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: R2D1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -449,7 +449,7 @@ GameObject:
   - component: {fileID: 405568848}
   - component: {fileID: 405568849}
   - component: {fileID: 405568850}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: R2D2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1073,7 +1073,7 @@ GameObject:
   - component: {fileID: 780941661}
   - component: {fileID: 780941663}
   - component: {fileID: 780941662}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Wall (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1205,7 +1205,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 786392696}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1245,7 +1245,7 @@ GameObject:
   - component: {fileID: 797360550}
   - component: {fileID: 797360552}
   - component: {fileID: 797360551}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallT
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1379,7 +1379,7 @@ GameObject:
   - component: {fileID: 872177982}
   - component: {fileID: 872177984}
   - component: {fileID: 872177983}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallB (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1822,7 +1822,7 @@ GameObject:
   - component: {fileID: 987824448}
   - component: {fileID: 987824450}
   - component: {fileID: 987824449}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2213,7 +2213,7 @@ GameObject:
   - component: {fileID: 1157506517}
   m_Layer: 0
   m_Name: TV
-  m_TagString: Untagged
+  m_TagString: TV
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2690,7 +2690,7 @@ GameObject:
   - component: {fileID: 1323371616}
   - component: {fileID: 1323371618}
   - component: {fileID: 1323371617}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3031,7 +3031,7 @@ GameObject:
   - component: {fileID: 1429336227}
   - component: {fileID: 1429336229}
   - component: {fileID: 1429336228}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Wall (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3490,6 +3490,57 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 2
   m_TargetDisplay: 0
+--- !u!1 &1664345406
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1664345408}
+  - component: {fileID: 1664345407}
+  m_Layer: 0
+  m_Name: EnemyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1664345407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664345406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cc27775c5a72f940a25a722cac0dba8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
+  tvSpawnPoints: []
+  isEnemyActive: 0
+  currentEnemyState: 0
+  lastKnownPosition: {x: 0, y: 0}
+  currentScene: 
+  lingerTimer: 0
+--- !u!4 &1664345408
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664345406}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1021.83545, y: 194.38551, z: -2.2216005}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1696426803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3677,7 +3728,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1369999824901520090, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3889,7 +3940,7 @@ GameObject:
   - component: {fileID: 2051013708}
   - component: {fileID: 2051013710}
   - component: {fileID: 2051013709}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Wall (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4023,7 +4074,7 @@ GameObject:
   - component: {fileID: 2074929285}
   - component: {fileID: 2074929284}
   - component: {fileID: 2074929283}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4223,3 +4274,4 @@ SceneRoots:
   - {fileID: 2074929285}
   - {fileID: 1113071068}
   - {fileID: 1157506516}
+  - {fileID: 1664345408}
