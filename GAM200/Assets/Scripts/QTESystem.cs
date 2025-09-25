@@ -11,7 +11,7 @@ public class QTESystem : MonoBehaviour
     public Sprite upArrow, downArrow, leftArrow, rightArrow;
 
     [Header("QTE Timer Settings")]
-    public float timeLimit = 3f; // Time limit in seconds
+    public float timeLimit = 5f; // Time limit in seconds
     public Slider timerSlider; 
 
     private KeyCode[] possibleKeys = { KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow };
