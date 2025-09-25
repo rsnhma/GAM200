@@ -11,17 +11,21 @@ public class TVInteraction : MonoBehaviour
     public MainEnemy enemyPrefab;   // Assign your enemy prefab here
     public Transform spawnPoint;    // Position of TV (enemy crawls out here)
 
+    private bool hasBeenUsed = false;
+
     private void Start()
     {
-        // If enemy is already active from previous scene, don't allow interaction
+        // Check if enemy is already active
         if (EnemyManager.Instance != null && EnemyManager.Instance.isEnemyActive)
         {
-            this.enabled = false; // Disable this TV interaction
+            DisableTVInteraction();
         }
     }
 
     private void Update()
     {
+        if (hasBeenUsed) return;
+
         if (playerNearby && VHSItem.hasVHS)
         {
             interactText.text = "Left Click to put tape in";
@@ -41,14 +45,11 @@ public class TVInteraction : MonoBehaviour
     private IEnumerator HandleCutscene()
     {
         Debug.Log("Tape inserted. Cutscene start (skipped for now)");
-
+        hasBeenUsed = true;
         interactText.gameObject.SetActive(false);
 
         // TODO: Play actual cutscene here
-        yield return new WaitForSeconds(4f); // Cutscene time
-
-        // Buffer time for player to react
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2f); // Cutscene time
 
         SpawnEnemy();
     }
@@ -57,9 +58,24 @@ public class TVInteraction : MonoBehaviour
     {
         if (enemyPrefab != null && spawnPoint != null)
         {
-            // Use the EnemyManager to spawn the enemy
-            EnemyManager.Instance.ActivateEnemy(spawnPoint.position);
-            Debug.Log("Enemy spawned and begins chase!");
+            // SAFE CHECK: Make sure EnemyManager exists
+            if (EnemyManager.Instance == null)
+            {
+                Debug.LogError("EnemyManager.Instance is null! Creating temporary enemy...");
+
+                // Fallback: Spawn enemy directly
+                MainEnemy enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+                enemy.BeginChase();
+                Debug.Log("Enemy spawned directly (fallback)");
+            }
+            else
+            {
+                // Use the EnemyManager to spawn the enemy
+                EnemyManager.Instance.ActivateEnemy(spawnPoint.position);
+                Debug.Log("Enemy spawned via EnemyManager!");
+            }
+
+            ChangeTVAppearance();
         }
         else
         {
@@ -67,9 +83,26 @@ public class TVInteraction : MonoBehaviour
         }
     }
 
+    private void DisableTVInteraction()
+    {
+        hasBeenUsed = true;
+        interactText.gameObject.SetActive(false);
+        ChangeTVAppearance();
+    }
+
+    private void ChangeTVAppearance()
+    {
+        // Optional: Change TV material, color, or add visual effect
+        Renderer tvRenderer = GetComponent<Renderer>();
+        if (tvRenderer != null)
+        {
+            tvRenderer.material.color = Color.gray;
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && !hasBeenUsed)
             playerNearby = true;
     }
 
