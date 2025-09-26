@@ -20,42 +20,27 @@ public class DoorBehaviour : MonoBehaviour
     private bool playerExitingRoom = false;
     private Coroutine exitCheckCoroutine;
 
-    void Start()
-    {
-        // Auto-setup trigger collider
-        SetupTriggerCollider();
+    private bool ignoreNextDeactivation = false;
 
-        // Start with door closed
+
+    private void Start()
+    {
+        SetupTriggerCollider();
         CloseDoor();
 
-        // Make sure hallway is active
         if (hallway != null)
-        {
             hallway.SetActive(true);
-            Debug.Log("Hallway activated on start");
-        }
 
-        // DON'T deactivate the target room immediately if it might contain the enemy spawn point
-        // Instead, only deactivate it if it's not the starting room
         if (targetRoom != null)
         {
-            // Check if this is the room where the enemy should initially spawn
-            // You might need to adjust this logic based on your game design
-            bool shouldKeepRoomActive = ShouldKeepRoomActiveOnStart();
-
-            if (!shouldKeepRoomActive)
-            {
+            // Only deactivate if this room isn't the starting room
+            if (!ShouldKeepRoomActiveOnStart())
                 targetRoom.SetActive(false);
-                Debug.Log("Target room deactivated on start: " + targetRoom.name);
-            }
             else
-            {
-                Debug.Log("Target room kept active on start: " + targetRoom.name);
-            }
+                targetRoom.SetActive(true);
         }
-
-        Debug.Log("Door initialized. isOpen = " + isOpen);
     }
+
 
     private bool ShouldKeepRoomActiveOnStart()
     {
@@ -166,18 +151,25 @@ public class DoorBehaviour : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         CheckRoomDeactivation();
     }
+    public void SetIgnoreNextDeactivation()
+    {
+        ignoreNextDeactivation = true;
+    }
 
     private void CheckRoomDeactivation()
     {
-        // First, check if we should actually deactivate the room
+        if (ignoreNextDeactivation)
+        {
+            ignoreNextDeactivation = false;
+            Debug.Log($"Skipping deactivation for {targetRoom.name} after restart");
+            return;
+        }
+
+        // Existing deactivation logic...
         if (ShouldDeactivateRoom())
         {
             Debug.Log($"Deactivating room: {targetRoom.name}");
-
-            // Teleport enemy first
             EnemyManager.Instance.TeleportEnemyToHallway();
-
-            // Then deactivate the room
             targetRoom.SetActive(false);
         }
         else
@@ -292,7 +284,9 @@ public class DoorBehaviour : MonoBehaviour
             UpdatePlayerRoomTracker(false);
 
             // Start delayed check to see if player actually left the room
-            exitCheckCoroutine = StartCoroutine(CheckPlayerExit());
+            if (gameObject.activeInHierarchy)
+                exitCheckCoroutine = StartCoroutine(CheckPlayerExit());
+
 
             if (isOpen)
             {

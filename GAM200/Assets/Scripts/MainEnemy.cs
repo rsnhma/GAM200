@@ -371,7 +371,21 @@ public class MainEnemy : EnemyBase
         if (playerInput != null) playerInput.enabled = true;
 
         if (playerMovement != null) playerMovement.UnfreezeMovement();
-        if (PlayerSanity.Instance != null) PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnFail);
+
+        if (PlayerSanity.Instance != null)
+        {
+            PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnFail);
+
+            if (PlayerSanity.Instance.GetSanityPercent() <= 0.2f)
+            {
+                GameOverUI gameOver = FindObjectOfType<GameOverUI>();
+                if (gameOver != null)
+                {
+                    gameOver.ShowGameOver();
+                    return; // stop further state transitions
+                }
+            }
+        }
 
         TransitionToState(EnemyManager.EnemyState.Patrolling);
     }
