@@ -40,6 +40,10 @@ public class MainEnemy : EnemyBase
     private CharacterMovement playerMovement;
     private PlayerSanity playerSanity;
 
+    private GameObject currentRoom; // Track which room the enemy is in
+    private bool isInDeactivatedRoom = false;
+
+
     protected override void Start()
     {
         base.Start();
@@ -63,16 +67,46 @@ public class MainEnemy : EnemyBase
 
         chaseSpeed = 3f;
 
-        // If we have an enemy manager, apply saved state
-        if (enemyManager != null && enemyManager.isEnemyActive)
+        // Find which room the enemy is currently in
+        FindCurrentRoom();
+
+        // Start chasing immediately
+        StartCoroutine(StartChaseWithBuffer());
+    }
+    private void FindCurrentRoom()
+    {
+        // Find the room this enemy is currently in by checking parent objects
+        Transform currentTransform = transform;
+        while (currentTransform != null)
         {
-            ApplySavedState(enemyManager.currentEnemyState, enemyManager.lastKnownPosition, enemyManager.lingerTimer);
+            if (currentTransform.CompareTag("Room"))
+            {
+                currentRoom = currentTransform.gameObject;
+                Debug.Log($"Enemy spawned in room: {currentRoom.name}");
+                break;
+            }
+            currentTransform = currentTransform.parent;
         }
-        else
+
+        // If not found as child of a room, check by position
+        if (currentRoom == null)
         {
-            // Start chasing immediately with buffer time
-            StartCoroutine(StartChaseWithBuffer());
+            currentRoom = FindRoomByPosition(transform.position);
         }
+    }
+
+    private GameObject FindRoomByPosition(Vector3 position)
+    {
+        GameObject[] rooms = GameObject.FindGameObjectsWithTag("Room");
+        foreach (GameObject room in rooms)
+        {
+            Collider2D roomCollider = room.GetComponent<Collider2D>();
+            if (roomCollider != null && roomCollider.bounds.Contains(position))
+            {
+                return room;
+            }
+        }
+        return null;
     }
 
     private IEnumerator StartChaseWithBuffer()
@@ -123,6 +157,14 @@ public class MainEnemy : EnemyBase
 
     protected override void Update()
     {
+        // Check if the current room is deactivated
+        /*if (currentRoom != null && !currentRoom.activeInHierarchy && !isInDeactivatedRoom)
+        {
+            Debug.Log($"Enemy detected room deactivation: {currentRoom.name}");
+            EmergencyTeleportToHallway();
+            return;
+        }*/
+
         if (pauseTimer > 0)
         {
             pauseTimer -= Time.deltaTime;
@@ -150,6 +192,8 @@ public class MainEnemy : EnemyBase
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
         }
     }
+
+
 
     private void UpdateChasing()
     {
@@ -331,6 +375,76 @@ public class MainEnemy : EnemyBase
 
         TransitionToState(EnemyManager.EnemyState.Patrolling);
     }
+
+    private void EmergencyTeleportToHallway()
+    {
+        isInDeactivatedRoom = true;
+
+        GameObject hallway = GameObject.Find("Hallway"); // Adjust name as needed
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        if (hallway != null && player != null)
+        {
+            Debug.Log("Teleporting enemy to hallway");
+
+            // Move enemy to hallway hierarchy
+            transform.SetParent(hallway.transform, true);
+
+            // Find nearest spawn point to player
+            if (EnemySpawnPointManager.Instance != null)
+            {
+                Vector3 spawnPosition = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
+                transform.position = spawnPosition;
+                Debug.Log($"Enemy teleported to hallway at position: {spawnPosition}");
+            }
+
+            // Reset room tracking
+            currentRoom = hallway;
+            isInDeactivatedRoom = false;
+
+            // Continue chasing in hallway
+            OnTeleportedToHallway();
+        }
+        else
+        {
+            Debug.LogError("Could not find hallway or player for emergency teleport!");
+        }
+    }
+
+
+    public void OnTeleportedToHallway()
+    {
+        Debug.Log("Enemy teleported to hallway");
+
+        // Reset enemy state for hallway pursuit
+        TransitionToState(EnemyManager.EnemyState.Chasing);
+
+    }
+    public GameObject GetCurrentRoom()
+    {
+        return currentRoom;
+    }
+
+    public bool IsInRoom(GameObject room)
+    {
+        if (room == null) return false;
+
+        // Check if we're a child of the room
+        if (transform.IsChildOf(room.transform))
+            return true;
+
+        // Check if our current room reference matches
+        if (currentRoom == room)
+            return true;
+
+        // Check if we're physically in the room
+        Collider2D roomCollider = room.GetComponent<Collider2D>();
+        if (roomCollider != null && roomCollider.bounds.Contains(transform.position))
+            return true;
+
+        return false;
+    }
+
 
     public override void BeginChase()
     {
