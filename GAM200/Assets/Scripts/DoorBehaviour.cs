@@ -169,8 +169,55 @@ public class DoorBehaviour : MonoBehaviour
 
     private void CheckRoomDeactivation()
     {
-        EnemyManager.Instance.TeleportEnemyToHallway();
+        // First, check if we should actually deactivate the room
+        if (ShouldDeactivateRoom())
+        {
+            Debug.Log($"Deactivating room: {targetRoom.name}");
 
+            // Teleport enemy first
+            EnemyManager.Instance.TeleportEnemyToHallway();
+
+            // Then deactivate the room
+            targetRoom.SetActive(false);
+        }
+        else
+        {
+            Debug.Log($"Room {targetRoom.name} kept active - conditions not met");
+        }
+    }
+
+    private bool ShouldDeactivateRoom()
+    {
+        // Don't deactivate if door is still open
+        if (isOpen)
+        {
+            Debug.Log("Room kept active - door is open");
+            return false;
+        }
+
+        // Don't deactivate if player is still in the room
+        if (IsPlayerActuallyInRoom())
+        {
+            Debug.Log("Room kept active - player is in room");
+            return false;
+        }
+
+        // Don't deactivate if any other door to this room is open
+        if (CheckIfAnyDoorToRoomIsOpen())
+        {
+            Debug.Log("Room kept active - another door to this room is open");
+            return false;
+        }
+
+        // Don't deactivate if this is a special room that should stay active
+        if (ShouldKeepRoomActiveOnStart())
+        {
+            Debug.Log("Room kept active - special room designation");
+            return false;
+        }
+
+        // All conditions met - safe to deactivate
+        return true;
     }
 
     private bool IsPlayerActuallyInRoom()
