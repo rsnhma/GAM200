@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class RoomTracker : MonoBehaviour
 {
@@ -6,6 +7,10 @@ public class RoomTracker : MonoBehaviour
 
     public GameObject currentRoom;
     private float lastUpdateTime;
+
+    // Store all rooms dynamically
+    private List<GameObject> allRooms = new List<GameObject>();
+    private GameObject hallway;
 
     private void Awake()
     {
@@ -17,11 +22,16 @@ public class RoomTracker : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        // Auto-find rooms and hallway by tag or parent
+        GameObject[] roomObjects = GameObject.FindGameObjectsWithTag("Room");
+        allRooms.AddRange(roomObjects);
+
+        hallway = GameObject.FindGameObjectWithTag("Hallway");
     }
 
     public void SetPlayerRoom(GameObject room)
     {
-        // Only update if it's actually a change
         if (currentRoom != room)
         {
             currentRoom = room;
@@ -35,10 +45,25 @@ public class RoomTracker : MonoBehaviour
         return currentRoom == room;
     }
 
-    // Force update room based on player's actual position
-    public void UpdateRoomBasedOnPosition(GameObject player)
+    public void ResetTracker()
     {
-        if (player == null) return;
+        currentRoom = null;
+        lastUpdateTime = 0f;
+        Debug.Log("RoomTracker reset");
 
+        // Reset all rooms
+        foreach (GameObject room in allRooms)
+        {
+            if (room != null)
+                room.SetActive(false);
+        }
+
+        if (hallway != null)
+            hallway.SetActive(true);
+
+        // Notify doors to ignore first deactivation
+        DoorBehaviour[] doors = FindObjectsOfType<DoorBehaviour>();
+        foreach (var door in doors)
+            door.SetIgnoreNextDeactivation();
     }
 }

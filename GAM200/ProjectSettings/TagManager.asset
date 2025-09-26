@@ -7,6 +7,7 @@ TagManager:
   - TV
   - TVSpawnPoint
   - Room
+  - Hallway
   layers:
   - Default
   - TransparentFX

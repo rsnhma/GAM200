@@ -43,7 +43,7 @@ public class PlayerSanity : MonoBehaviour
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
 
         currentSanity = maxSanity;
 
@@ -176,4 +176,12 @@ public class PlayerSanity : MonoBehaviour
     {
         return Instance != null;
     }
+
+    public void ResetSanity()
+    {
+        currentSanity = maxSanity;
+        UpdateSanityEffects();
+        Debug.Log("Sanity reset to max");
+    }
+
 }
