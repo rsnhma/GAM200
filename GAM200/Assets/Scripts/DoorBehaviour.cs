@@ -12,8 +12,13 @@ public class DoorBehaviour : MonoBehaviour
     [SerializeField] private GameObject hallway;         // Hallway GameObject
     [SerializeField] private GameObject targetRoom;      // Room this door leads to
 
+    [Header("Exit Detection")]
+    [SerializeField] private float exitCheckDelay = 2f;  // Time to wait before checking if player really left
+
     private bool playerNearby;
     private bool isOpen = false;
+    private bool playerExitingRoom = false;
+    private Coroutine exitCheckCoroutine;
 
     void Start()
     {
@@ -23,12 +28,49 @@ public class DoorBehaviour : MonoBehaviour
         // Start with door closed
         CloseDoor();
 
-        // Make sure hallway is active and target room is INACTIVE at start
-        if (hallway != null) hallway.SetActive(true);
-        if (targetRoom != null) targetRoom.SetActive(false);
+        // Make sure hallway is active
+        if (hallway != null)
+        {
+            hallway.SetActive(true);
+            Debug.Log("Hallway activated on start");
+        }
+
+        // DON'T deactivate the target room immediately if it might contain the enemy spawn point
+        // Instead, only deactivate it if it's not the starting room
+        if (targetRoom != null)
+        {
+            // Check if this is the room where the enemy should initially spawn
+            // You might need to adjust this logic based on your game design
+            bool shouldKeepRoomActive = ShouldKeepRoomActiveOnStart();
+
+            if (!shouldKeepRoomActive)
+            {
+                targetRoom.SetActive(false);
+                Debug.Log("Target room deactivated on start: " + targetRoom.name);
+            }
+            else
+            {
+                Debug.Log("Target room kept active on start: " + targetRoom.name);
+            }
+        }
 
         Debug.Log("Door initialized. isOpen = " + isOpen);
     }
+
+    private bool ShouldKeepRoomActiveOnStart()
+    {
+        // Add logic to determine if this room should stay active at start
+        // For example, if this is the room where the game starts
+        // or if this room contains important initial objects
+
+        // You might want to:
+        // 1. Check if this room has the TV that spawns the enemy
+        // 2. Check if this is the player's starting room
+        // 3. Use a specific tag or component to identify rooms that should stay active
+
+        return false; // Change this based on your game logic
+    }
+
 
     void Update()
     {
@@ -60,11 +102,9 @@ public class DoorBehaviour : MonoBehaviour
         {
             BoxCollider2D trigger = gameObject.AddComponent<BoxCollider2D>();
             trigger.isTrigger = true;
-            trigger.size = new Vector2(3f, 4f);
+            trigger.size = new Vector2(1f, 1.5f); // Smaller size
             Debug.Log("Created trigger collider");
         }
-        
-        
     }
 
     private void ToggleDoor()
@@ -117,24 +157,50 @@ public class DoorBehaviour : MonoBehaviour
         Debug.Log("Door closed");
 
         // Check if we should deactivate the room when door closes
+        StartCoroutine(DelayedRoomDeactivationCheck());
+    }
+
+    private IEnumerator DelayedRoomDeactivationCheck()
+    {
+        // Wait a moment before checking to ensure player has actually left
+        yield return new WaitForSeconds(0.5f);
         CheckRoomDeactivation();
     }
 
     private void CheckRoomDeactivation()
     {
-        // If player is not in the room and all doors are closed, deactivate the room
-        if (targetRoom != null && targetRoom.activeInHierarchy)
-        {
-            bool playerInThisRoom = RoomTracker.Instance != null &&
-                                   RoomTracker.Instance.IsPlayerInRoom(targetRoom);
-            bool anyDoorOpen = CheckIfAnyDoorToRoomIsOpen();
+        EnemyManager.Instance.TeleportEnemyToHallway();
 
-            if (!playerInThisRoom && !anyDoorOpen)
-            {
-                targetRoom.SetActive(false);
-                Debug.Log("Room deactivated: " + targetRoom.name);
-            }
+    }
+
+    private bool IsPlayerActuallyInRoom()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null || targetRoom == null)
+        {
+            Debug.Log("IsPlayerActuallyInRoom: player or targetRoom is null");
+            return false;
         }
+
+        // Method 1: Check if player is within the room's collider bounds
+        Collider2D roomCollider = targetRoom.GetComponent<Collider2D>();
+        if (roomCollider != null)
+        {
+            bool inBounds = roomCollider.bounds.Contains(player.transform.position);
+            Debug.Log($"Player in room bounds: {inBounds}");
+            return inBounds;
+        }
+
+        // Method 2: Fallback to RoomTracker
+        if (RoomTracker.Instance != null)
+        {
+            bool inRoom = RoomTracker.Instance.IsPlayerInRoom(targetRoom);
+            Debug.Log($"RoomTracker says player in room: {inRoom}");
+            return inRoom;
+        }
+
+        Debug.Log("IsPlayerActuallyInRoom: No reliable method found, defaulting to false");
+        return false;
     }
 
     private bool CheckIfAnyDoorToRoomIsOpen()
@@ -158,7 +224,13 @@ public class DoorBehaviour : MonoBehaviour
             playerNearby = true;
             Debug.Log("Player near door");
 
-            // Update room tracker based on which way player is moving
+            // Cancel any pending exit checks
+            if (exitCheckCoroutine != null)
+            {
+                StopCoroutine(exitCheckCoroutine);
+                exitCheckCoroutine = null;
+            }
+
             UpdatePlayerRoomTracker(true);
         }
     }
@@ -170,13 +242,33 @@ public class DoorBehaviour : MonoBehaviour
             playerNearby = false;
             Debug.Log("Player left door area");
 
-            // Update room tracker based on which way player is moving
             UpdatePlayerRoomTracker(false);
+
+            // Start delayed check to see if player actually left the room
+            exitCheckCoroutine = StartCoroutine(CheckPlayerExit());
 
             if (isOpen)
             {
                 StartCoroutine(AutoCloseDoor());
             }
+        }
+    }
+
+    private IEnumerator CheckPlayerExit()
+    {
+        yield return new WaitForSeconds(exitCheckDelay);
+
+        // Double-check if player is really gone from the room
+        if (!IsPlayerActuallyInRoom() && !playerNearby)
+        {
+            Debug.Log("Player confirmed to have left the room");
+
+            // Only now check for room deactivation and enemy teleportation
+            CheckRoomDeactivation();
+        }
+        else
+        {
+            Debug.Log("Player still in room or returned");
         }
     }
 
@@ -192,11 +284,13 @@ public class DoorBehaviour : MonoBehaviour
             {
                 // Player is leaving hallway, entering room
                 RoomTracker.Instance.SetPlayerRoom(targetRoom);
+                Debug.Log("Player entering room from hallway");
             }
             else
             {
                 // Player is leaving room, entering hallway
                 RoomTracker.Instance.SetPlayerRoom(hallway);
+                Debug.Log("Player exiting room to hallway");
             }
         }
     }
@@ -207,6 +301,88 @@ public class DoorBehaviour : MonoBehaviour
         if (!playerNearby && isOpen)
         {
             CloseDoor();
+        }
+    }
+
+    private void TeleportEnemyToHallway()
+    {
+        Debug.Log("Attempting to teleport enemies to hallway...");
+
+        int enemiesTeleported = 0;
+
+        // Method 1: Find ALL enemies, including inactive ones
+        MainEnemy[] allEnemies = Resources.FindObjectsOfTypeAll<MainEnemy>();
+        Debug.Log($"Found {allEnemies.Length} total enemies (including inactive)");
+
+        foreach (MainEnemy enemy in allEnemies)
+        {
+            // Skip prefabs and enemies in other scenes
+            if (enemy == null || enemy.gameObject.scene.name != gameObject.scene.name)
+                continue;
+
+            if (IsEnemyInTargetRoom(enemy))
+            {
+                Debug.Log($"Found enemy {enemy.name} in target room, attempting teleport...");
+                if (TeleportSingleEnemyToHallway(enemy))
+                {
+                    enemiesTeleported++;
+                }
+            }
+        }
+
+        Debug.Log($"Teleported {enemiesTeleported} enemies to hallway");
+    }
+
+    private bool IsEnemyInTargetRoom(MainEnemy enemy)
+    {
+        if (enemy == null || targetRoom == null) return false;
+
+        // Check if enemy is a child of the target room
+        if (enemy.transform.IsChildOf(targetRoom.transform))
+        {
+            Debug.Log($"Enemy {enemy.name} is child of target room");
+            return true;
+        }
+
+        // Check if enemy is physically inside the target room bounds
+        Collider2D roomCollider = targetRoom.GetComponent<Collider2D>();
+        if (roomCollider != null && roomCollider.bounds.Contains(enemy.transform.position))
+        {
+            Debug.Log($"Enemy {enemy.name} is inside target room bounds");
+            return true;
+        }
+
+        // Additional check: if enemy's current room reference matches target room
+        // (This requires adding a public method to MainEnemy to get its current room)
+        // if (enemy.GetCurrentRoom() == targetRoom) return true;
+
+        return false;
+    }
+
+    private bool TeleportSingleEnemyToHallway(MainEnemy enemy)
+    {
+        if (enemy == null) return false;
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null && EnemySpawnPointManager.Instance != null)
+        {
+            Vector3 spawnPosition = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
+
+            Debug.Log($"Teleporting enemy {enemy.name} from room {targetRoom.name} to hallway near player at {spawnPosition}");
+
+            // Move enemy to hallway
+            enemy.transform.SetParent(hallway.transform, true);
+            enemy.transform.position = spawnPosition;
+
+            // Notify enemy
+            enemy.OnTeleportedToHallway();
+
+            return true;
+        }
+        else
+        {
+            Debug.LogError("Could not find player or EnemySpawnPointManager for teleportation!");
+            return false;
         }
     }
 

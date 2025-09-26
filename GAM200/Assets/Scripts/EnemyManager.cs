@@ -7,7 +7,7 @@ public class EnemyManager : MonoBehaviour
 
     [Header("Enemy Settings")]
     public MainEnemy enemyPrefab;
-    public Transform[] tvSpawnPoints; // TV positions in different scenes
+    public Transform[] tvSpawnPoints; 
 
     [Header("Enemy State")]
     public bool isEnemyActive = false;
@@ -45,10 +45,10 @@ public class EnemyManager : MonoBehaviour
         currentScene = scene.name;
 
         // If enemy was active in previous scene, spawn it in the new scene
-        if (isEnemyActive)
+        /*if (isEnemyActive)
         {
             SpawnEnemyInNewScene();
-        }
+        }*/
     }
 
     public void ActivateEnemy(Vector2 spawnPosition)
@@ -133,4 +133,23 @@ public class EnemyManager : MonoBehaviour
             currentEnemyInstance = null;
         }
     }
+
+    public void TeleportEnemyToHallway()
+    {
+        if (currentEnemyInstance == null) return;
+
+        GameObject hallway = GameObject.Find("Hallway");
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        if (hallway != null && player != null)
+        {
+            Vector3 spawnPos = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
+            currentEnemyInstance.transform.SetParent(hallway.transform, true);
+            currentEnemyInstance.transform.position = spawnPos;
+
+            currentEnemyInstance.OnTeleportedToHallway();
+            Debug.Log($"Enemy teleported to hallway at {spawnPos}");
+        }
+    }
+
 }

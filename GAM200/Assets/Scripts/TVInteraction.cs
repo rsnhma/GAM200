@@ -74,8 +74,6 @@ public class TVInteraction : MonoBehaviour
                 EnemyManager.Instance.ActivateEnemy(spawnPoint.position);
                 Debug.Log("Enemy spawned via EnemyManager!");
             }
-
-            ChangeTVAppearance();
         }
         else
         {
@@ -87,17 +85,6 @@ public class TVInteraction : MonoBehaviour
     {
         hasBeenUsed = true;
         interactText.gameObject.SetActive(false);
-        ChangeTVAppearance();
-    }
-
-    private void ChangeTVAppearance()
-    {
-        // Optional: Change TV material, color, or add visual effect
-        Renderer tvRenderer = GetComponent<Renderer>();
-        if (tvRenderer != null)
-        {
-            tvRenderer.material.color = Color.gray;
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
