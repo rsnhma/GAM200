@@ -345,6 +345,9 @@ public class DoorBehaviour : MonoBehaviour
         }
     }
 
+    public void UnlockDoor() { isLocked = false; }
+    public void LockDoor() { isLocked = true; CloseDoor(); }
+
     private void TeleportEnemyToHallway()
     {
         Debug.Log("Attempting to teleport enemies to hallway...");
@@ -427,6 +430,4 @@ public class DoorBehaviour : MonoBehaviour
         }
     }
 
-    public void UnlockDoor() { isLocked = false; }
-    public void LockDoor() { isLocked = true; CloseDoor(); }
 }
