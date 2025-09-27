@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1767fb28f1eacfb42b8ec5e1c4fa0003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sanityPerSecond: 2
+  sanityPerSecond: 0.2
   flickerIntervalMin: 1
   flickerIntervalMax: 3
   light2D: {fileID: 7015156711287483726}

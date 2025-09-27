@@ -12,12 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b000dccca5a7e7e468522e6ce9714234, type: 3}
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
-  walkSpeed: 5
+  walkSpeed: 4
   sprintSpeed: 8
-  maxSanity: 100
-  maxStamina: 100
-  staminaDrainRate: 10
-  staminaRecoveryRate: 5
+  maxSanity: 10
   baseNoiseLevel: 1
   sprintNoiseMultiplier: 2
   interactNoise: 5

@@ -11,6 +11,6 @@ public class TheEntityData : EnemyData
     public float successPauseTime = 3f;
 
     [Header("Sanity")]
-    public float sanityLossOnSuccess = 10f;
-    public float sanityLossOnFail = 10f;
+    public float sanityLossOnSuccess = 0.10f;
+    public float sanityLossOnFail = 0.20f;
 }

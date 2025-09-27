@@ -16,8 +16,8 @@ public class MainEnemy : EnemyBase
     public float roamSpeed = 1.5f;
     public float minRoamTime = 1f;
     public float maxRoamTime = 3f;
-    public float obstacleCheckDistance = 0.5f;
-    public LayerMask obstacleLayers; // Assign walls, borders, decor
+    public float obstacleCheckDistance = 1f;
+    public LayerMask obstacleLayers;
 
     private TheEntityData entityData;
     private bool isCapturing = false;
@@ -28,7 +28,7 @@ public class MainEnemy : EnemyBase
 
     // Suspicion variables
     private Vector2 lastKnownPosition;
-    private float lingeringTimer = 0f;
+    private float lingeringTimer = 3f;
     private bool hasExtendedLingering = false;
 
     // Roam variables
@@ -111,8 +111,9 @@ public class MainEnemy : EnemyBase
 
     private IEnumerator StartChaseWithBuffer()
     {
-        // 2 second buffer time for player to react
-        yield return new WaitForSeconds(2f);
+        // Buffer time for player to react
+        yield return new WaitForSeconds(1f);
+        Debug.Log("Buffer time ended - starting chase");
         TransitionToState(EnemyManager.EnemyState.Chasing);
     }
 
@@ -205,18 +206,22 @@ public class MainEnemy : EnemyBase
             return;
         }
 
+        // Always track player's last known position when chasing
         if (HasLineOfSight())
         {
             lastKnownPosition = player.position;
             lingeringTimer = entityData.chaseBreakTime;
-
-            ChasePlayer();
-
-            float distance = Vector2.Distance(transform.position, player.position);
-            if (distance < entityData.captureRange)
-                TryCapturePlayer();
         }
-        else
+
+        // Continue chasing towards last known position even without line of sight
+        ChasePlayer();
+
+        float distance = Vector2.Distance(transform.position, player.position);
+        if (distance < entityData.captureRange)
+            TryCapturePlayer();
+
+        // Only go to suspicious if we've lost track for too long
+        if (!HasLineOfSight() && Vector2.Distance(transform.position, lastKnownPosition) < 0.5f)
         {
             TransitionToState(EnemyManager.EnemyState.Suspicious);
         }
@@ -302,6 +307,7 @@ public class MainEnemy : EnemyBase
 
     private void TransitionToState(EnemyManager.EnemyState newState)
     {
+        Debug.Log($"Enemy state changing from {currentState} to {newState}");
         currentState = newState;
 
         switch (newState)

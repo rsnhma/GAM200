@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4a90481cdbbd0c45b1980eab32a0a90, type: 3}
   m_Name: WanderingSpiritData
   m_EditorClassIdentifier: 
-  patrolSpeed: 1
+  patrolSpeed: 0
   lineOfSightRange: 6
   chaseBreakTime: 10
-  qteDuration: 3
-  sanityLossOnFail: 10
+  qteDuration: 5
+  sanityLossOnFail: 0.1
   noiseOnFail: 5

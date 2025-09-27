@@ -344,7 +344,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactText: {fileID: 6353001304774927054}
   audioSource: {fileID: 6162651625181962124}
-  lockerSound: {fileID: 8300000, guid: bab650ec568da704e884be65b3d38972, type: 3}
+  lockerSound: {fileID: 8300000, guid: e934e73e3505e0949b21f69d453abeda, type: 3}
   noiseRadius: 8
 --- !u!61 &3418619572039786748
 BoxCollider2D:
@@ -439,7 +439,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: bab650ec568da704e884be65b3d38972, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: bab650ec568da704e884be65b3d38972, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1

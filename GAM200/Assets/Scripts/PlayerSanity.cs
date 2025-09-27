@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class PlayerSanity : MonoBehaviour
 {
     [Header("Stats")]
-    public float maxSanity = 100f;
+    public float maxSanity = 10f;
 
     [Header("Events")]
     public UnityEvent<float> onSanityChanged;
@@ -19,9 +19,9 @@ public class PlayerSanity : MonoBehaviour
     public SanityUI sanityUI;
 
     [Header("Vision Settings")]
-    public float fullRadius = 5f;
-    public float minRadius = 1f;
-    public float fullIntensity = 0.506f;
+    public float fullRadius = 12f;
+    public float minRadius = 5f;
+    public float fullIntensity = 1f;
 
     [Header("Tunnel Vision Settings")]
     public float fullAngle = 360f;
@@ -138,11 +138,6 @@ public class PlayerSanity : MonoBehaviour
         if (sanityUI != null)
         {
             sanityUI.SetSanity(sanityPercent);
-            Debug.Log($"SanityUI updated with percent: {sanityPercent}");
-        }
-        else
-        {
-            Debug.LogWarning("SanityUI reference is null in UpdateSanityEffects");
         }
 
         if (sanityLight != null)
@@ -159,11 +154,8 @@ public class PlayerSanity : MonoBehaviour
             {
                 sanityLight.pointLightOuterAngle = fullAngle;
             }
-            Debug.Log($"SanityLight updated. Radius: {sanityLight.pointLightOuterRadius}, Intensity: {sanityLight.intensity}");
-        }
-        else
-        {
-            Debug.LogWarning("SanityLight reference is null in UpdateSanityEffects");
+
+            Debug.Log($"Sanity: {currentSanity}/{maxSanity} ({sanityPercent:P0}) | Radius: {sanityLight.pointLightOuterRadius:F1}");
         }
 
         onSanityChanged?.Invoke(sanityPercent);
