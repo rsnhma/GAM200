@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 3906663190791753709}
   - component: {fileID: 6057831092955433804}
   - component: {fileID: 7584935433871656690}
+  - component: {fileID: 6252762712648205247}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -368,7 +369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bda086524bfb8934a97d605f47a49d58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSanity: 1
+  maxSanity: 10
   onSanityChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -390,8 +391,20 @@ MonoBehaviour:
   sanityLight: {fileID: 1030650999435960143}
   sanityUI: {fileID: 0}
   fullRadius: 12
-  minRadius: 1
+  minRadius: 5
   fullIntensity: 1
   fullAngle: 360
   minAngle: 60
   tunnelVisionThreshold: 0.3
+--- !u!114 &6252762712648205247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369999824901520090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf398ad4f43272438745e0b8d6fe6d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
