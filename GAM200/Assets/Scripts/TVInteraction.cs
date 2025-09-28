@@ -1,104 +1,41 @@
 using UnityEngine;
-using TMPro;
 using System.Collections;
 
 public class TVInteraction : MonoBehaviour
 {
-    private bool playerNearby = false;
-    [SerializeField] private TextMeshProUGUI interactText;
-
     [Header("Enemy Spawn")]
-    public MainEnemy enemyPrefab;   // Assign your enemy prefab here
-    public Transform spawnPoint;    // Position of TV (enemy crawls out here)
+    public MainEnemy enemyPrefab;
+    public Transform spawnPoint;
 
     private bool hasBeenUsed = false;
 
-    private void Start()
-    {
-        // Check if enemy is already active
-        if (EnemyManager.Instance != null && EnemyManager.Instance.isEnemyActive)
-        {
-            DisableTVInteraction();
-        }
-    }
-
-    private void Update()
+    public void HandleVHSUse()
     {
         if (hasBeenUsed) return;
-
-        if (playerNearby && VHSItem.hasVHS)
-        {
-            interactText.text = "Left Click to put tape in";
-            interactText.gameObject.SetActive(true);
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                StartCoroutine(HandleCutscene());
-            }
-        }
-        else
-        {
-            interactText.gameObject.SetActive(false);
-        }
+        StartCoroutine(InsertVHS());
     }
 
-    private IEnumerator HandleCutscene()
+    private IEnumerator InsertVHS()
     {
-        Debug.Log("Tape inserted. Cutscene start (skipped for now)");
+        Debug.Log("VHS inserted to TV");
         hasBeenUsed = true;
-        interactText.gameObject.SetActive(false);
 
-        // TODO: Play actual cutscene here
-        yield return new WaitForSeconds(2f); // Cutscene time
+        // Optional cutscene
+        yield return new WaitForSeconds(2f);
 
         SpawnEnemy();
     }
 
     private void SpawnEnemy()
     {
-        if (enemyPrefab != null && spawnPoint != null)
+        if (EnemyManager.Instance != null)
         {
-            // SAFE CHECK: Make sure EnemyManager exists
-            if (EnemyManager.Instance == null)
-            {
-                Debug.LogError("EnemyManager.Instance is null! Creating temporary enemy...");
-
-                // Fallback: Spawn enemy directly
-                MainEnemy enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
-                enemy.BeginChase();
-                Debug.Log("Enemy spawned directly (fallback)");
-            }
-            else
-            {
-                // Use the EnemyManager to spawn the enemy
-                EnemyManager.Instance.ActivateEnemy(spawnPoint.position);
-                Debug.Log("Enemy spawned via EnemyManager!");
-            }
+            EnemyManager.Instance.ActivateEnemy(spawnPoint.position);
+            Debug.Log("Enemy spawned via EnemyManager!");
         }
         else
         {
-            Debug.LogError("EnemyPrefab or SpawnPoint not set on TVInteraction");
-        }
-    }
-
-    private void DisableTVInteraction()
-    {
-        hasBeenUsed = true;
-        interactText.gameObject.SetActive(false);
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player") && !hasBeenUsed)
-            playerNearby = true;
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerNearby = false;
-            interactText.gameObject.SetActive(false);
+            Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity).BeginChase();
         }
     }
 }

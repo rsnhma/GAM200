@@ -1,33 +1,61 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public class JournalUI : MonoBehaviour
 {
     [Header("References")]
-    public GameObject journalPanel;   // The UI panel for your journal
-    public Button journalButton;      // The button that toggles the journal
+    public GameObject journalPanel;       // Root journal panel
+    public Button journalButton;          // Button to open/close journal
+
+    [Header("Tabs")]
+    public Button controlsTabButton;
+    public Button mapTabButton;
+    public Button itemsTabButton;
+
+    [Header("Panels")]
+    public GameObject controlsPanel;
+    public GameObject mapPanel;
+    public GameObject itemsPanel;
 
     private bool isOpen = false;
+    private Dictionary<string, GameObject> panels;
 
     void Start()
     {
-        journalPanel.SetActive(false); // start hidden
+        journalPanel.SetActive(false);
+
+        // Tab setup
+        panels = new Dictionary<string, GameObject>
+        {
+            {"Controls", controlsPanel},
+            {"Map", mapPanel},
+            {"Items", itemsPanel},
+        };
+
+        // Tab listeners
+        controlsTabButton.onClick.AddListener(() => ShowPanel("Controls"));
+        mapTabButton.onClick.AddListener(() => ShowPanel("Map"));
+        itemsTabButton.onClick.AddListener(() => ShowPanel("Items"));
+
+        // Open journal button
         journalButton.onClick.AddListener(ToggleJournal);
+
+        // Start with controls by default
+        ShowPanel("Controls");
     }
 
     void Update()
     {
         if (isOpen)
         {
-            // Close with ESC
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 CloseJournal();
                 return;
             }
 
-            // Close if left-click outside panel
             if (Input.GetMouseButtonDown(0) && !IsPointerOverUI(journalPanel))
             {
                 CloseJournal();
@@ -53,7 +81,12 @@ public class JournalUI : MonoBehaviour
         isOpen = false;
     }
 
-    // Checks if mouse is over the panel or its children
+    private void ShowPanel(string panelName)
+    {
+        foreach (var kvp in panels)
+            kvp.Value.SetActive(kvp.Key == panelName);
+    }
+
     private bool IsPointerOverUI(GameObject panel)
     {
         if (EventSystem.current == null) return false;
@@ -63,7 +96,7 @@ public class JournalUI : MonoBehaviour
             position = Input.mousePosition
         };
 
-        var results = new System.Collections.Generic.List<RaycastResult>();
+        var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
         foreach (var result in results)
