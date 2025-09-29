@@ -165,7 +165,7 @@ public class MainEnemy : EnemyBase
             EmergencyTeleportToHallway();
             return;
         }*/
-
+      
         if (pauseTimer > 0)
         {
             pauseTimer -= Time.deltaTime;
@@ -193,7 +193,7 @@ public class MainEnemy : EnemyBase
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
         }
     }
-
+   
     private void UpdateChasing()
     {
         // Check if player is hiding first (this should override line of sight)
@@ -204,24 +204,43 @@ public class MainEnemy : EnemyBase
             return;
         }
 
-        // Always track player's last known position when chasing
+        // Always track player's last known position when we can see them
         if (HasLineOfSight())
         {
             lastKnownPosition = player.position;
             lingeringTimer = entityData.chaseBreakTime;
         }
+        else
+        {
+            // Even without line of sight, keep updating last known position if we're close
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            if (distanceToPlayer < lineOfSightRange * 0.5f) // Within half of sight range
+            {
+                lastKnownPosition = player.position;
+                lingeringTimer = Mathf.Max(lingeringTimer, 1f); // Keep at least 1 second
+            }
+        }
 
-        // Continue chasing towards last known position even without line of sight
+        // Continue chasing towards last known position
         ChasePlayer();
 
         float distance = Vector2.Distance(transform.position, player.position);
         if (distance < entityData.captureRange)
             TryCapturePlayer();
 
-        // Only go to suspicious if we've lost track for too long
-        if (!HasLineOfSight() && Vector2.Distance(transform.position, lastKnownPosition) < 0.5f)
+        // Only go to suspicious if we're stuck at last known position for a while
+        float distanceToLastKnown = Vector2.Distance(transform.position, lastKnownPosition);
+
+        // More lenient conditions - don't give up so easily
+        if (!HasLineOfSight() && distanceToLastKnown < 0.5f)
         {
-            TransitionToState(EnemyManager.EnemyState.Suspicious);
+            // Reduce timer when stuck at location
+            lingeringTimer -= Time.deltaTime * 2f;
+
+            if (lingeringTimer <= 0f)
+            {
+                TransitionToState(EnemyManager.EnemyState.Suspicious);
+            }
         }
     }
 
@@ -238,14 +257,21 @@ public class MainEnemy : EnemyBase
         MoveTowards(lastKnownPosition);
 
         float distanceToLastPosition = Vector2.Distance(transform.position, lastKnownPosition);
-        if (distanceToLastPosition < 0.5f || lingeringTimer <= 0f)
-        {
-            TransitionToState(EnemyManager.EnemyState.Patrolling);
-        }
 
+        // Check for line of sight more frequently in suspicious mode
         if (HasLineOfSight())
         {
             TransitionToState(EnemyManager.EnemyState.Chasing);
+            return;
+        }
+
+        // When stuck, try to look around a bit
+        if (distanceToLastPosition < 0.5f)
+        {
+            if (lingeringTimer <= 0f)
+            {
+                TransitionToState(EnemyManager.EnemyState.Patrolling);
+            }
         }
     }
 
