@@ -1,13 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using System.Collections.Generic;
 
 public class JournalUI : MonoBehaviour
 {
     [Header("References")]
     public GameObject journalPanel;       // Root journal panel
-    public Button journalButton;          // Button to open/close journal
 
     [Header("Tabs")]
     public Button controlsTabButton;
@@ -39,34 +37,18 @@ public class JournalUI : MonoBehaviour
         mapTabButton.onClick.AddListener(() => ShowPanel("Map"));
         itemsTabButton.onClick.AddListener(() => ShowPanel("Items"));
 
-        // Open journal button
-        journalButton.onClick.AddListener(ToggleJournal);
-
         // Start with controls by default
         ShowPanel("Controls");
     }
 
     void Update()
     {
-        if (isOpen)
+        // Toggle journal with Q
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                CloseJournal();
-                return;
-            }
-
-            if (Input.GetMouseButtonDown(0) && !IsPointerOverUI(journalPanel))
-            {
-                CloseJournal();
-            }
+            if (isOpen) CloseJournal();
+            else OpenJournal();
         }
-    }
-
-    private void ToggleJournal()
-    {
-        if (isOpen) CloseJournal();
-        else OpenJournal();
     }
 
     private void OpenJournal()
@@ -85,26 +67,5 @@ public class JournalUI : MonoBehaviour
     {
         foreach (var kvp in panels)
             kvp.Value.SetActive(kvp.Key == panelName);
-    }
-
-    private bool IsPointerOverUI(GameObject panel)
-    {
-        if (EventSystem.current == null) return false;
-
-        var pointerData = new PointerEventData(EventSystem.current)
-        {
-            position = Input.mousePosition
-        };
-
-        var results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerData, results);
-
-        foreach (var result in results)
-        {
-            if (result.gameObject == panel || result.gameObject.transform.IsChildOf(panel.transform))
-                return true;
-        }
-
-        return false;
     }
 }
