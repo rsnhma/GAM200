@@ -9,6 +9,9 @@ public class TVInteraction : MonoBehaviour
 
     private bool hasBeenUsed = false;
 
+    /// <summary>
+    /// Called by ItemSlotUI when player drags and drops the VHS onto the TV
+    /// </summary>
     public void HandleVHSUse()
     {
         if (hasBeenUsed) return;
@@ -20,7 +23,7 @@ public class TVInteraction : MonoBehaviour
         Debug.Log("VHS inserted to TV");
         hasBeenUsed = true;
 
-        // Optional cutscene
+        // Optional cutscene or delay
         yield return new WaitForSeconds(2f);
 
         SpawnEnemy();
@@ -36,6 +39,7 @@ public class TVInteraction : MonoBehaviour
         else
         {
             Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity).BeginChase();
+            Debug.Log("Enemy spawned directly (fallback)");
         }
     }
 }

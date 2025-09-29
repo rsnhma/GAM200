@@ -34,8 +34,8 @@ public class JournalManager : MonoBehaviour
         ItemSlotUI slotUI = entry.GetComponent<ItemSlotUI>();
         slotUI.itemID = itemID;
 
-        // Register right-click action
-        slotUI.onRightClick = useAction;
+        // Register drag action
+        slotUI.onUse = useAction;
 
         Image icon = entry.transform.Find("ItemIcon").GetComponent<Image>();
         Collectible col = FindCollectibleByID(itemID); // helper to get the collectible
