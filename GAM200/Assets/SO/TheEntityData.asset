@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c0d1624bbd13ba4eab162ddd01738c7, type: 3}
   m_Name: TheEntityData
   m_EditorClassIdentifier: 
-  patrolSpeed: 1
+  patrolSpeed: 2
   lineOfSightRange: 6
-  chaseBreakTime: 10
+  chaseBreakTime: 3
   captureRange: 1.5
   qteDuration: 5
   successPauseTime: 3
