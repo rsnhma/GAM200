@@ -36,7 +36,7 @@ public class MainEnemy : EnemyBase
     private float roamCooldown = 0f;
     private Vector2 currentRoamTarget;
 
-    // Cache player components
+    // Player components
     private CharacterMovement playerMovement;
     private PlayerSanity playerSanity;
 
@@ -193,8 +193,6 @@ public class MainEnemy : EnemyBase
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
         }
     }
-
-
 
     private void UpdateChasing()
     {
@@ -395,42 +393,6 @@ public class MainEnemy : EnemyBase
 
         TransitionToState(EnemyManager.EnemyState.Patrolling);
     }
-
-    private void EmergencyTeleportToHallway()
-    {
-        isInDeactivatedRoom = true;
-
-        GameObject hallway = GameObject.Find("Hallway"); // Adjust name as needed
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-        if (hallway != null && player != null)
-        {
-            Debug.Log("Teleporting enemy to hallway");
-
-            // Move enemy to hallway hierarchy
-            transform.SetParent(hallway.transform, true);
-
-            // Find nearest spawn point to player
-            if (EnemySpawnPointManager.Instance != null)
-            {
-                Vector3 spawnPosition = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
-                transform.position = spawnPosition;
-                Debug.Log($"Enemy teleported to hallway at position: {spawnPosition}");
-            }
-
-            // Reset room tracking
-            currentRoom = hallway;
-            isInDeactivatedRoom = false;
-
-            // Continue chasing in hallway
-            OnTeleportedToHallway();
-        }
-        else
-        {
-            Debug.LogError("Could not find hallway or player for emergency teleport!");
-        }
-    }
-
 
     public void OnTeleportedToHallway()
     {

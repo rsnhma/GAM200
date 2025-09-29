@@ -141,16 +141,8 @@ public class DoorBehaviour : MonoBehaviour
 
         Debug.Log("Door closed");
 
-        // Check if we should deactivate the room when door closes
-        StartCoroutine(DelayedRoomDeactivationCheck());
     }
 
-    private IEnumerator DelayedRoomDeactivationCheck()
-    {
-        // Wait a moment before checking to ensure player has actually left
-        yield return new WaitForSeconds(0.5f);
-        CheckRoomDeactivation();
-    }
     public void SetIgnoreNextDeactivation()
     {
         ignoreNextDeactivation = true;
@@ -348,35 +340,6 @@ public class DoorBehaviour : MonoBehaviour
     public void UnlockDoor() { isLocked = false; }
     public void LockDoor() { isLocked = true; CloseDoor(); }
 
-    private void TeleportEnemyToHallway()
-    {
-        Debug.Log("Attempting to teleport enemies to hallway...");
-
-        int enemiesTeleported = 0;
-
-        // Method 1: Find ALL enemies, including inactive ones
-        MainEnemy[] allEnemies = Resources.FindObjectsOfTypeAll<MainEnemy>();
-        Debug.Log($"Found {allEnemies.Length} total enemies (including inactive)");
-
-        foreach (MainEnemy enemy in allEnemies)
-        {
-            // Skip prefabs and enemies in other scenes
-            if (enemy == null || enemy.gameObject.scene.name != gameObject.scene.name)
-                continue;
-
-            if (IsEnemyInTargetRoom(enemy))
-            {
-                Debug.Log($"Found enemy {enemy.name} in target room, attempting teleport...");
-                if (TeleportSingleEnemyToHallway(enemy))
-                {
-                    enemiesTeleported++;
-                }
-            }
-        }
-
-        Debug.Log($"Teleported {enemiesTeleported} enemies to hallway");
-    }
-
     private bool IsEnemyInTargetRoom(MainEnemy enemy)
     {
         if (enemy == null || targetRoom == null) return false;
@@ -401,33 +364,6 @@ public class DoorBehaviour : MonoBehaviour
         // if (enemy.GetCurrentRoom() == targetRoom) return true;
 
         return false;
-    }
-
-    private bool TeleportSingleEnemyToHallway(MainEnemy enemy)
-    {
-        if (enemy == null) return false;
-
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null && EnemySpawnPointManager.Instance != null)
-        {
-            Vector3 spawnPosition = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
-
-            Debug.Log($"Teleporting enemy {enemy.name} from room {targetRoom.name} to hallway near player at {spawnPosition}");
-
-            // Move enemy to hallway
-            enemy.transform.SetParent(hallway.transform, true);
-            enemy.transform.position = spawnPosition;
-
-            // Notify enemy
-            enemy.OnTeleportedToHallway();
-
-            return true;
-        }
-        else
-        {
-            Debug.LogError("Could not find player or EnemySpawnPointManager for teleportation!");
-            return false;
-        }
     }
 
 }
