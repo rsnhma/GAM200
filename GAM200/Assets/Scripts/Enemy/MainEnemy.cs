@@ -23,6 +23,12 @@ public class MainEnemy : EnemyBase
     private bool isCapturing = false;
     private float pauseTimer = 0f;
 
+    [Header("Animation")]
+    public Animator animator;
+    private Vector2 lastPosition;
+    private Vector2 lastMovement;
+
+
     // Enemy states
     private EnemyManager.EnemyState currentState = EnemyManager.EnemyState.Inactive;
 
@@ -53,6 +59,8 @@ public class MainEnemy : EnemyBase
         {
             playerMovement = player.GetComponent<CharacterMovement>();
             playerSanity = player.GetComponent<PlayerSanity>();
+
+
         }
 
         // Subscribe to noise events
@@ -72,6 +80,16 @@ public class MainEnemy : EnemyBase
 
         // Start chasing immediately
         StartCoroutine(StartChaseWithBuffer());
+
+        // Initialize animation
+        lastPosition = transform.position;
+        lastMovement = new Vector2(0f, -1f); // Default facing down
+        if (animator != null)
+        {
+            animator.SetFloat("MoveX", -lastMovement.y);
+            animator.SetFloat("MoveY", lastMovement.x);
+            animator.SetFloat("Speed", 0f);
+        }
     }
     private void FindCurrentRoom()
     {
@@ -145,14 +163,10 @@ public class MainEnemy : EnemyBase
 
         if (isValidNoise)
         {
-            float distance = Vector2.Distance(transform.position, position);
-            if (distance <= radius)
-            {
                 lastKnownPosition = position;
                 lingeringTimer = entityData.chaseBreakTime;
                 TransitionToState(EnemyManager.EnemyState.Suspicious);
                 Debug.Log($"MainEnemy alerted by noise (radius {radius}) at {position}");
-            }
         }
     }
 
@@ -192,8 +206,34 @@ public class MainEnemy : EnemyBase
         {
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
         }
+
+        UpdateAnimation();
     }
-   
+    private void UpdateAnimation()
+    {
+        if (animator == null) return;
+
+        Vector2 currentPosition = transform.position;
+        Vector2 movement = (currentPosition - lastPosition) / Time.deltaTime;
+
+        if (movement.sqrMagnitude > 0.01f)
+        {
+            lastMovement = movement.normalized;
+
+            // Correct animation mapping
+            animator.SetFloat("MoveX", lastMovement.x);
+            animator.SetFloat("MoveY", lastMovement.y);
+            animator.SetFloat("Speed", movement.sqrMagnitude);
+        }
+        else
+        {
+            // Idle - keep last direction
+            animator.SetFloat("Speed", 0f);
+        }
+
+        lastPosition = currentPosition;
+    }
+
     private void UpdateChasing()
     {
         // Check if player is hiding first (this should override line of sight)
