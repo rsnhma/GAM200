@@ -15,7 +15,7 @@ MonoBehaviour:
   patrolSpeed: 2
   lineOfSightRange: 6
   chaseBreakTime: 3
-  captureRange: 1.5
+  captureRange: 2
   qteDuration: 5
   successPauseTime: 3
   sanityLossOnSuccess: 0.5
