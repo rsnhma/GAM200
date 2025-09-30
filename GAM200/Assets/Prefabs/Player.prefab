@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 6057831092955433804}
   - component: {fileID: 7584935433871656690}
   - component: {fileID: 6252762712648205247}
+  - component: {fileID: 5569547402000344446}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -117,7 +118,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -6.38, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7691914114915406463}
@@ -167,7 +168,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 1302723820812287101, guid: 970b36af4bde9634b88ce139bf3c3b2d, type: 3}
+  m_Sprite: {fileID: 1364081836, guid: d5752c0823091e9429b9ddaf3e34198b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -260,6 +261,7 @@ MonoBehaviour:
   footstepInterval: 0.5
   walkNoiseRadius: 5
   sprintNoiseRadius: 15
+  animator: {fileID: 5569547402000344446}
 --- !u!82 &6057831092955433804
 AudioSource:
   m_ObjectHideFlags: 0
@@ -408,3 +410,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbf398ad4f43272438745e0b8d6fe6d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &5569547402000344446
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369999824901520090}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 802544b9b99310149b3db71eb0450b13, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
