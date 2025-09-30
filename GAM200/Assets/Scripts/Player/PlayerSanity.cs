@@ -19,14 +19,19 @@ public class PlayerSanity : MonoBehaviour
     public SanityUI sanityUI;
 
     [Header("Vision Settings")]
-    public float fullRadius = 12f;
-    public float minRadius = 5f;
+    public float fullOuterRadius = 12f;
+    public float minOuterRadius = 2f;
+    public float fullInnerRadius = 6f;
+    public float minInnerRadius = 1f;
     public float fullIntensity = 1f;
 
-    [Header("Tunnel Vision Settings")]
-    public float fullAngle = 360f;
-    public float minAngle = 60f;
-    public float tunnelVisionThreshold = 0.4f;
+    [Header("QTE Settings")]
+    public float sanityLossPerQTEFail = 1f;
+    public float sanityLossPerQTESuccess = 0.5f;
+
+    [Header("Game Over Settings")]
+    public float gameOverSanityThreshold = 0.2f; // 20% sanity
+    public UnityEvent onGameOver;
 
     private float currentSanity;
 
@@ -43,8 +48,6 @@ public class PlayerSanity : MonoBehaviour
         }
 
         Instance = this;
-        //DontDestroyOnLoad(gameObject);
-
         currentSanity = maxSanity;
 
         // Subscribe to scene load
@@ -105,6 +108,34 @@ public class PlayerSanity : MonoBehaviour
         Debug.Log("Sanity effects updated after scene load");
     }
 
+    // Call this when player FAILS a QTE
+    public void OnQTEFailed()
+    {
+        Debug.Log($"QTE FAILED! Losing {sanityLossPerQTEFail} sanity");
+        LoseSanity(sanityLossPerQTEFail);
+        CheckGameOverCondition();
+    }
+
+    // Call this when player SUCCEEDS a QTE (but still loses a bit of sanity)
+    public void OnQTESuccess()
+    {
+        Debug.Log($"QTE SUCCESS! Losing {sanityLossPerQTESuccess} sanity");
+        LoseSanity(sanityLossPerQTESuccess);
+        CheckGameOverCondition();
+    }
+
+    // Check if player should get game over when caught at low sanity
+    private void CheckGameOverCondition()
+    {
+        float sanityPercent = GetSanityPercent();
+
+        if (sanityPercent <= gameOverSanityThreshold)
+        {
+            Debug.Log($"GAME OVER! Player caught with sanity at {sanityPercent:P0}");
+            onGameOver?.Invoke();
+        }
+    }
+
     public void LoseSanity(float amount)
     {
         Debug.Log($"LoseSanity called with amount: {amount}");
@@ -142,20 +173,15 @@ public class PlayerSanity : MonoBehaviour
 
         if (sanityLight != null)
         {
-            sanityLight.pointLightOuterRadius = Mathf.Lerp(minRadius, fullRadius, sanityPercent);
+            // Keep 360 degree vision at all times
+            sanityLight.pointLightOuterAngle = 360f;
+
+            // Adjust both inner and outer radius based on sanity
+            sanityLight.pointLightOuterRadius = Mathf.Lerp(minOuterRadius, fullOuterRadius, sanityPercent);
+            sanityLight.pointLightInnerRadius = Mathf.Lerp(minInnerRadius, fullInnerRadius, sanityPercent);
             sanityLight.intensity = fullIntensity * sanityPercent;
 
-            if (sanityPercent < tunnelVisionThreshold)
-            {
-                float t = sanityPercent / tunnelVisionThreshold;
-                sanityLight.pointLightOuterAngle = Mathf.Lerp(minAngle, fullAngle, t);
-            }
-            else
-            {
-                sanityLight.pointLightOuterAngle = fullAngle;
-            }
-
-            Debug.Log($"Sanity: {currentSanity}/{maxSanity} ({sanityPercent:P0}) | Radius: {sanityLight.pointLightOuterRadius:F1}");
+            Debug.Log($"Sanity: {currentSanity}/{maxSanity} ({sanityPercent:P0}) | Inner Radius: {sanityLight.pointLightInnerRadius:F1} | Outer Radius: {sanityLight.pointLightOuterRadius:F1} | Angle: 360°");
         }
 
         onSanityChanged?.Invoke(sanityPercent);
@@ -175,5 +201,4 @@ public class PlayerSanity : MonoBehaviour
         UpdateSanityEffects();
         Debug.Log("Sanity reset to max");
     }
-
 }
