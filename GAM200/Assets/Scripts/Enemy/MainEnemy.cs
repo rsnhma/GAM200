@@ -75,7 +75,7 @@ public class MainEnemy : EnemyBase
             return;
         }
 
-        chaseSpeed = 3f;
+        chaseSpeed = 5f;
 
         // Find which room the enemy is currently in
         FindCurrentRoom();
