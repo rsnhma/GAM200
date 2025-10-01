@@ -1286,7 +1286,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2272071159162798331, guid: dba45b6668c8080438fdc20bb17fb244, type: 3}
       propertyPath: m_Name
-      value: Tutorial
+      value: Controls
       objectReference: {fileID: 0}
     - target: {fileID: 5445082011160661627, guid: dba45b6668c8080438fdc20bb17fb244, type: 3}
       propertyPath: m_Pivot.x
@@ -1370,7 +1370,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6448510211307883785, guid: dba45b6668c8080438fdc20bb17fb244, type: 3}
       propertyPath: m_text
-      value: Tutorial
+      value: 'Controls
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 6448510211307883785, guid: dba45b6668c8080438fdc20bb17fb244, type: 3}
       propertyPath: m_HorizontalAlignment
