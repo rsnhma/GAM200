@@ -7,6 +7,7 @@ public class GameOverUI : MonoBehaviour
     [Header("References")]
     public GameObject gameOverPanel;
     public Button restartButton;
+    public Button mainMenuButton;
 
     private void Start()
     {
@@ -36,6 +37,13 @@ public class GameOverUI : MonoBehaviour
 
         // Reload scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void MainMenu()
+    {
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene("MainMenu");
     }
 
 }

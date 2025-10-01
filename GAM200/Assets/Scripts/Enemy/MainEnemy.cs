@@ -25,6 +25,8 @@ public class MainEnemy : EnemyBase
 
     [Header("Animation")]
     public Animator animator;
+    public float rotationSpeed = 10f; // How fast enemy turns
+    private SpriteRenderer spriteRenderer;
     private Vector2 lastPosition;
     private Vector2 lastMovement;
 
@@ -83,11 +85,11 @@ public class MainEnemy : EnemyBase
 
         // Initialize animation
         lastPosition = transform.position;
-        lastMovement = new Vector2(0f, -1f); // Default facing down
+        lastMovement = new Vector2(0f, 1f); // Default facing up
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         if (animator != null)
         {
-            animator.SetFloat("MoveX", -lastMovement.y);
-            animator.SetFloat("MoveY", lastMovement.x);
             animator.SetFloat("Speed", 0f);
         }
     }
@@ -209,6 +211,7 @@ public class MainEnemy : EnemyBase
 
         UpdateAnimation();
     }
+
     private void UpdateAnimation()
     {
         if (animator == null) return;
@@ -220,14 +223,22 @@ public class MainEnemy : EnemyBase
         {
             lastMovement = movement.normalized;
 
-            // Correct animation mapping
-            animator.SetFloat("MoveX", lastMovement.x);
-            animator.SetFloat("MoveY", lastMovement.y);
-            animator.SetFloat("Speed", movement.sqrMagnitude);
+            // Calculate angle from movement direction
+            float targetAngle = Mathf.Atan2(lastMovement.x, lastMovement.y) * Mathf.Rad2Deg;
+
+            // Add 180 degrees to face the correct direction (front of sprite toward movement)
+            targetAngle += 180f;
+
+            // Smoothly rotate toward movement direction
+            Quaternion targetRotation = Quaternion.Euler(0, 0, -targetAngle);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+            // Set walking animation (only use Speed, no directional blending needed)
+            animator.SetFloat("Speed", movement.magnitude);
         }
         else
         {
-            // Idle - keep last direction
+            // Idle - stop animation but keep rotation
             animator.SetFloat("Speed", 0f);
         }
 
