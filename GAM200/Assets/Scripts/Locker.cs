@@ -10,25 +10,23 @@ public class Locker : MonoBehaviour
     [SerializeField] TextMeshProUGUI interactText;
 
     [Header("Audio")]
-    public AudioSource audioSource;        
-    public AudioClip lockerSound;          
+    public AudioSource audioSource;
+    public AudioClip lockerSound;
 
     [Header("Noise Settings")]
-    public float noiseRadius = 8f;  // how far it alerts MainEnemy
+    public float noiseRadius = 8f;
 
-    // Update is called once per frame
     void Update()
     {
-        if (playerNearby && Input.GetKeyDown(KeyCode.E))
+        // Allow exiting regardless of proximity when already inside
+        if (playerInside && Input.GetKeyDown(KeyCode.E))
         {
-            if (!playerInside)
-            {
-                EnterLocker();
-            }
-            else
-            {
-                ExitLocker();
-            }
+            ExitLocker();
+        }
+        // Normal entry when nearby but not inside
+        else if (playerNearby && Input.GetKeyDown(KeyCode.E) && !playerInside)
+        {
+            EnterLocker();
         }
     }
 
@@ -40,8 +38,14 @@ public class Locker : MonoBehaviour
         // Player movement disabled
         player.GetComponent<CharacterMovement>().enabled = false;
 
-        // Player Sprite
+        // Hide Player Sprite
         player.GetComponent<SpriteRenderer>().enabled = false;
+
+        // Disable player collider (so enemies can't detect them)
+        player.GetComponent<Collider2D>().enabled = false;
+
+        // Hide interact text since player is inside
+        interactText.gameObject.SetActive(false);
 
         PlayLockerAudio();
         EmitNoise();
@@ -51,11 +55,15 @@ public class Locker : MonoBehaviour
     {
         playerInside = false;
         IsPlayerInsideLocker = false;
+
         // Player movement enabled
         player.GetComponent<CharacterMovement>().enabled = true;
 
-        // Player Sprite
+        // Show Player Sprite
         player.GetComponent<SpriteRenderer>().enabled = true;
+
+        // Re-enable player collider
+        player.GetComponent<Collider2D>().enabled = true;
 
         PlayLockerAudio();
         EmitNoise();
@@ -81,7 +89,11 @@ public class Locker : MonoBehaviour
             playerNearby = true;
             player = other.gameObject;
 
-            interactText.gameObject.SetActive(true);
+            // Only show interact text if player is not already inside
+            if (!playerInside)
+            {
+                interactText.gameObject.SetActive(true);
+            }
         }
     }
 
@@ -91,7 +103,11 @@ public class Locker : MonoBehaviour
         {
             playerNearby = false;
 
-            interactText.gameObject.SetActive(false);
+            // Only hide interact text if player is not inside
+            if (!playerInside)
+            {
+                interactText.gameObject.SetActive(false);
+            }
         }
     }
 }
