@@ -40894,7 +40894,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -128.4802, y: -47.256, z: 12.21838}
-  m_LocalScale: {x: 0.9813549, y: 3.9357, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 222972546}
@@ -40937,7 +40937,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 0.0625}
+    oldSize: {x: 0.32, y: 0.32}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -40989,7 +40989,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: -2499867662185204858, guid: d5752c0823091e9429b9ddaf3e34198b, type: 3}
+  m_Sprite: {fileID: -7532411707869503307, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -41013,7 +41013,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemID: vhs_tape
-  itemIcon: {fileID: -2499867662185204858, guid: d5752c0823091e9429b9ddaf3e34198b, type: 3}
+  itemIcon: {fileID: -7532411707869503307, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
   isPuzzleReward: 0
   tvInteraction: {fileID: 193530179}
 --- !u!1001 &1679972707
@@ -41624,10 +41624,10 @@ MonoBehaviour:
   - {fileID: 189346729}
   - {fileID: 1658938336}
   - {fileID: 54856933}
-  upArrow: {fileID: 5655321678828108626, guid: bb9da6734a322d14ca4f42e84dfc5329, type: 3}
-  downArrow: {fileID: 8354682349897007965, guid: 0f67ddc7481750f42a381e674683b447, type: 3}
-  leftArrow: {fileID: -2208510542369132325, guid: 2aa7289cac2dfb1428e32fa94995632f, type: 3}
-  rightArrow: {fileID: -4345969612696422427, guid: 48f18dd8b96063f41a5648572be931c1, type: 3}
+  upArrow: {fileID: -1033766676993296678, guid: d722ecaa3427b3849bda3e6997db8c0a, type: 3}
+  downArrow: {fileID: -573255333, guid: d722ecaa3427b3849bda3e6997db8c0a, type: 3}
+  leftArrow: {fileID: 1696404456, guid: d722ecaa3427b3849bda3e6997db8c0a, type: 3}
+  rightArrow: {fileID: 1907094533, guid: d722ecaa3427b3849bda3e6997db8c0a, type: 3}
   timeLimit: 5
   timerSlider: {fileID: 2055299616}
 --- !u!114 &1725427343
