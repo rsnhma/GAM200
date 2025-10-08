@@ -127,40 +127,36 @@ public class EnemyBase : MonoBehaviour
     public virtual void EndChase()
     {
         isChasing = false;
-        // Removed gameObject.SetActive(false) - enemy should persist and patrol instead
+        
     }
 
-    // New method for moving towards a specific target (useful for patrolling/suspicion)
+    // For suspicion and chase
     protected virtual void MoveTowards(Vector2 target, float speed = -1)
     {
         if (speed < 0) speed = chaseSpeed;
 
         Vector2 desiredDirection = (target - (Vector2)transform.position).normalized;
 
-        // Apply obstacle avoidance to MoveTowards as well
         Vector2 finalDirection = GetObstacleAvoidanceDirection(desiredDirection);
 
         transform.position += (Vector3)(finalDirection * speed * Time.deltaTime);
     }
 
-    // New method to check if player is within capture range
     protected virtual bool IsPlayerInCaptureRange(float captureRange)
     {
         if (player == null) return false;
         return Vector2.Distance(transform.position, player.position) < captureRange;
     }
 
-    // New method to get distance to player
     protected virtual float GetDistanceToPlayer()
     {
         if (player == null) return Mathf.Infinity;
         return Vector2.Distance(transform.position, player.position);
     }
 
-    // New method to safely get player position
-    protected virtual Vector2 GetPlayerPosition()
-    {
-        if (player == null) return Vector2.zero;
-        return player.position;
-    }
+    //protected virtual Vector2 GetPlayerPosition()
+    //{
+    //    if (player == null) return Vector2.zero;
+    //    return player.position;
+    //}
 }

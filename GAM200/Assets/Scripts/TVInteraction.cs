@@ -9,9 +9,7 @@ public class TVInteraction : MonoBehaviour
 
     private bool hasBeenUsed = false;
 
-    /// <summary>
     /// Called by ItemSlotUI when player drags and drops the VHS onto the TV
-    /// </summary>
     public void HandleVHSUse()
     {
         if (hasBeenUsed) return;
