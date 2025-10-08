@@ -5,7 +5,7 @@ public class DoorBehaviour : MonoBehaviour
 {
     [Header("Door Settings")]
     [SerializeField] private GameObject doorVisual;      // Door sprite/visual
-    [SerializeField] private Collider2D doorCollider;    // Door collider (blocking - NOT trigger)
+    [SerializeField] private Collider2D doorCollider;    // Door collider (blocking)
     [SerializeField] private bool isLocked = false;
 
     [Header("Room Management")]
