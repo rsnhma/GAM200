@@ -31,12 +31,7 @@ public class JournalManager : MonoBehaviour
 
     public void UpdateJournalTab(string itemID, System.Action useAction = null)
     {
-        if (itemID == "map")
-        {
-            mapTabPanel.SetActive(true);
-            return;
-        }
-
+     
         // Add item to items tab
         GameObject entry = Instantiate(itemEntryPrefab, itemsContentParent);
 
