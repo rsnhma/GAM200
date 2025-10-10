@@ -45,14 +45,6 @@ public class DoorBehaviour : MonoBehaviour
     private bool ShouldKeepRoomActiveOnStart()
     {
         // Add logic to determine if this room should stay active at start
-        // For example, if this is the room where the game starts
-        // or if this room contains important initial objects
-
-        // You might want to:
-        // 1. Check if this room has the TV that spawns the enemy
-        // 2. Check if this is the player's starting room
-        // 3. Use a specific tag or component to identify rooms that should stay active
-
         return false; // Change this based on your game logic
     }
 

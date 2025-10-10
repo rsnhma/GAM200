@@ -10,13 +10,13 @@ public class JournalUI : MonoBehaviour
     public Image journalIconImage;        // The journal icon/image players can click
 
     [Header("Tabs")]
-    public Button controlsTabButton;
-    public Button mapTabButton;
+    public Button settingsTabButton;
+    public Button TabButton2;
     public Button itemsTabButton;
 
     [Header("Panels")]
-    public GameObject controlsPanel;
-    public GameObject mapPanel;
+    public GameObject ContentPanel1;
+    public GameObject ContentPanel2;
     public GameObject itemsPanel;
 
     private bool isOpen = false;
@@ -29,14 +29,14 @@ public class JournalUI : MonoBehaviour
         // Tab setup
         panels = new Dictionary<string, GameObject>
         {
-            {"Controls", controlsPanel},
-            {"Map", mapPanel},
+            {"Settings", ContentPanel1},
+            {"TabButton2", ContentPanel2},
             {"Items", itemsPanel},
         };
 
         // Tab listeners
-        controlsTabButton.onClick.AddListener(() => ShowPanel("Controls"));
-        mapTabButton.onClick.AddListener(() => ShowPanel("Map"));
+        settingsTabButton.onClick.AddListener(() => ShowPanel("Settings"));
+        TabButton2.onClick.AddListener(() => ShowPanel("Content2"));
         itemsTabButton.onClick.AddListener(() => ShowPanel("Items"));
 
         // Add click listener to journal icon
@@ -57,13 +57,13 @@ public class JournalUI : MonoBehaviour
         }
 
         // Start with controls by default
-        ShowPanel("Controls");
+        ShowPanel("Settings");
     }
 
     void Update()
     {
-        // Toggle journal with Q
-        if (Input.GetKeyDown(KeyCode.Q))
+        // Toggle journal with J
+        if (Input.GetKeyDown(KeyCode.J))
         {
             ToggleJournal();
         }
