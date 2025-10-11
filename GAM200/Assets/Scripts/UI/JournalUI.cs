@@ -67,6 +67,30 @@ public class JournalUI : MonoBehaviour
         {
             ToggleJournal();
         }
+
+        // Toggle inventory tab with I
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            if (isOpen)
+                CloseJournal(); // close if open
+            else
+            {
+                OpenJournal();
+                ShowPanel("Items");
+            }
+        }
+
+        // Toggle journal with Escape (always goes to Settings)
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isOpen)
+                CloseJournal(); // close if open
+            else
+            {
+                OpenJournal();
+                ShowPanel("Settings");
+            }
+        }
     }
 
     private void ToggleJournal()
