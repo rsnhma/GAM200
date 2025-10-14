@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7154925289373286609}
   - component: {fileID: 4939452388953687180}
   - component: {fileID: 4344914809536571631}
+  - component: {fileID: 2877867805047242571}
   m_Layer: 0
   m_Name: VHS
   m_TagString: Untagged
@@ -26,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4854210182231426933}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -128.4802, y: -47.256, z: 12.21838}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
@@ -134,3 +135,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.1598577, y: 0.96194524}
   m_EdgeRadius: 0
+--- !u!114 &2877867805047242571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4854210182231426933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 441c2f826a44aad4aa115bc7d3e3025e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemID: vhs_tape
+  itemIcon: {fileID: -7532411707869503307, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
+  isPuzzleReward: 0
+  tvInteraction: {fileID: 0}
