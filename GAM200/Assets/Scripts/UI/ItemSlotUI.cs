@@ -1,54 +1,56 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
-public class ItemSlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 {
     public string itemID;
     public System.Action onUse;
 
-    private Transform originalParent;
-    private Canvas parentCanvas;
+    [Header("UI References")]
+    public Image itemIconImage;
+    public GameObject selectionHighlight; // Optional: visual feedback for selected item
 
-    private void Awake()
+    private void Start()
     {
-        parentCanvas = GetComponentInParent<Canvas>();
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        originalParent = transform.parent;
-        transform.SetParent(parentCanvas.transform); // bring to top of canvas
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        transform.position = eventData.position; // follow mouse
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        // Convert mouse position to world
-        Vector2 worldPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        // Raycast to check if dropped on a world object
-        RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero);
-
-        if (hit.collider != null)
+        // Get icon reference if not assigned
+        if (itemIconImage == null)
         {
-            TVInteraction tv = hit.collider.GetComponent<TVInteraction>();
-            if (tv != null && itemID == "vhs_tape")
-            {
-                // Call the VHS use logic
-                onUse?.Invoke();
-
-                // Remove from UI
-                Destroy(gameObject);
-                return;
-            }
+            itemIconImage = transform.Find("ItemIcon")?.GetComponent<Image>();
         }
 
-        // Snap back if not dropped on TV
-        transform.SetParent(originalParent);
-        transform.localPosition = Vector3.zero;
+        // Disable highlight by default
+        if (selectionHighlight != null)
+        {
+            selectionHighlight.SetActive(false);
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            // Left click: Select and view item details
+            InventorySystem.Instance.SelectItem(itemID);
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            // Right click: Equip item to hands
+            InventorySystem.Instance.EquipItem(itemID);
+        }
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (selectionHighlight != null)
+        {
+            selectionHighlight.SetActive(selected);
+        }
+        else
+        {
+            // Optional: Change color/scale if no highlight object exists
+            // itemIconImage.color = selected ? Color.yellow : Color.white;
+        }
     }
 }

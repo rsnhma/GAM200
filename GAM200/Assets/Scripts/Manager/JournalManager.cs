@@ -8,15 +8,30 @@ public class JournalManager : MonoBehaviour
     public static JournalManager Instance;
 
     [Header("Tabs")]
-    public GameObject mapTabPanel;
+    public GameObject ContentPanel1;
+    public GameObject ContentPanel2;
     public GameObject itemsTabPanel;
 
-    [Header("Prefabs")]
+    [Header("Item Grid")]
     public GameObject itemEntryPrefab;
     public Transform itemsContentParent;
 
-    // Dictionary to cache item icons so we don't need to find destroyed collectibles
+    [Header("Item Details")]
+    public Image itemIcon;
+    public TextMeshProUGUI itemName;
+    public TextMeshProUGUI itemDescription;
+
+    [Header("Item Data ScriptableObjects")]
+    public List<ItemData> allItemData = new List<ItemData>(); // Drag all ItemData SOs here in Inspector
+
+    // Dictionary to cache item icons 
     private Dictionary<string, Sprite> itemIconCache = new Dictionary<string, Sprite>();
+
+    // Dictionary to track item slot UI elements
+    private Dictionary<string, ItemSlotUI> itemSlots = new Dictionary<string, ItemSlotUI>();
+
+    // Dictionary for quick ItemData lookup
+    private Dictionary<string, ItemData> itemDataLookup = new Dictionary<string, ItemData>();
 
     private void Awake()
     {
@@ -27,11 +42,32 @@ public class JournalManager : MonoBehaviour
     private void Start()
     {
         PrecacheAllItemIcons();
+        BuildItemDataLookup();
+        ClearItemDetails();
     }
 
-    public void UpdateJournalTab(string itemID, System.Action useAction = null)
+    private void BuildItemDataLookup()
     {
-     
+        // Build dictionary from ScriptableObject list for fast lookup
+        foreach (ItemData data in allItemData)
+        {
+            if (!string.IsNullOrEmpty(data.itemID))
+            {
+                itemDataLookup[data.itemID] = data;
+                Debug.Log($"Registered ItemData: {data.itemID}");
+            }
+        }
+    }
+
+    public void UpdateJournalTab(string itemID, System.Action useAction = null, GameObject itemPrefab = null)
+    {
+        // Don't add duplicate items
+        if (itemSlots.ContainsKey(itemID))
+        {
+            Debug.Log($"Item {itemID} already exists in journal");
+            return;
+        }
+
         // Add item to items tab
         GameObject entry = Instantiate(itemEntryPrefab, itemsContentParent);
 
@@ -40,7 +76,6 @@ public class JournalManager : MonoBehaviour
         slotUI.onUse = useAction;
 
         Image icon = entry.transform.Find("ItemIcon").GetComponent<Image>();
-        Debug.Log("Is Icon Assigned? :" + icon);
 
         // Get sprite from cache
         Sprite itemSprite = GetItemSprite(itemID);
@@ -55,8 +90,104 @@ public class JournalManager : MonoBehaviour
             Debug.LogWarning("Could not find sprite for item: " + itemID);
         }
 
-        // Register in inventory system
-        InventorySystem.Instance.AddItem(itemID, useAction);
+        // Store reference to this slot
+        itemSlots[itemID] = slotUI;
+
+        // Register in inventory system (no longer called separately from Collectible)
+        InventorySystem.Instance.AddItem(itemID, useAction, itemPrefab);
+    }
+
+    public void UpdateItemDetailsPanel(string itemID)
+    {
+        // Check if we have ItemData for this item
+        if (itemDataLookup.ContainsKey(itemID))
+        {
+            ItemData data = itemDataLookup[itemID];
+
+            // Update icon
+            if (itemIcon != null && data.itemIcon != null)
+            {
+                itemIcon.sprite = data.itemIcon;
+                itemIcon.enabled = true;
+            }
+
+            // Update name
+            if (itemName != null)
+            {
+                itemName.text = data.itemName;
+            }
+
+            // Update description
+            if (itemDescription != null)
+            {
+                itemDescription.text = data.itemDescription;
+            }
+
+            Debug.Log($"Updated details panel for: {itemID}");
+        }
+        else
+        {
+            // Fallback if ItemData not found
+            Debug.LogWarning($"No ItemData found for: {itemID}");
+
+            if (itemName != null)
+                itemName.text = itemID;
+
+            if (itemDescription != null)
+                itemDescription.text = "No description available.";
+
+            // Try to get icon from cache
+            Sprite itemSprite = GetItemSprite(itemID);
+            if (itemIcon != null && itemSprite != null)
+            {
+                itemIcon.sprite = itemSprite;
+                itemIcon.enabled = true;
+            }
+        }
+    }
+
+    public void UpdateItemSelectionHighlight(string selectedItemID)
+    {
+        // Update all slots to show only the selected one highlighted
+        foreach (var kvp in itemSlots)
+        {
+            kvp.Value.SetSelected(kvp.Key == selectedItemID);
+        }
+    }
+
+    public void RemoveItemFromUI(string itemID)
+    {
+        if (itemSlots.ContainsKey(itemID))
+        {
+            Destroy(itemSlots[itemID].gameObject);
+            itemSlots.Remove(itemID);
+            Debug.Log($"Removed {itemID} from journal UI");
+        }
+    }
+
+    public void HideItemDetailsPanel()
+    {
+        ClearItemDetails();
+    }
+
+    private void ClearItemDetails()
+    {
+        // Clear the details panel (don't hide, just clear content)
+        if (itemIcon != null)
+        {
+            itemIcon.sprite = null;
+            itemIcon.enabled = false;
+        }
+
+        if (itemName != null)
+        {
+            itemName.text = "";
+        }
+
+        if (itemDescription != null)
+        {
+            itemDescription.text = "Select an item to view details";
+        }
     }
 
     private Sprite GetItemSprite(string itemID)
@@ -113,14 +244,5 @@ public class JournalManager : MonoBehaviour
         }
 
         Debug.Log("Total icons cached: " + itemIconCache.Count);
-    }
-
-    private Collectible FindCollectibleByID(string id)
-    {
-        Collectible[] all = FindObjectsOfType<Collectible>();
-        foreach (var c in all)
-            if (c.itemID == id)
-                return c;
-        return null;
     }
 }
