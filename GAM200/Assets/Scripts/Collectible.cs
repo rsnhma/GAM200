@@ -5,6 +5,7 @@ public class Collectible : MonoBehaviour
     [Header("Item Settings")]
     public string itemID;
     public Sprite itemIcon;
+    public GameObject itemPrefabForHands; // Assign the prefab that will appear in player's hands
     public bool isPuzzleReward = false;
 
     [Header("Mandatory TV Interaction")]
@@ -12,7 +13,6 @@ public class Collectible : MonoBehaviour
 
     private Vector3 originalPosition;
     private Quaternion originalRotation;
-
     private bool playerNearby = false;
 
     private void Start()
@@ -28,6 +28,7 @@ public class Collectible : MonoBehaviour
 
     private void Update()
     {
+        // Left click to pick up item when player is nearby
         if (playerNearby && Input.GetMouseButtonDown(0))
         {
             Pickup();
@@ -56,8 +57,8 @@ public class Collectible : MonoBehaviour
             useAction = () => tvInteraction.HandleVHSUse();
         }
 
-        InventorySystem.Instance.AddItem(itemID, useAction);
-        JournalManager.Instance.UpdateJournalTab(itemID, useAction);
+        // Update journal UI (which handles adding to inventory internally)
+        JournalManager.Instance.UpdateJournalTab(itemID, useAction, itemPrefabForHands);
 
         Debug.Log($"Collected {itemID}");
     }

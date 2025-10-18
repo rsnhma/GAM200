@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44bf302af91aa4b4e999ca69979089cb, type: 3}
-  m_Name: VHS_ItemData
+  m_Name: Test_ItemData
   m_EditorClassIdentifier: 
-  itemID: vhs_tape
-  itemName: VHS Tape
-  itemIcon: {fileID: -7532411707869503307, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
-  itemDescription: An old VHS tape. Maybe it works with the TV?
+  itemID: test_item
+  itemName: Test Item
+  itemIcon: {fileID: 372457624041576973, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
+  itemDescription: 'Item has been picked up. '

@@ -11,13 +11,10 @@ public class GameManager : MonoBehaviour
     {
         InventorySystem.Instance.ClearAll();
 
-        map.ResetCollectible();
         vhsTape.ResetCollectible();
         collectible3.ResetCollectible();
         collectible4.ResetCollectible();
 
-        // Optional: reset journal tabs
-        JournalManager.Instance.mapTabPanel.SetActive(false);
         foreach (Transform child in JournalManager.Instance.itemsContentParent)
             Destroy(child.gameObject);
     }
