@@ -165,10 +165,16 @@ public class MainEnemy : EnemyBase
 
         if (isValidNoise)
         {
-                lastKnownPosition = position;
-                lingeringTimer = entityData.chaseBreakTime;
-                TransitionToState(EnemyManager.EnemyState.Suspicious);
-                Debug.Log($"MainEnemy alerted by noise (radius {radius}) at {position}");
+            lastKnownPosition = position;
+            lingeringTimer = entityData.chaseBreakTime;
+            TransitionToState(EnemyManager.EnemyState.Suspicious);
+            Debug.Log($"MainEnemy alerted by noise (radius {radius}) at {position}");
+
+            // Show sound indicator (only if not already detected)
+            if (SoundIndicatorUI.Instance != null)
+            {
+                SoundIndicatorUI.Instance.ShowIndicator();
+            }
         }
     }
 
@@ -245,6 +251,18 @@ public class MainEnemy : EnemyBase
         lastPosition = currentPosition;
     }
 
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && currentState == EnemyManager.EnemyState.Chasing && !isCapturing)
+        {
+            float distance = Vector2.Distance(transform.position, other.transform.position);
+            if (distance < entityData.captureRange)
+            {
+                TryCapturePlayer();
+            }
+        }
+    }
+
     private void UpdateChasing()
     {
         // Check if player is hiding first (this should override line of sight)
@@ -274,10 +292,6 @@ public class MainEnemy : EnemyBase
 
         // Continue chasing towards last known position
         ChasePlayer();
-
-        float distance = Vector2.Distance(transform.position, player.position);
-        if (distance < entityData.captureRange)
-            TryCapturePlayer();
 
         // Only go to suspicious if we're stuck at last known position for a while
         float distanceToLastKnown = Vector2.Distance(transform.position, lastKnownPosition);
@@ -401,12 +415,24 @@ public class MainEnemy : EnemyBase
             case EnemyManager.EnemyState.Patrolling:
                 Debug.Log("Enemy state: Patrolling");
                 isChasing = false;
-                PickNewRoamDirection(); // Start roaming immediately
+                PickNewRoamDirection();
+
+                // IMPORTANT: Reset detection when enemy loses player
+                if (SoundIndicatorUI.Instance != null)
+                {
+                    SoundIndicatorUI.Instance.ResetDetection();
+                }
                 break;
 
             case EnemyManager.EnemyState.Inactive:
                 Debug.Log("Enemy state: Inactive");
                 isChasing = false;
+
+                // Also reset on inactive
+                if (SoundIndicatorUI.Instance != null)
+                {
+                    SoundIndicatorUI.Instance.ResetDetection();
+                }
                 break;
         }
     }
@@ -440,6 +466,12 @@ public class MainEnemy : EnemyBase
         if (PlayerSanity.Instance != null) PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnSuccess);
 
         TransitionToState(EnemyManager.EnemyState.Patrolling);
+
+        // Reset detection after successful escape
+        if (SoundIndicatorUI.Instance != null)
+        {
+            SoundIndicatorUI.Instance.ResetDetection();
+        }
     }
 
     private void OnEscapeFail()
@@ -463,12 +495,18 @@ public class MainEnemy : EnemyBase
                 if (gameOver != null)
                 {
                     gameOver.ShowGameOver();
-                    return; // stop further state transitions
+                    return;
                 }
             }
         }
 
         TransitionToState(EnemyManager.EnemyState.Patrolling);
+
+        // Reset detection after failed escape
+        if (SoundIndicatorUI.Instance != null)
+        {
+            SoundIndicatorUI.Instance.ResetDetection();
+        }
     }
 
     public void OnTeleportedToHallway()
