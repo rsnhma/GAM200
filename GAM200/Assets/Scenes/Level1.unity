@@ -11639,7 +11639,7 @@ RectTransform:
   m_Father: {fileID: 1456927356}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 4.9804, y: 0}
   m_SizeDelta: {x: 19.9608, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -17194,7 +17194,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &677231495
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18460,9 +18460,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1115776650968457084, guid: 27fdea705963623429365eda82e2836d, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1295389617386656275, guid: 27fdea705963623429365eda82e2836d, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1369999824901520090, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1369999824901520090, guid: 27fdea705963623429365eda82e2836d, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7584935433871656690, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: sanityUI
@@ -22218,6 +22230,7 @@ GameObject:
   - component: {fileID: 903763009}
   - component: {fileID: 903763008}
   - component: {fileID: 903763007}
+  - component: {fileID: 903763010}
   m_Layer: 5
   m_Name: SoundIndicator
   m_TagString: Untagged
@@ -22308,6 +22321,27 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &903763010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903763005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 028107f416245a843bc97ea8bd87b772, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 677231494}
+  indicatorImage: {fileID: 499342179}
+  warningText: {fileID: 0}
+  displayDuration: 2
+  fadeInSpeed: 5
+  fadeOutSpeed: 3
+  pulseSpeed: 2
+  pulseScale: 1.2
+  alertColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &909159202
 GameObject:
   m_ObjectHideFlags: 0
@@ -43358,7 +43392,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1725427342
 MonoBehaviour:
   m_ObjectHideFlags: 0
