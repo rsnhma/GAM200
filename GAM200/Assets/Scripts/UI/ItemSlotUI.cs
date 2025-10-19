@@ -49,8 +49,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            // Optional: Change color/scale if no highlight object exists
-            // itemIconImage.color = selected ? Color.yellow : Color.white;
+
+            itemIconImage.color = selected ? Color.yellow : Color.grey;
         }
     }
 }
