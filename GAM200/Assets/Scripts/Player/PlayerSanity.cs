@@ -111,17 +111,63 @@ public class PlayerSanity : MonoBehaviour
     // Call this when player FAILS a QTE
     public void OnQTEFailed()
     {
-        Debug.Log($"QTE FAILED! Losing {sanityLossPerQTEFail} sanity");
+        Debug.Log($"=== PlayerSanity.OnQTEFailed() CALLED ===");
+        Debug.Log($"Current sanity BEFORE loss: {currentSanity}/{maxSanity}");
+        Debug.Log($"Will lose {sanityLossPerQTEFail} sanity");
+
         LoseSanity(sanityLossPerQTEFail);
+
+        Debug.Log($"Current sanity AFTER loss: {currentSanity}/{maxSanity}");
+
+        // Force multiple UI updates
+        UpdateSanityEffects();
+
+        if (sanityUI != null)
+        {
+            sanityUI.SetSanity(GetSanityPercent());
+            Debug.Log($"Forced sanity UI update to {GetSanityPercent():P0}");
+        }
+        else
+        {
+            Debug.LogError("SanityUI is null!");
+        }
+
+        // Update the QTE drain rate for the next attempt
+        if (SpacebarQTESystem.Instance != null)
+        {
+            SpacebarQTESystem.Instance.RefreshDrainRate();
+        }
+
         CheckGameOverCondition();
+        Debug.Log($"=== PlayerSanity.OnQTEFailed() COMPLETE ===");
     }
 
     // Call this when player SUCCEEDS a QTE (but still loses a bit of sanity)
     public void OnQTESuccess()
     {
-        Debug.Log($"QTE SUCCESS! Losing {sanityLossPerQTESuccess} sanity");
+        Debug.Log($"=== PlayerSanity.OnQTESuccess() CALLED ===");
+        Debug.Log($"Current sanity BEFORE loss: {currentSanity}/{maxSanity}");
+        Debug.Log($"Will lose {sanityLossPerQTESuccess} sanity");
+
         LoseSanity(sanityLossPerQTESuccess);
+
+        Debug.Log($"Current sanity AFTER loss: {currentSanity}/{maxSanity}");
+
+        // Force multiple UI updates
+        UpdateSanityEffects();
+
+        if (sanityUI != null)
+        {
+            sanityUI.SetSanity(GetSanityPercent());
+            Debug.Log($"Forced sanity UI update to {GetSanityPercent():P0}");
+        }
+        else
+        {
+            Debug.LogError("SanityUI is null!");
+        }
+
         CheckGameOverCondition();
+        Debug.Log($"=== PlayerSanity.OnQTESuccess() COMPLETE ===");
     }
 
     // Check if player should get game over when caught at low sanity
