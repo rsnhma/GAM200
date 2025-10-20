@@ -6,7 +6,7 @@ public class Collectible : MonoBehaviour
     public string itemID;
     public Sprite itemIcon;
     public GameObject itemPrefabForHands; // Assign the prefab that will appear in player's hands
-    public bool isPuzzleReward = false;
+    public bool isPuzzleReward = false; // False = Goes into inventory
 
     [Header("Mandatory TV Interaction")]
     public TVInteraction tvInteraction;
@@ -20,9 +20,21 @@ public class Collectible : MonoBehaviour
         originalPosition = transform.position;
         originalRotation = transform.rotation;
 
-        if (InventorySystem.Instance.HasItem(itemID))
+
+        // Check if item already collected (works for both types)
+        if (isPuzzleReward)
         {
-            gameObject.SetActive(false);
+            if (JournalManager.Instance.HasMemorabilia(itemID))
+            {
+                gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            if (InventorySystem.Instance.HasItem(itemID))
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 
@@ -51,16 +63,24 @@ public class Collectible : MonoBehaviour
     {
         gameObject.SetActive(false);
 
-        System.Action useAction = null;
-        if (tvInteraction != null)
+        if (isPuzzleReward)
         {
-            useAction = () => tvInteraction.HandleVHSUse();
+            // This is memorabilia - add to memorabilia tab
+            JournalManager.Instance.AddMemorabilia(itemID);
+            Debug.Log($"Collected memorabilia: {itemID}");
         }
+        else
+        {
+            // This is an inventory item - add to inventory tab
+            System.Action useAction = null;
+            if (tvInteraction != null)
+            {
+                useAction = () => tvInteraction.HandleVHSUse();
+            }
 
-        // Update journal UI (which handles adding to inventory internally)
-        JournalManager.Instance.UpdateJournalTab(itemID, useAction, itemPrefabForHands);
-
-        Debug.Log($"Collected {itemID}");
+            JournalManager.Instance.UpdateJournalTab(itemID, useAction, itemPrefabForHands);
+            Debug.Log($"Collected inventory item: {itemID}");
+        }
     }
 
     public void ResetCollectible()
