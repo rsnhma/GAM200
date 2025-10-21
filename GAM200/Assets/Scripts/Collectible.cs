@@ -61,6 +61,13 @@ public class Collectible : MonoBehaviour
 
     public void Pickup()
     {
+        // Show dialogue if it exists
+        string dialogueID = itemID + "_pickup";
+        if (DialogueDatabase.dialogues.ContainsKey(dialogueID))
+        {
+           DialogueManager.Instance.StartDialogueSequence(dialogueID);
+        }
+
         gameObject.SetActive(false);
 
         if (isPuzzleReward)

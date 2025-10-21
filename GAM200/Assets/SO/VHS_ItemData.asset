@@ -15,4 +15,4 @@ MonoBehaviour:
   itemID: vhs_tape
   itemName: VHS Tape
   itemIcon: {fileID: -7532411707869503307, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
-  itemDescription: An old VHS tape. Maybe it works with the TV?
+  itemDescription: 'Old VHS tape. '
