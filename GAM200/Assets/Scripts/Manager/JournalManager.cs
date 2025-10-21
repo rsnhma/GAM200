@@ -90,6 +90,7 @@ public class JournalManager : MonoBehaviour
 
         itemSlots[itemID] = slotUI;
         InventorySystem.Instance.AddItem(itemID, useAction, itemPrefab);
+
     }
 
     public void AddMemorabilia(string itemID)
@@ -231,6 +232,7 @@ public class JournalManager : MonoBehaviour
         }
     }
 
+    // Only Inventory item gets removed as it can be used
     public void RemoveItemFromUI(string itemID)
     {
         if (itemSlots.ContainsKey(itemID))
@@ -240,13 +242,13 @@ public class JournalManager : MonoBehaviour
             Debug.Log($"Removed {itemID} from inventory UI");
         }
 
-        if (memorabiliaSlots.ContainsKey(itemID))
-        {
-            Destroy(memorabiliaSlots[itemID].gameObject);
-            memorabiliaSlots.Remove(itemID);
-            collectedMemorabilia.Remove(itemID);
-            Debug.Log($"Removed {itemID} from memorabilia UI");
-        }
+        //if (memorabiliaSlots.ContainsKey(itemID))
+        //{
+        //    Destroy(memorabiliaSlots[itemID].gameObject);
+        //    memorabiliaSlots.Remove(itemID);
+        //    collectedMemorabilia.Remove(itemID);
+        //    Debug.Log($"Removed {itemID} from memorabilia UI");
+        //}
     }
 
     public void HideItemDetailsPanel()
