@@ -1,0 +1,5 @@
+dialogueID,speakerName,dialogueText,nextDialogueID,triggerTaskID
+bulletin_board_intro,Player,"All started at the AV room...then that's where we shall start",,find_av_room
+av_room_entry,Player,"This must be the place. Let me look around.",,
+vhs_tape_pickup,Player, "An old VHS tape. Maybe it works with the TV?",,
+
