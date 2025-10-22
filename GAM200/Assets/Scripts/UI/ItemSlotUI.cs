@@ -1,56 +1,91 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using TMPro;
 
 public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 {
     public string itemID;
-    public System.Action onUse;
+    public System.Action onUse; // Action to perform when item is used (null for memorabilia)
 
     [Header("UI References")]
-    public Image itemIconImage;
-    public GameObject selectionHighlight; // Optional: visual feedback for selected item
+    public Image itemIconImage; // The actual item icon
+    public Image slotBackgroundImage; // The slot background that changes sprites
+
+    [Header("Slot Background Sprites")]
+    public Sprite defaultSlotSprite; // Drag your default slot sprite here
+    public Sprite selectedSlotSprite; // Drag your selected slot sprite here
+
+    private bool isMemorabilia = false;
 
     private void Start()
     {
+        // Determine if this is memorabilia based on whether it has a use action
+        isMemorabilia = (onUse == null);
+
         // Get icon reference if not assigned
         if (itemIconImage == null)
         {
             itemIconImage = transform.Find("ItemIcon")?.GetComponent<Image>();
         }
 
-        // Disable highlight by default
-        if (selectionHighlight != null)
+        // Get background image if not assigned (it should be on this GameObject)
+        if (slotBackgroundImage == null)
         {
-            selectionHighlight.SetActive(false);
+            slotBackgroundImage = GetComponent<Image>();
         }
+
+        // Set to default sprite initially
+        SetSelected(false);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        // Left click to select and view details
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            // Left click: Select and view item details
-            InventorySystem.Instance.SelectItem(itemID);
+            SelectItem();
         }
-        else if (eventData.button == PointerEventData.InputButton.Right)
+        // Right click to use/equip (only for inventory items, not memorabilia)
+        else if (eventData.button == PointerEventData.InputButton.Right && !isMemorabilia)
         {
-            // Right click: Equip item to hands
+            // For inventory items, use the inventory system's equip method
             InventorySystem.Instance.EquipItem(itemID);
+            Debug.Log($"Equipped item: {itemID}");
+        }
+    }
+
+    private void SelectItem()
+    {
+        // Update selection highlight for all items
+        JournalManager.Instance.UpdateItemSelectionHighlight(itemID);
+
+        // Update the appropriate details panel based on item type
+        if (isMemorabilia)
+        {
+            JournalManager.Instance.UpdateMemorabiliaDetailsPanel(itemID);
+            Debug.Log($"Selected memorabilia: {itemID}");
+        }
+        else
+        {
+            // For inventory items, use the inventory system's select method
+            InventorySystem.Instance.SelectItem(itemID);
+            Debug.Log($"Selected inventory item: {itemID}");
         }
     }
 
     public void SetSelected(bool selected)
     {
-        if (selectionHighlight != null)
+        // Change background sprite based on selection state
+        if (slotBackgroundImage != null)
         {
-            selectionHighlight.SetActive(selected);
-        }
-        else
-        {
-            // Optional: Change color/scale if no highlight object exists
-            // itemIconImage.color = selected ? Color.yellow : Color.white;
+            if (selected && selectedSlotSprite != null)
+            {
+                slotBackgroundImage.sprite = selectedSlotSprite;
+            }
+            else if (!selected && defaultSlotSprite != null)
+            {
+                slotBackgroundImage.sprite = defaultSlotSprite;
+            }
         }
     }
 }
