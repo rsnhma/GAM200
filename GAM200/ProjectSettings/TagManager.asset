@@ -45,5 +45,29 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 2088751503
+    locked: 0
+  - name: 'Walls '
+    uniqueID: 3123669433
+    locked: 0
+  - name: Borders
+    uniqueID: 570394817
+    locked: 0
+  - name: Items Interactive
+    uniqueID: 149747303
+    locked: 0
+  - name: Enemy
+    uniqueID: 1687484579
+    locked: 0
+  - name: Player
+    uniqueID: 1679586917
+    locked: 0
+  - name: Items Props Under
+    uniqueID: 2950703875
+    locked: 0
+  - name: Items Props
+    uniqueID: 3237879885
+    locked: 0
   m_RenderingLayers:
   - Default
