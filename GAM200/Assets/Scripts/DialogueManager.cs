@@ -3,150 +3,93 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Rendering;
 
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
-
-    //[HideInInspector] public DialogueTrigger currentTrigger;
-    [Header("UI References")]
     public GameObject dialoguePanel;
+    [HideInInspector] public DialogueTrigger currentTrigger;
+
     public Image characterIcon;
     public TextMeshProUGUI characterName;
     public TextMeshProUGUI dialogueArea;
-    public Button dialogueButton;
     public TextMeshProUGUI buttonText;
+    
+    private Queue<DialogueLine> lines;
 
-
+    public bool isDialogueActive = false;
     public float typingSpeed = 0.2f;
-    private Queue<DialogueData> dialogueQueue = new Queue<DialogueData>();
-    private bool isTyping = false;
-    private bool isDialogueActive = false;
-    private Coroutine typingCoroutine;
-    private string currentFullText = "";
-
     // public Animator animator;
 
     private void Awake()
     {
         if (Instance == null)
             Instance = this;
-        else
-            Destroy(gameObject);
+
+        lines = new Queue<DialogueLine>();
+    }
+    
+    public void StartDialogue(Dialogue dialogue)
+    {
+        isDialogueActive = true;
+        dialoguePanel.SetActive(true);
+        // animator.Play("show");
+        lines.Clear();
+
+        foreach (DialogueLine dialogueLine in dialogue.dialogueLines)
+        {
+            lines.Enqueue(dialogueLine);
+        }
+        DisplayNextDialogueLine();
     }
 
-    private void Start()
+    public void DisplayNextDialogueLine()
     {
-        dialoguePanel.SetActive(false);
-
-        if (dialogueButton != null)
-        {
-            dialogueButton.onClick.AddListener(OnDialogueButtonClick);
-        }
-    }
-    public void StartDialogueSequence(string startDialogueID)
-    {
-        dialogueQueue.Clear();
-
-        // Build dialogue chain
-        string currentID = startDialogueID;
-        while (!string.IsNullOrEmpty(currentID) && DialogueDatabase.dialogues.ContainsKey(currentID))
-        {
-            DialogueData data = DialogueDatabase.dialogues[currentID];
-            dialogueQueue.Enqueue(data);
-            currentID = data.nextDialogueID;
-        }
-
-        if (dialogueQueue.Count > 0)
-        {
-            isDialogueActive = true;
-            dialoguePanel.SetActive(true);
-            DisplayNextDialogue();
-        }
-    }
-
-    private void DisplayNextDialogue()
-    {
-        if (dialogueQueue.Count == 0)
+        if (lines.Count == 0)
         {
             EndDialogue();
             return;
         }
 
-        DialogueData currentDialogue = dialogueQueue.Dequeue();
+        DialogueLine currentLine = lines.Dequeue();
 
-        characterName.text = currentDialogue.speakerName;
-        currentFullText = currentDialogue.dialogueText;
+        characterIcon.sprite = currentLine.character.icon;
+        characterName.text = currentLine.character.name;
 
-        // Update button text based on remaining dialogues
-        UpdateButtonText();
+        StopAllCoroutines();
+        StartCoroutine(TypeSentence(currentLine));
 
-        // Start typing effect
-        if (typingCoroutine != null)
-            StopCoroutine(typingCoroutine);
-
-        typingCoroutine = StartCoroutine(TypeText(currentFullText));
-
-        // Check if this dialogue should trigger a task
-        if (!string.IsNullOrEmpty(currentDialogue.triggerTaskID))
+         if (lines.Count > 0)
         {
-            TaskManager.Instance?.AddTask(currentDialogue.triggerTaskID);
+            buttonText.text = "Next";
+        }
+        else
+        {
+            buttonText.text = "OK";
         }
     }
 
-    private IEnumerator TypeText(string text)
+    IEnumerator TypeSentence(DialogueLine dialogueLine)
     {
-        isTyping = true;
         dialogueArea.text = "";
-
-        foreach (char c in text)
+        foreach (char letter in dialogueLine.line.ToCharArray())
         {
-            dialogueArea.text += c;
+            dialogueArea.text += letter;
             yield return new WaitForSeconds(typingSpeed);
         }
-
-        isTyping = false;
     }
 
-    private void OnDialogueButtonClick()
-    {
-        if (isTyping)
-        {
-            // Skip typing animation
-            if (typingCoroutine != null)
-                StopCoroutine(typingCoroutine);
-
-            dialogueArea.text = currentFullText;
-            isTyping = false;
-        }
-        else
-        {
-            // Move to next dialogue or close
-            DisplayNextDialogue();
-        }
-    }
-
-    private void UpdateButtonText()
-    {
-        if (dialogueQueue.Count > 0)
-        {
-            buttonText.text = "Continue";
-        }
-        else
-        {
-            buttonText.text = "Close";
-        }
-    }
-
-    private void EndDialogue()
+    void EndDialogue()
     {
         isDialogueActive = false;
-        dialoguePanel.SetActive(false);
-    }
-
-    public bool IsDialogueActive()
-    {
-        return isDialogueActive;
+        // animator.Play("hide");
+        dialoguePanel.SetActive(false); // hide the panel
+        
+        // disable the trigger object after dialogue ends
+        if (currentTrigger != null)
+        {
+            currentTrigger.gameObject.SetActive(false);
+            currentTrigger = null; // clear reference
+        }
     }
 }

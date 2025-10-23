@@ -25,7 +25,7 @@ public class InventorySystem : MonoBehaviour
 
     private void Update()
     {
-        // Press E to use currently SELECTED item 
+        // Press E to use currently SELECTED item (not equipped)
         if (Input.GetKeyDown(KeyCode.E))
         {
             if (!string.IsNullOrEmpty(currentlySelectedItemID))

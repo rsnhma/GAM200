@@ -87,7 +87,7 @@ GameObject:
   - component: {fileID: 2482287953539631858}
   - component: {fileID: 6030916282236024290}
   m_Layer: 5
-  m_Name: SlotBackground
+  m_Name: SelectionHighlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.4056604, g: 0.4056604, b: 0.4056604, a: 0.41960785}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -181,8 +181,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4624345668186317871}
   - {fileID: 9058495345364520623}
+  - {fileID: 4624345668186317871}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -242,6 +242,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 
   itemIconImage: {fileID: 6537075302494365844}
-  slotBackgroundImage: {fileID: 6030916282236024290}
-  defaultSlotSprite: {fileID: 3765853880425637702, guid: e092047c200a91b4fa1094da333da1d7, type: 3}
-  selectedSlotSprite: {fileID: 8777824922998612401, guid: e092047c200a91b4fa1094da333da1d7, type: 3}
+  selectionHighlight: {fileID: 4656890583643236118}

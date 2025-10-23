@@ -1,4 +1,0 @@
-taskID,taskName,taskDescription,category,completionDialogueID
-find_av_room,First Steps,Find the AV room,main,av_room_entry
-av_room_entry,Player,"This must be the place. Let me look around.",,
-

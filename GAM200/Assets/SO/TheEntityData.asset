@@ -18,5 +18,5 @@ MonoBehaviour:
   captureRange: 1
   qteDuration: 5
   successPauseTime: 3
-  sanityLossOnSuccess: 0.1
-  sanityLossOnFail: 0.2
+  sanityLossOnSuccess: 0.5
+  sanityLossOnFail: 1

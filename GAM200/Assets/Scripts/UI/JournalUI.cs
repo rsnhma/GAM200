@@ -11,15 +11,13 @@ public class JournalUI : MonoBehaviour
 
     [Header("Tabs")]
     public Button settingsTabButton;
-    public Button tasksTabButton;         
-    public Button memorabiliaTabButton;   
-    public Button inventoryTabButton;    
+    public Button TabButton2;
+    public Button itemsTabButton;
 
     [Header("Panels")]
-    public GameObject settingsPanel;      
-    public GameObject tasksPanel;         
-    public GameObject memorabiliaPanel;   
-    public GameObject inventoryPanel;    
+    public GameObject ContentPanel1;
+    public GameObject ContentPanel2;
+    public GameObject itemsPanel;
 
     private bool isOpen = false;
     private Dictionary<string, GameObject> panels;
@@ -28,20 +26,18 @@ public class JournalUI : MonoBehaviour
     {
         journalPanel.SetActive(false);
 
-        // Tab setup - now includes all 4 tabs
+        // Tab setup
         panels = new Dictionary<string, GameObject>
         {
-            {"Settings", settingsPanel},
-            {"Tasks", tasksPanel},
-            {"Memorabilia", memorabiliaPanel},
-            {"Inventory", inventoryPanel}
+            {"Settings", ContentPanel1},
+            {"TabButton2", ContentPanel2},
+            {"Items", itemsPanel},
         };
 
         // Tab listeners
         settingsTabButton.onClick.AddListener(() => ShowPanel("Settings"));
-        tasksTabButton.onClick.AddListener(() => ShowPanel("Tasks"));
-        memorabiliaTabButton.onClick.AddListener(() => ShowPanel("Memorabilia"));
-        inventoryTabButton.onClick.AddListener(() => ShowPanel("Inventory"));
+        TabButton2.onClick.AddListener(() => ShowPanel("Content2"));
+        itemsTabButton.onClick.AddListener(() => ShowPanel("Items"));
 
         // Add click listener to journal icon
         if (journalIconImage != null)
@@ -60,7 +56,7 @@ public class JournalUI : MonoBehaviour
             trigger.triggers.Add(entry);
         }
 
-        // Start with settings by default
+        // Start with controls by default
         ShowPanel("Settings");
     }
 
@@ -76,35 +72,11 @@ public class JournalUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.I))
         {
             if (isOpen)
-                CloseJournal();
+                CloseJournal(); // close if open
             else
             {
                 OpenJournal();
-                ShowPanel("Inventory");
-            }
-        }
-
-        // NEW: Toggle memorabilia tab with M
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            if (isOpen)
-                CloseJournal();
-            else
-            {
-                OpenJournal();
-                ShowPanel("Memorabilia");
-            }
-        }
-
-        // NEW: Toggle tasks tab with T
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            if (isOpen)
-                CloseJournal();
-            else
-            {
-                OpenJournal();
-                ShowPanel("Tasks");
+                ShowPanel("Items");
             }
         }
 
@@ -112,7 +84,7 @@ public class JournalUI : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isOpen)
-                CloseJournal();
+                CloseJournal(); // close if open
             else
             {
                 OpenJournal();
@@ -145,29 +117,5 @@ public class JournalUI : MonoBehaviour
     {
         foreach (var kvp in panels)
             kvp.Value.SetActive(kvp.Key == panelName);
-    }
-
-    public void OpenToInventory()
-    {
-        OpenJournal();
-        ShowPanel("Inventory");
-    }
-
-    public void OpenToMemorabilia()
-    {
-        OpenJournal();
-        ShowPanel("Memorabilia");
-    }
-
-    public void OpenToTasks()
-    {
-        OpenJournal();
-        ShowPanel("Tasks");
-    }
-
-    public void OpenToSettings()
-    {
-        OpenJournal();
-        ShowPanel("Settings");
     }
 }

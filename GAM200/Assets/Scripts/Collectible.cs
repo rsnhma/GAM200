@@ -6,7 +6,7 @@ public class Collectible : MonoBehaviour
     public string itemID;
     public Sprite itemIcon;
     public GameObject itemPrefabForHands; // Assign the prefab that will appear in player's hands
-    public bool isPuzzleReward = false; // False = Goes into inventory
+    public bool isPuzzleReward = false;
 
     [Header("Mandatory TV Interaction")]
     public TVInteraction tvInteraction;
@@ -20,21 +20,9 @@ public class Collectible : MonoBehaviour
         originalPosition = transform.position;
         originalRotation = transform.rotation;
 
-
-        // Check if item already collected (works for both types)
-        if (isPuzzleReward)
+        if (InventorySystem.Instance.HasItem(itemID))
         {
-            if (JournalManager.Instance.HasMemorabilia(itemID))
-            {
-                gameObject.SetActive(false);
-            }
-        }
-        else
-        {
-            if (InventorySystem.Instance.HasItem(itemID))
-            {
-                gameObject.SetActive(false);
-            }
+            gameObject.SetActive(false);
         }
     }
 
@@ -61,33 +49,18 @@ public class Collectible : MonoBehaviour
 
     public void Pickup()
     {
-        // Show dialogue if it exists
-        string dialogueID = itemID + "_pickup";
-        if (DialogueDatabase.dialogues.ContainsKey(dialogueID))
-        {
-           DialogueManager.Instance.StartDialogueSequence(dialogueID);
-        }
-
         gameObject.SetActive(false);
 
-        if (isPuzzleReward)
+        System.Action useAction = null;
+        if (tvInteraction != null)
         {
-            // This is memorabilia - add to memorabilia tab
-            JournalManager.Instance.AddMemorabilia(itemID);
-            Debug.Log($"Collected memorabilia: {itemID}");
+            useAction = () => tvInteraction.HandleVHSUse();
         }
-        else
-        {
-            // This is an inventory item - add to inventory tab
-            System.Action useAction = null;
-            if (tvInteraction != null)
-            {
-                useAction = () => tvInteraction.HandleVHSUse();
-            }
 
-            JournalManager.Instance.UpdateJournalTab(itemID, useAction, itemPrefabForHands);
-            Debug.Log($"Collected inventory item: {itemID}");
-        }
+        // Update journal UI (which handles adding to inventory internally)
+        JournalManager.Instance.UpdateJournalTab(itemID, useAction, itemPrefabForHands);
+
+        Debug.Log($"Collected {itemID}");
     }
 
     public void ResetCollectible()

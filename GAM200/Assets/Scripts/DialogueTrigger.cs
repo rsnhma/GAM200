@@ -22,32 +22,32 @@ using UnityEngine;
         public List<DialogueLine> dialogueLines = new List<DialogueLine>();
     }
 
-//public class DialogueTrigger : MonoBehaviour
-//{
-//    public Dialogue dialogue;
-//    public GameObject triggerObject; 
+public class DialogueTrigger : MonoBehaviour
+{
+    public Dialogue dialogue;
+    public GameObject triggerObject; 
 
-//    public void TriggerDialogue()
-//    {
-//        DialogueManager.Instance.StartDialogue(dialogue);
-//        DialogueManager.Instance.currentTrigger = this;
-//    }
-//    private bool hasTriggered = false;
+    public void TriggerDialogue()
+    {
+        DialogueManager.Instance.StartDialogue(dialogue);
+        DialogueManager.Instance.currentTrigger = this;
+    }
+    private bool hasTriggered = false;
 
-//    private void OnTriggerEnter2D(Collider2D collision)
-//    {
-//        if (collision.CompareTag("Player") && !hasTriggered)
-//        {
-//            hasTriggered = true;
-//            TriggerDialogue();
-//        }
-//    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player") && !hasTriggered)
+        {
+            hasTriggered = true;
+            TriggerDialogue();
+        }
+    }
 
-//    private void OnTriggerExit2D(Collider2D collision)
-//    {
-//        if (collision.CompareTag("Player"))
-//        {
-//            hasTriggered = false; // reset so it can be triggered again later
-//        }
-//    }
-//}
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            hasTriggered = false; // reset so it can be triggered again later
+        }
+    }
+}
