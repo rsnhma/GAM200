@@ -10,7 +10,8 @@ public class MainEnemy : EnemyBase
     public EnemyManager enemyManager;
 
     [Header("QTE System")]
-    public QTESystem qteSystem;
+    public SpacebarQTESystem spacebarQTESystem;
+    public float pushbackDistance = 3f; // How far to push enemy back on successful escape
 
     [Header("Roam/Patrol Settings")]
     public float roamSpeed = 1.5f;
@@ -22,14 +23,14 @@ public class MainEnemy : EnemyBase
     private TheEntityData entityData;
     private bool isCapturing = false;
     private float pauseTimer = 0f;
+    private float captureCooldown = 0f;
 
     [Header("Animation")]
     public Animator animator;
-    public float rotationSpeed = 10f; // How fast enemy turns
+    public float rotationSpeed = 10f;
     private SpriteRenderer spriteRenderer;
     private Vector2 lastPosition;
     private Vector2 lastMovement;
-
 
     // Enemy states
     private EnemyManager.EnemyState currentState = EnemyManager.EnemyState.Inactive;
@@ -48,21 +49,17 @@ public class MainEnemy : EnemyBase
     private CharacterMovement playerMovement;
     private PlayerSanity playerSanity;
 
-    private GameObject currentRoom; // Track which room the enemy is in
+    private GameObject currentRoom;
     private bool isInDeactivatedRoom = false;
-
 
     protected override void Start()
     {
         base.Start();
 
-        // Cache player components
         if (player != null)
         {
             playerMovement = player.GetComponent<CharacterMovement>();
             playerSanity = player.GetComponent<PlayerSanity>();
-
-
         }
 
         // Subscribe to noise events
@@ -85,7 +82,7 @@ public class MainEnemy : EnemyBase
 
         // Initialize animation
         lastPosition = transform.position;
-        lastMovement = new Vector2(0f, 1f); // Default facing up
+        lastMovement = new Vector2(0f, 1f);
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         if (animator != null)
@@ -93,9 +90,9 @@ public class MainEnemy : EnemyBase
             animator.SetFloat("Speed", 0f);
         }
     }
+
     private void FindCurrentRoom()
     {
-        // Find the room this enemy is currently in by checking parent objects
         Transform currentTransform = transform;
         while (currentTransform != null)
         {
@@ -108,7 +105,6 @@ public class MainEnemy : EnemyBase
             currentTransform = currentTransform.parent;
         }
 
-        // If not found as child of a room, check by position
         if (currentRoom == null)
         {
             currentRoom = FindRoomByPosition(transform.position);
@@ -131,7 +127,6 @@ public class MainEnemy : EnemyBase
 
     private IEnumerator StartChaseWithBuffer()
     {
-        // Buffer time for player to react
         yield return new WaitForSeconds(1f);
         Debug.Log("Buffer time ended - starting chase");
         TransitionToState(EnemyManager.EnemyState.Chasing);
@@ -148,7 +143,6 @@ public class MainEnemy : EnemyBase
     {
         NoiseSystem.OnNoiseEmitted -= OnNoiseHeard;
 
-        // Save state to manager when destroyed (scene change)
         if (enemyManager != null && currentState != EnemyManager.EnemyState.Inactive)
         {
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
@@ -170,28 +164,25 @@ public class MainEnemy : EnemyBase
             TransitionToState(EnemyManager.EnemyState.Suspicious);
             Debug.Log($"MainEnemy alerted by noise (radius {radius}) at {position}");
 
-            // Show sound indicator (only if not already detected)
             if (SoundIndicatorUI.Instance != null)
             {
                 SoundIndicatorUI.Instance.ShowIndicator();
             }
         }
     }
-
     protected override void Update()
     {
-        // Check if the current room is deactivated
-        /*if (currentRoom != null && !currentRoom.activeInHierarchy && !isInDeactivatedRoom)
-        {
-            Debug.Log($"Enemy detected room deactivation: {currentRoom.name}");
-            EmergencyTeleportToHallway();
-            return;
-        }*/
-      
+        // Handle pause timer (enemy stunned after player escapes)
         if (pauseTimer > 0)
         {
             pauseTimer -= Time.deltaTime;
             return;
+        }
+
+        // Handle capture cooldown (prevents immediate re-capture)
+        if (captureCooldown > 0)
+        {
+            captureCooldown -= Time.deltaTime;
         }
 
         if (isCapturing) return;
@@ -209,7 +200,6 @@ public class MainEnemy : EnemyBase
                 break;
         }
 
-        // Update manager with current state
         if (enemyManager != null)
         {
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
@@ -229,22 +219,16 @@ public class MainEnemy : EnemyBase
         {
             lastMovement = movement.normalized;
 
-            // Calculate angle from movement direction
             float targetAngle = Mathf.Atan2(lastMovement.x, lastMovement.y) * Mathf.Rad2Deg;
-
-            // Add 180 degrees to face the correct direction (front of sprite toward movement)
             targetAngle += 180f;
 
-            // Smoothly rotate toward movement direction
             Quaternion targetRotation = Quaternion.Euler(0, 0, -targetAngle);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-            // Set walking animation (only use Speed, no directional blending needed)
             animator.SetFloat("Speed", movement.magnitude);
         }
         else
         {
-            // Idle - stop animation but keep rotation
             animator.SetFloat("Speed", 0f);
         }
 
@@ -255,6 +239,12 @@ public class MainEnemy : EnemyBase
     {
         if (other.CompareTag("Player") && currentState == EnemyManager.EnemyState.Chasing && !isCapturing)
         {
+            // Check cooldown before allowing capture
+            if (captureCooldown > 0)
+            {
+                return; // Silent cooldown
+            }
+
             float distance = Vector2.Distance(transform.position, other.transform.position);
             if (distance < entityData.captureRange)
             {
@@ -265,7 +255,6 @@ public class MainEnemy : EnemyBase
 
     private void UpdateChasing()
     {
-        // Check if player is hiding first (this should override line of sight)
         if (Locker.IsPlayerInsideLocker)
         {
             Debug.Log("Player is hiding in locker, switching to suspicious state");
@@ -273,7 +262,6 @@ public class MainEnemy : EnemyBase
             return;
         }
 
-        // Always track player's last known position when we can see them
         if (HasLineOfSight())
         {
             lastKnownPosition = player.position;
@@ -281,25 +269,20 @@ public class MainEnemy : EnemyBase
         }
         else
         {
-            // Even without line of sight, keep updating last known position if we're close
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-            if (distanceToPlayer < lineOfSightRange * 0.5f) // Within half of sight range
+            if (distanceToPlayer < lineOfSightRange * 0.5f)
             {
                 lastKnownPosition = player.position;
-                lingeringTimer = Mathf.Max(lingeringTimer, 1f); // Keep at least 1 second
+                lingeringTimer = Mathf.Max(lingeringTimer, 1f);
             }
         }
 
-        // Continue chasing towards last known position
         ChasePlayer();
 
-        // Only go to suspicious if we're stuck at last known position for a while
         float distanceToLastKnown = Vector2.Distance(transform.position, lastKnownPosition);
 
-        // More lenient conditions - don't give up so easily
         if (!HasLineOfSight() && distanceToLastKnown < 0.5f)
         {
-            // Reduce timer when stuck at location
             lingeringTimer -= Time.deltaTime * 2f;
 
             if (lingeringTimer <= 0f)
@@ -323,14 +306,12 @@ public class MainEnemy : EnemyBase
 
         float distanceToLastPosition = Vector2.Distance(transform.position, lastKnownPosition);
 
-        // Check for line of sight more frequently in suspicious mode
         if (HasLineOfSight())
         {
             TransitionToState(EnemyManager.EnemyState.Chasing);
             return;
         }
 
-        // When stuck, try to look around a bit
         if (distanceToLastPosition < 0.5f)
         {
             if (lingeringTimer <= 0f)
@@ -349,7 +330,6 @@ public class MainEnemy : EnemyBase
             PickNewRoamDirection();
         }
 
-        // Move in the current roam direction
         transform.position += (Vector3)(roamDirection * roamSpeed * Time.deltaTime);
 
         if (HasLineOfSight())
@@ -360,11 +340,10 @@ public class MainEnemy : EnemyBase
 
     private void PickNewRoamDirection()
     {
-        // Try to find a clear direction
         Vector2 newDirection = Vector2.zero;
         int attempts = 0;
 
-        while (attempts < 10) // Prevent infinite loop
+        while (attempts < 10)
         {
             float angle = UnityEngine.Random.Range(0f, 360f);
             newDirection = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
@@ -377,7 +356,6 @@ public class MainEnemy : EnemyBase
             attempts++;
         }
 
-        // If all attempts failed, pick a random direction anyway
         if (attempts >= 10)
         {
             float angle = UnityEngine.Random.Range(0f, 360f);
@@ -392,7 +370,6 @@ public class MainEnemy : EnemyBase
         RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, obstacleCheckDistance, obstacleLayers);
         return hit.collider != null;
     }
-
 
     private void TransitionToState(EnemyManager.EnemyState newState)
     {
@@ -417,7 +394,6 @@ public class MainEnemy : EnemyBase
                 isChasing = false;
                 PickNewRoamDirection();
 
-                // IMPORTANT: Reset detection when enemy loses player
                 if (SoundIndicatorUI.Instance != null)
                 {
                     SoundIndicatorUI.Instance.ResetDetection();
@@ -428,7 +404,6 @@ public class MainEnemy : EnemyBase
                 Debug.Log("Enemy state: Inactive");
                 isChasing = false;
 
-                // Also reset on inactive
                 if (SoundIndicatorUI.Instance != null)
                 {
                     SoundIndicatorUI.Instance.ResetDetection();
@@ -440,8 +415,9 @@ public class MainEnemy : EnemyBase
     private void TryCapturePlayer()
     {
         if (Locker.IsPlayerInsideLocker) return;
-
         if (player == null || playerMovement == null) return;
+
+        Debug.Log("=== CAPTURING PLAYER ===");
 
         isCapturing = true;
         playerMovement.FreezeMovement();
@@ -449,48 +425,108 @@ public class MainEnemy : EnemyBase
         PlayerInput playerInput = player.GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = false;
 
-        QTESystem.Instance.BeginQTE((int)entityData.qteDuration, OnEscapeSuccess, OnEscapeFail);
+        // Start spacebar QTE - Direct method references (NO lambdas)
+        if (SpacebarQTESystem.Instance != null)
+        {
+            Debug.Log("Starting SpacebarQTE with callbacks...");
+            SpacebarQTESystem.Instance.BeginQTE(
+                successCallback: OnEscapeSuccess,
+                failCallback: OnEscapeFail
+            );
+        }
+        else
+        {
+            Debug.LogError("SpacebarQTESystem.Instance is null!");
+            OnEscapeFail();
+        }
     }
 
     private void OnEscapeSuccess()
     {
-        if (this == null) return;
+        Debug.Log("=== OnEscapeSuccess() CALLED ===");
+
+        if (this == null)
+        {
+            Debug.LogError("Enemy is null in OnEscapeSuccess!");
+            return;
+        }
+
+        Debug.Log("Player escaped via spacebar QTE!");
 
         isCapturing = false;
-        pauseTimer = entityData.successPauseTime;
 
+        // Unfreeze player FIRST
         PlayerInput playerInput = player.GetComponent<PlayerInput>();
-        if (playerInput != null) playerInput.enabled = true;
+        if (playerInput != null)
+        {
+            playerInput.enabled = true;
+            Debug.Log("Player input re-enabled");
+        }
 
-        if (playerMovement != null) playerMovement.UnfreezeMovement();
-        if (PlayerSanity.Instance != null) PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnSuccess);
+        if (playerMovement != null)
+        {
+            playerMovement.UnfreezeMovement();
+            Debug.Log("Player movement unfrozen");
+        }
+
+        // PUSHBACK: Enemy gets knocked back away from player
+        Vector2 pushDirection = (transform.position - player.position).normalized;
+        Vector2 pushbackPosition = (Vector2)transform.position + (pushDirection * pushbackDistance);
+
+        // Check if pushback position hits a wall
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, pushDirection, pushbackDistance, obstacleLayers);
+        if (hit.collider != null)
+        {
+            // Hit a wall, push back less
+            pushbackPosition = hit.point - (pushDirection * 0.5f);
+        }
+
+        transform.position = pushbackPosition;
+        Debug.Log($"Enemy pushed back to {pushbackPosition}");
+
+        // Set stun timer and capture cooldown
+        pauseTimer = entityData.successPauseTime;
+        captureCooldown = entityData.successPauseTime + 2f;
+        Debug.Log($"Enemy stunned for {pauseTimer}s, capture cooldown: {captureCooldown}s");
+
+        // Apply sanity loss
+        if (PlayerSanity.Instance != null)
+        {
+            PlayerSanity.Instance.OnQTESuccess();
+        }
 
         TransitionToState(EnemyManager.EnemyState.Patrolling);
 
-        // Reset detection after successful escape
         if (SoundIndicatorUI.Instance != null)
         {
             SoundIndicatorUI.Instance.ResetDetection();
         }
+
+        Debug.Log("=== OnEscapeSuccess() COMPLETE ===");
     }
 
     private void OnEscapeFail()
     {
         if (this == null) return;
 
-        isCapturing = false;
+        Debug.Log("Player failed spacebar QTE! Losing sanity and retrying...");
 
-        PlayerInput playerInput = player.GetComponent<PlayerInput>();
-        if (playerInput != null) playerInput.enabled = true;
-
-        if (playerMovement != null) playerMovement.UnfreezeMovement();
-
+        // Apply larger sanity loss for failure
         if (PlayerSanity.Instance != null)
         {
-            PlayerSanity.Instance.LoseSanity(entityData.sanityLossOnFail);
+            PlayerSanity.Instance.OnQTEFailed();
 
+            // Check for game over condition
             if (PlayerSanity.Instance.GetSanityPercent() <= 0.2f)
             {
+                Debug.Log("Player sanity too low - triggering game over");
+
+                // Release player before game over
+                isCapturing = false;
+                PlayerInput playerInput = player.GetComponent<PlayerInput>();
+                if (playerInput != null) playerInput.enabled = true;
+                if (playerMovement != null) playerMovement.UnfreezeMovement();
+
                 GameOverUI gameOver = FindObjectOfType<GameOverUI>();
                 if (gameOver != null)
                 {
@@ -500,23 +536,42 @@ public class MainEnemy : EnemyBase
             }
         }
 
-        TransitionToState(EnemyManager.EnemyState.Patrolling);
+        // Player stays caught - retry QTE after brief delay
+        StartCoroutine(RetryQTEAfterDelay());
+    }
 
-        // Reset detection after failed escape
-        if (SoundIndicatorUI.Instance != null)
+    private IEnumerator RetryQTEAfterDelay()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        if (isCapturing && PlayerSanity.Instance != null &&
+            PlayerSanity.Instance.GetSanityPercent() > 0.2f)
         {
-            SoundIndicatorUI.Instance.ResetDetection();
+            Debug.Log("Restarting QTE - player must try again!");
+
+            if (SpacebarQTESystem.Instance != null)
+            {
+                SpacebarQTESystem.Instance.BeginQTE(
+                    successCallback: OnEscapeSuccess,
+                    failCallback: OnEscapeFail
+                );
+            }
+        }
+        else
+        {
+            isCapturing = false;
+            PlayerInput playerInput = player.GetComponent<PlayerInput>();
+            if (playerInput != null) playerInput.enabled = true;
+            if (playerMovement != null) playerMovement.UnfreezeMovement();
         }
     }
 
     public void OnTeleportedToHallway()
     {
         Debug.Log("Enemy teleported to hallway");
-
-        // Reset enemy state for hallway pursuit
         TransitionToState(EnemyManager.EnemyState.Chasing);
-
     }
+
     public GameObject GetCurrentRoom()
     {
         return currentRoom;
@@ -526,22 +581,18 @@ public class MainEnemy : EnemyBase
     {
         if (room == null) return false;
 
-        // Check if we're a child of the room
         if (transform.IsChildOf(room.transform))
             return true;
 
-        // Check if our current room reference matches
         if (currentRoom == room)
             return true;
 
-        // Check if we're physically in the room
         Collider2D roomCollider = room.GetComponent<Collider2D>();
         if (roomCollider != null && roomCollider.bounds.Contains(transform.position))
             return true;
 
         return false;
     }
-
 
     public override void BeginChase()
     {
