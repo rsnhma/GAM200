@@ -425,7 +425,6 @@ public class MainEnemy : EnemyBase
         PlayerInput playerInput = player.GetComponent<PlayerInput>();
         if (playerInput != null) playerInput.enabled = false;
 
-        // Start spacebar QTE - Direct method references (NO lambdas)
         if (SpacebarQTESystem.Instance != null)
         {
             Debug.Log("Starting SpacebarQTE with callbacks...");
