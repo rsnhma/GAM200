@@ -1,4 +1,3 @@
 taskID,taskName,taskDescription,category,completionDialogueID
-find_av_room,First Steps,Find the AV room,main,av_room_entry
-av_room_entry,Player,"This must be the place. Let me look around.",,
-
+find_av_room,Find the AV room,Find the AV room,main,av_room_entry
+head_to_the_courtyard_afterwards,Head to the Courtyard afterwards,Head to the Courtyard afterwards,main,

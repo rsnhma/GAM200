@@ -80,7 +80,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 5
   m_Sprite: {fileID: 3347687347314382838, guid: 60f758f133e1a4a4ab35cdc41e0bd261, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -175,7 +175,8 @@ MonoBehaviour:
   obstacleAvoidanceRadius: 0.2
   obstacleAvoidanceDistance: 1.5
   enemyManager: {fileID: 0}
-  qteSystem: {fileID: 0}
+  spacebarQTESystem: {fileID: 0}
+  pushbackDistance: 3
   roamSpeed: 1.5
   minRoamTime: 1
   maxRoamTime: 3

@@ -1,5 +1,7 @@
 dialogueID,speakerName,dialogueText,nextDialogueID,triggerTaskID
 bulletin_board_intro,Player,"All started at the AV room...then that's where we shall start",,find_av_room
 av_room_entry,Player,"This must be the place. Let me look around.",,
-vhs_tape_pickup,Player, "An old VHS tape. Maybe it works with the TV?",,
-
+vhs_tape_pickup,Player,"An old VHS tape. Maybe it works with the TV?",,
+table_scribble,Player,"What truth? And who is 'she'?",table_scribble_2,
+table_scribble_2,Player,"That will be where I'll head to next. But this room...",table_scribble_3,
+table_scribble_3,Player,"This room feels wrong... Like it's waiting for me to find something.",,head_to_the_courtyard_afterwards
