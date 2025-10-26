@@ -3,13 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class BulletinBoard : MonoBehaviour
+public class TableScribble : MonoBehaviour
 {
     [Header("UI References")]
-    public GameObject bulletinBoardPanel;
+    public GameObject tableScribblePanel;
 
     [Header("Dialogue Settings")]
-    public string initialDialogueID = "bulletin_board_intro";
+    public string initialDialogueID = "table_scribble";
     public float dialogueDelay = 2f;
 
     private KeyCode interactionKey = KeyCode.Mouse0; // Left click
@@ -29,9 +29,9 @@ public class BulletinBoard : MonoBehaviour
         }
 
         // Hide panel initially
-        if (bulletinBoardPanel != null)
+        if (tableScribblePanel != null)
         {
-            bulletinBoardPanel.SetActive(false);
+            tableScribblePanel.SetActive(false);
         }
     }
 
@@ -63,12 +63,12 @@ public class BulletinBoard : MonoBehaviour
 
     private void Interact()
     {
-        if (bulletinBoardPanel != null)
+        if (tableScribblePanel != null)
         {
-            bulletinBoardPanel.SetActive(true);
+            tableScribblePanel.SetActive(true);
             isPanelOpen = true;
 
-         
+
             // Determine which dialogue to show
             if (!hasTriggeredInitialDialogue)
             {
@@ -83,7 +83,7 @@ public class BulletinBoard : MonoBehaviour
         yield return new WaitForSeconds(dialogueDelay);
 
         // Close bulletin board panel
-        CloseBulletinBoard();
+        CloseTableInspect();
 
         // Start dialogue sequence
         if (DialogueManager.Instance != null)
@@ -98,11 +98,11 @@ public class BulletinBoard : MonoBehaviour
         }
     }
 
-    public void CloseBulletinBoard()
+    public void CloseTableInspect()
     {
-        if (bulletinBoardPanel != null)
+        if (tableScribblePanel != null)
         {
-            bulletinBoardPanel.SetActive(false);
+            tableScribblePanel.SetActive(false);
             isPanelOpen = false;
         }
     }
