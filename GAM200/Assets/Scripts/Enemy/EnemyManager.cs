@@ -134,22 +134,26 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
-    public void TeleportEnemyToHallway()
+    //public void TeleportEnemyToHallway()
+    //{
+    //    if (currentEnemyInstance == null) return;
+
+    //    GameObject hallway = GameObject.Find("Hallway");
+    //    GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+    //    if (hallway != null && player != null)
+    //    {
+    //        Vector3 spawnPos = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
+    //        currentEnemyInstance.transform.SetParent(hallway.transform, true);
+    //        currentEnemyInstance.transform.position = spawnPos;
+
+    //        currentEnemyInstance.OnTeleportedToHallway();
+    //        Debug.Log($"Enemy teleported to hallway at {spawnPos}");
+    //    }
+    //}
+
+    public Transform[] GetTVSpawnPoints()
     {
-        if (currentEnemyInstance == null) return;
-
-        GameObject hallway = GameObject.Find("Hallway");
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-        if (hallway != null && player != null)
-        {
-            Vector3 spawnPos = EnemySpawnPointManager.Instance.GetNearestSpawnPosition(player.transform.position);
-            currentEnemyInstance.transform.SetParent(hallway.transform, true);
-            currentEnemyInstance.transform.position = spawnPos;
-
-            currentEnemyInstance.OnTeleportedToHallway();
-            Debug.Log($"Enemy teleported to hallway at {spawnPos}");
-        }
+        return tvSpawnPoints;
     }
-
 }

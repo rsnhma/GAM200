@@ -6,7 +6,7 @@ public class Collectible : MonoBehaviour
     public string itemID;
     public Sprite itemIcon;
     public GameObject itemPrefabForHands; // Assign the prefab that will appear in player's hands
-    public bool isPuzzleReward = false; // False = Goes into inventory
+    public bool isMemorabilia = false; // False = Goes into inventory
 
     [Header("Mandatory TV Interaction")]
     public TVInteraction tvInteraction;
@@ -22,7 +22,7 @@ public class Collectible : MonoBehaviour
 
 
         // Check if item already collected (works for both types)
-        if (isPuzzleReward)
+        if (isMemorabilia)
         {
             if (JournalManager.Instance.HasMemorabilia(itemID))
             {
@@ -70,7 +70,7 @@ public class Collectible : MonoBehaviour
 
         gameObject.SetActive(false);
 
-        if (isPuzzleReward)
+        if (isMemorabilia)
         {
             // This is memorabilia - add to memorabilia tab
             JournalManager.Instance.AddMemorabilia(itemID);
@@ -92,7 +92,7 @@ public class Collectible : MonoBehaviour
 
     public void ResetCollectible()
     {
-        if (!isPuzzleReward)
+        if (!isMemorabilia)
         {
             transform.position = originalPosition;
             transform.rotation = originalRotation;
