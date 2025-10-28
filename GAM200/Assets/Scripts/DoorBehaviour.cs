@@ -153,7 +153,7 @@ public class DoorBehaviour : MonoBehaviour
         if (ShouldDeactivateRoom())
         {
             Debug.Log($"Deactivating room: {targetRoom.name}");
-            EnemyManager.Instance.TeleportEnemyToHallway();
+            //EnemyManager.Instance.TeleportEnemyToHallway();
             targetRoom.SetActive(false);
         }
         else

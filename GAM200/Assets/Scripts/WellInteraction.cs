@@ -14,9 +14,11 @@ public class WellInteraction : MonoBehaviour
     private bool isReeling = false;
     private bool keyRetrieved = false;
 
-    [Header("Visual References")]
-    public GameObject ropeVisual; // Visual rope on well
-    public GameObject bucketVisual; // Visual bucket on well
+    [Header("Animation")]
+    public Animator wellAnimator; // Reference to well's Animator component
+    // Animation states should be: "Idle", "RopeAdded", "BucketAdded", "Reeling"
+
+    [Header("Spawned Objects")]
     public GameObject keyPrefab; // Key to spawn after success
     public Transform keySpawnPoint; // Where to spawn the key
 
@@ -31,27 +33,28 @@ public class WellInteraction : MonoBehaviour
 
     [Header("UI Elements")]
     public Slider reelingSlider; // Shows reeling progress
-    public GameObject interactionPrompt; // Shows "Place Rope" or "Place Bucket" etc.
 
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
-    public Transform[] tvSpawnPoints; // Assign all TV spawn points in scene
 
     private bool playerNearby = false;
 
     private void Start()
     {
-        // Hide visuals at start
-        if (ropeVisual) ropeVisual.SetActive(false);
-        if (bucketVisual) bucketVisual.SetActive(false);
+        // Hide UI elements at start
         if (timeCalibrationUI) timeCalibrationUI.SetActive(false);
         if (reelingSlider) reelingSlider.gameObject.SetActive(false);
-        if (interactionPrompt) interactionPrompt.SetActive(false);
 
         // Get EnemyManager if not assigned
         if (enemyManager == null)
         {
             enemyManager = EnemyManager.Instance;
+        }
+
+        // Make sure animator is in idle state
+        if (wellAnimator != null)
+        {
+            wellAnimator.Play("Idle");
         }
     }
 
@@ -104,7 +107,12 @@ public class WellInteraction : MonoBehaviour
     private void PlaceRope()
     {
         ropeAttached = true;
-        if (ropeVisual) ropeVisual.SetActive(true);
+
+        // Trigger rope animation
+        if (wellAnimator != null)
+        {
+            wellAnimator.Play("RopeAdded");
+        }
 
         // Remove rope from inventory
         InventorySystem.Instance.RemoveItem(ropeItemID);
@@ -113,13 +121,17 @@ public class WellInteraction : MonoBehaviour
         ShowDialogue("rope_placed");
 
         Debug.Log("Rope attached to well");
-        UpdateInteractionPrompt();
     }
 
     private void PlaceBucket()
     {
         bucketAttached = true;
-        if (bucketVisual) bucketVisual.SetActive(true);
+
+        // Trigger bucket animation
+        if (wellAnimator != null)
+        {
+            wellAnimator.Play("BucketAdded");
+        }
 
         // Remove bucket from inventory
         InventorySystem.Instance.RemoveItem(bucketItemID);
@@ -128,13 +140,18 @@ public class WellInteraction : MonoBehaviour
         ShowDialogue("bucket_placed");
 
         Debug.Log("Bucket attached to well");
-        UpdateInteractionPrompt();
     }
 
     private void StartReeling()
     {
         isReeling = true;
         reelingProgress = 0f;
+
+        // Start reeling animation
+        if (wellAnimator != null)
+        {
+            wellAnimator.Play("Reeling");
+        }
 
         if (reelingSlider)
         {
@@ -243,6 +260,20 @@ public class WellInteraction : MonoBehaviour
             return;
         }
 
+        // Get TV spawn points from EnemyManager
+        if (enemyManager == null)
+        {
+            Debug.LogError("EnemyManager not found!");
+            return;
+        }
+
+        Transform[] tvSpawnPoints = enemyManager.GetTVSpawnPoints();
+        if (tvSpawnPoints == null || tvSpawnPoints.Length == 0)
+        {
+            Debug.LogError("No TV spawn points found in EnemyManager!");
+            return;
+        }
+
         // Find nearest TV spawn point to player
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
@@ -254,46 +285,25 @@ public class WellInteraction : MonoBehaviour
         Transform nearestTV = null;
         float nearestDistance = Mathf.Infinity;
 
-        // Find all TVs in scene if spawn points not assigned
-        if (tvSpawnPoints == null || tvSpawnPoints.Length == 0)
+        foreach (Transform spawnPoint in tvSpawnPoints)
         {
-            GameObject[] tvObjects = GameObject.FindGameObjectsWithTag("TV");
-            if (tvObjects.Length > 0)
+            float distance = Vector2.Distance(player.transform.position, spawnPoint.position);
+            if (distance < nearestDistance)
             {
-                foreach (GameObject tv in tvObjects)
-                {
-                    float distance = Vector2.Distance(player.transform.position, tv.transform.position);
-                    if (distance < nearestDistance)
-                    {
-                        nearestDistance = distance;
-                        nearestTV = tv.transform;
-                    }
-                }
-            }
-        }
-        else
-        {
-            // Use assigned spawn points
-            foreach (Transform spawnPoint in tvSpawnPoints)
-            {
-                float distance = Vector2.Distance(player.transform.position, spawnPoint.position);
-                if (distance < nearestDistance)
-                {
-                    nearestDistance = distance;
-                    nearestTV = spawnPoint;
-                }
+                nearestDistance = distance;
+                nearestTV = spawnPoint;
             }
         }
 
         // Spawn enemy at nearest TV
-        if (nearestTV != null && enemyManager != null)
+        if (nearestTV != null)
         {
             Debug.Log($"Spawning enemy at nearest TV: {nearestTV.name}");
             enemyManager.ActivateEnemy(nearestTV.position);
         }
         else
         {
-            Debug.LogWarning("Could not find TV spawn point or EnemyManager!");
+            Debug.LogWarning("Could not find TV spawn point!");
         }
     }
 
@@ -302,7 +312,6 @@ public class WellInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = true;
-            UpdateInteractionPrompt();
         }
     }
 
@@ -311,32 +320,6 @@ public class WellInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = false;
-            if (interactionPrompt) interactionPrompt.SetActive(false);
-        }
-    }
-
-    private void UpdateInteractionPrompt()
-    {
-        if (!interactionPrompt || !playerNearby) return;
-
-        if (!ropeAttached)
-        {
-            interactionPrompt.SetActive(true);
-            // Set text: "Place Rope"
-        }
-        else if (!bucketAttached)
-        {
-            interactionPrompt.SetActive(true);
-            // Set text: "Place Bucket"
-        }
-        else if (!isReeling && !keyRetrieved)
-        {
-            interactionPrompt.SetActive(true);
-            // Set text: "Scroll to Reel Bucket"
-        }
-        else if (keyRetrieved)
-        {
-            interactionPrompt.SetActive(false);
         }
     }
 
