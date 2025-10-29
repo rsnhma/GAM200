@@ -209,7 +209,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      fountain final-Sheet_0: -3909827918558763686
+      fountain final-Sheet_1: -9005425556712901429
+      fountain final-Sheet_2: 3826515121629147450
+      fountain final-Sheet_3: 7142757691476800738
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -5,76 +5,118 @@ using System;
 
 public class TimeCalibration : MonoBehaviour
 {
-    public Transform pointerPivot; // Assign PointerPivot
+    public Transform pointerPivot;
     public float rotationSpeed = 100f;
     public float minAngle = -80f;
     public float maxAngle = 80f;
 
-    public RectTransform[] hitZones; // Assign all hit zones
-    public Slider progressSlider; // Assign Slider
+    public RectTransform[] hitZones; // Array of hit zones
+    public float hitZoneTolerance = 15f;
 
-    private int successfulHits = 0;
-    private int maxHits = 3; // Need 3 successful hits to retrieve key
     private bool isActive = false;
     private float timeOffset;
-    private int currentHitZoneIndex = 0;
+    private int currentHitZoneIndex = -1;
 
-    public AudioSource successAudio; // When players complete the time cali
-    public AudioSource keyAudio; // When key spawns in game
+    [Header("Input Cooldown")]
+    public float inputCooldown = 0.3f;
+    private float lastInputTime = 0f;
 
-    // Callbacks for well interaction
+    public AudioSource successAudio;
+    public AudioSource keyAudio;
+    public AudioSource missAudio;
+
     private Action onSuccess;
-    private Action onMiss; // Called every time player misses
+    private Action onFail;
+
+    void Start()
+    {
+        if (hitZones == null || hitZones.Length == 0)
+        {
+            Debug.LogError("TimeCalibration: hitZones array is empty!");
+        }
+        if (pointerPivot == null)
+        {
+            Debug.LogError("TimeCalibration: pointerPivot is not assigned!");
+        }
+    }
 
     void Update()
     {
-        if (!isActive || !pointerPivot) return;
+        if (!isActive || pointerPivot == null) return;
 
         // Move pointer back and forth
         float time = (Time.time - timeOffset) * rotationSpeed;
         float angle = Mathf.PingPong(time, maxAngle - minAngle) + minAngle;
         pointerPivot.localRotation = Quaternion.Euler(0, 0, angle);
 
-        // Detect player input
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Detect player input with cooldown
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time >= lastInputTime + inputCooldown)
         {
+            lastInputTime = Time.time;
             CheckHit();
         }
     }
 
-    public void StartCalibration(Action successCallback, Action missCallback)
+    public void StartCalibration(Action successCallback, Action failCallback)
     {
-        // Reset everything
-        successfulHits = 0;
+        if (hitZones == null || hitZones.Length == 0)
+        {
+            Debug.LogError("Cannot start calibration: hitZones array is empty!");
+            return;
+        }
+
+        if (pointerPivot == null)
+        {
+            Debug.LogError("Cannot start calibration: pointerPivot is not assigned!");
+            return;
+        }
+
         isActive = true;
         timeOffset = Time.time;
-        currentHitZoneIndex = 0;
+        lastInputTime = 0f;
 
-        // Store callbacks
         onSuccess = successCallback;
-        onMiss = missCallback;
-
-        // Reset UI
-        if (progressSlider) progressSlider.value = 0f;
+        onFail = failCallback;
 
         // Hide all hit zones first
         foreach (var zone in hitZones)
         {
-            zone.gameObject.SetActive(false);
+            if (zone != null)
+            {
+                zone.gameObject.SetActive(false);
+            }
         }
 
-        // Activate first hit zone
-        ActivateHitZone(currentHitZoneIndex);
+        // Pick a random hit zone to show
+        currentHitZoneIndex = UnityEngine.Random.Range(0, hitZones.Length);
 
-        // Play audio
+        if (hitZones[currentHitZoneIndex] != null)
+        {
+            hitZones[currentHitZoneIndex].gameObject.SetActive(true);
+            Debug.Log($"Showing random hit zone: {currentHitZoneIndex}");
+        }
+
         if (keyAudio) keyAudio.Play();
 
-        Debug.Log("Time Calibration Started! Get 3 hits before enemy arrives!");
+        Debug.Log("Time Calibration Started! Press SPACE when pointer is in red zone!");
     }
 
     void CheckHit()
     {
+        if (currentHitZoneIndex < 0 || currentHitZoneIndex >= hitZones.Length)
+        {
+            Debug.LogError($"CheckHit: Invalid hitZone index {currentHitZoneIndex}");
+            return;
+        }
+
         RectTransform activeHitZone = hitZones[currentHitZoneIndex];
+
+        if (activeHitZone == null)
+        {
+            Debug.LogError($"CheckHit: hitZone at index {currentHitZoneIndex} is null!");
+            return;
+        }
+
         float pointerAngle = pointerPivot.localEulerAngles.z;
         float hitZoneAngle = activeHitZone.localEulerAngles.z;
 
@@ -84,102 +126,72 @@ public class TimeCalibration : MonoBehaviour
 
         float angleDifference = Mathf.Abs(pointerAngle - hitZoneAngle);
 
-        if (angleDifference < 10f) // Successful hit!
+        if (angleDifference < hitZoneTolerance)
         {
-            successfulHits++;
-            if (progressSlider) progressSlider.value = (float)successfulHits / maxHits;
+            // SUCCESS!
+            Debug.Log($"HIT! Angle difference: {angleDifference:F1}°");
 
-            Debug.Log($"Hit! Progress: {successfulHits}/{maxHits}");
+            if (successAudio) successAudio.Play();
 
-            if (successfulHits >= maxHits)
-            {
-                CompleteCalibration();
-            }
-            else
-            {
-                NextHitZone();
-            }
+            CompleteCalibration(true);
         }
         else
         {
-            // Missed! Alert enemy but keep trying
-            Debug.Log("Missed! Enemy alerted to your position!");
+            // MISS - fail the calibration
+            Debug.Log($"MISS! Angle difference: {angleDifference:F1}° (needed < {hitZoneTolerance}°)");
 
-            // Call miss callback - this will alert the enemy
-            onMiss?.Invoke();
+            if (missAudio) missAudio.Play();
 
-            // Player continues trying - no game over, just pressure!
+            CompleteCalibration(false);
         }
     }
 
-    void NextHitZone()
-    {
-        hitZones[currentHitZoneIndex].gameObject.SetActive(false);
-
-        // Pick a different random hit zone
-        int newIndex;
-        do
-        {
-            newIndex = UnityEngine.Random.Range(0, hitZones.Length);
-        } while (newIndex == currentHitZoneIndex && hitZones.Length > 1);
-
-        currentHitZoneIndex = newIndex;
-        ActivateHitZone(currentHitZoneIndex);
-    }
-
-    void ActivateHitZone(int index)
-    {
-        hitZones[index].gameObject.SetActive(true);
-    }
-
-    void CompleteCalibration()
+    void CompleteCalibration(bool success)
     {
         isActive = false;
-        Debug.Log("Time Calibration Successful! Key retrieved!");
 
         if (keyAudio) keyAudio.Stop();
-        if (successAudio) successAudio.Play();
-
-        StartCoroutine(DelayedSuccess());
-    }
-
-    IEnumerator DelayedSuccess()
-    {
-        // Wait for unlock audio to finish
-        if (successAudio != null)
-        {
-            yield return new WaitForSeconds(successAudio.clip.length);
-        }
-        else
-        {
-            yield return new WaitForSeconds(0.5f);
-        }
-
-        // Call success callback
-        onSuccess?.Invoke();
-
-        // Reset for potential future use
-        ResetCalibration();
-    }
-
-    void ResetCalibration()
-    {
-        successfulHits = 0;
-
-        if (progressSlider) progressSlider.value = 0f;
 
         // Hide all hit zones
         foreach (var zone in hitZones)
         {
-            zone.gameObject.SetActive(false);
+            if (zone != null)
+            {
+                zone.gameObject.SetActive(false);
+            }
+        }
+
+        if (success)
+        {
+            StartCoroutine(DelayedCallback(onSuccess));
+        }
+        else
+        {
+            StartCoroutine(DelayedCallback(onFail));
         }
     }
 
-    // Public method to stop calibration externally (e.g., if player gets caught by enemy)
+    IEnumerator DelayedCallback(Action callback)
+    {
+        yield return new WaitForSeconds(0.2f);
+        callback?.Invoke();
+    }
+
     public void StopCalibration()
     {
         isActive = false;
         if (keyAudio) keyAudio.Stop();
-        ResetCalibration();
+
+        // Hide all hit zones
+        if (hitZones != null)
+        {
+            foreach (var zone in hitZones)
+            {
+                if (zone != null)
+                {
+                    zone.gameObject.SetActive(false);
+                }
+            }
+        }
     }
 }
