@@ -10,8 +10,8 @@ public class TimeCalibration : MonoBehaviour
     public float minAngle = -80f;
     public float maxAngle = 80f;
 
-    public RectTransform[] hitZones; // Array of hit zones
-    public float hitZoneTolerance = 15f;
+    public RectTransform[] hitZones;
+    public float hitTolerance = 10f;
 
     private bool isActive = false;
     private float timeOffset;
@@ -44,12 +44,10 @@ public class TimeCalibration : MonoBehaviour
     {
         if (!isActive || pointerPivot == null) return;
 
-        // Move pointer back and forth
         float time = (Time.time - timeOffset) * rotationSpeed;
         float angle = Mathf.PingPong(time, maxAngle - minAngle) + minAngle;
         pointerPivot.localRotation = Quaternion.Euler(0, 0, angle);
 
-        // Detect player input with cooldown
         if (Input.GetKeyDown(KeyCode.Space) && Time.time >= lastInputTime + inputCooldown)
         {
             lastInputTime = Time.time;
@@ -78,7 +76,6 @@ public class TimeCalibration : MonoBehaviour
         onSuccess = successCallback;
         onFail = failCallback;
 
-        // Hide all hit zones first
         foreach (var zone in hitZones)
         {
             if (zone != null)
@@ -87,13 +84,12 @@ public class TimeCalibration : MonoBehaviour
             }
         }
 
-        // Pick a random hit zone to show
         currentHitZoneIndex = UnityEngine.Random.Range(0, hitZones.Length);
 
         if (hitZones[currentHitZoneIndex] != null)
         {
             hitZones[currentHitZoneIndex].gameObject.SetActive(true);
-            Debug.Log($"Showing random hit zone: {currentHitZoneIndex}");
+            Debug.Log("Showing random hit zone: " + currentHitZoneIndex);
         }
 
         if (keyAudio) keyAudio.Play();
@@ -105,7 +101,7 @@ public class TimeCalibration : MonoBehaviour
     {
         if (currentHitZoneIndex < 0 || currentHitZoneIndex >= hitZones.Length)
         {
-            Debug.LogError($"CheckHit: Invalid hitZone index {currentHitZoneIndex}");
+            Debug.LogError("CheckHit: Invalid hitZone index " + currentHitZoneIndex);
             return;
         }
 
@@ -113,23 +109,32 @@ public class TimeCalibration : MonoBehaviour
 
         if (activeHitZone == null)
         {
-            Debug.LogError($"CheckHit: hitZone at index {currentHitZoneIndex} is null!");
+            Debug.LogError("CheckHit: hitZone at index " + currentHitZoneIndex + " is null!");
             return;
         }
 
         float pointerAngle = pointerPivot.localEulerAngles.z;
-        float hitZoneAngle = activeHitZone.localEulerAngles.z;
-
-        // Normalize angles to -180 to 180
         if (pointerAngle > 180) pointerAngle -= 360;
+
+        Vector2 hitZonePos = activeHitZone.anchoredPosition;
+        float hitZoneAngle = Mathf.Atan2(hitZonePos.y, hitZonePos.x) * Mathf.Rad2Deg;
+
+        hitZoneAngle -= 90f;
+        if (hitZoneAngle < -180) hitZoneAngle += 360;
         if (hitZoneAngle > 180) hitZoneAngle -= 360;
 
         float angleDifference = Mathf.Abs(pointerAngle - hitZoneAngle);
 
-        if (angleDifference < hitZoneTolerance)
+        if (angleDifference > 180)
         {
-            // SUCCESS!
-            Debug.Log($"HIT! Angle difference: {angleDifference:F1}°");
+            angleDifference = 360 - angleDifference;
+        }
+
+        Debug.Log("Pointer: " + pointerAngle + " | HitZone Angle: " + hitZoneAngle + " | Difference: " + angleDifference + " | Tolerance: " + hitTolerance);
+
+        if (angleDifference <= hitTolerance)
+        {
+            Debug.Log("HIT! Angle difference: " + angleDifference);
 
             if (successAudio) successAudio.Play();
 
@@ -137,8 +142,7 @@ public class TimeCalibration : MonoBehaviour
         }
         else
         {
-            // MISS - fail the calibration
-            Debug.Log($"MISS! Angle difference: {angleDifference:F1}° (needed < {hitZoneTolerance}°)");
+            Debug.Log("MISS! Angle difference: " + angleDifference + " (needed less than " + hitTolerance + ")");
 
             if (missAudio) missAudio.Play();
 
@@ -152,7 +156,6 @@ public class TimeCalibration : MonoBehaviour
 
         if (keyAudio) keyAudio.Stop();
 
-        // Hide all hit zones
         foreach (var zone in hitZones)
         {
             if (zone != null)
@@ -182,7 +185,6 @@ public class TimeCalibration : MonoBehaviour
         isActive = false;
         if (keyAudio) keyAudio.Stop();
 
-        // Hide all hit zones
         if (hitZones != null)
         {
             foreach (var zone in hitZones)

@@ -26,28 +26,35 @@ public class WellInteraction : MonoBehaviour
     [Header("Time Calibration")]
     public GameObject timeCalibrationUI;
     public TimeCalibration timeCalibrationScript;
-    public float[] calibrationCheckpoints = { 33f, 66f, 100f }; // Progress points where calibration appears
-    private int currentCheckpointIndex = 0;
+    public int scrollsBeforeCalibration = 3; // Number of scrolls before each calibration appears
 
     [Header("Reeling Settings")]
-    public float scrollSensitivity = 1f;
+    public float scrollSensitivity = 10f; // Increased to make progress more noticeable
     private float reelingProgress = 0f;
     private float targetProgress = 100f;
+    private int scrollCount = 0;
+    private int totalCalibrationsNeeded = 3; // Total number of calibrations needed
+    private int calibrationsCompleted = 0;
 
     [Header("UI Elements")]
+    public GameObject reelingSliderCanvas; // Separate canvas for the progress slider
     public Slider reelingSlider;
     public TextMeshProUGUI interactionPromptText;
 
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
 
+    [Header("Sound Indicator")]
+    public GameObject soundIndicatorUI; // The sound indicator UI to show on fail
+
     private bool playerNearby = false;
 
     private void Start()
     {
         if (timeCalibrationUI) timeCalibrationUI.SetActive(false);
-        if (reelingSlider) reelingSlider.gameObject.SetActive(false);
+        if (reelingSliderCanvas) reelingSliderCanvas.SetActive(false);
         if (interactionPromptText) interactionPromptText.gameObject.SetActive(false);
+        if (soundIndicatorUI) soundIndicatorUI.SetActive(false);
 
         if (enemyManager == null)
         {
@@ -133,12 +140,17 @@ public class WellInteraction : MonoBehaviour
         }
         else if (bucketAttached && !isReeling && !keyRetrieved && !waitingForCalibration)
         {
-            interactionPromptText.text = "[Scroll Up] Reel Down Bucket";
+            interactionPromptText.text = "[Scroll Up] Start Reeling Down Bucket";
             interactionPromptText.gameObject.SetActive(true);
         }
         else if (isReeling && !waitingForCalibration)
         {
             interactionPromptText.text = "[Scroll Up] Keep Reeling...";
+            interactionPromptText.gameObject.SetActive(true);
+        }
+        else if (waitingForCalibration)
+        {
+            interactionPromptText.text = "[Space] Press on Red Zone to Continue";
             interactionPromptText.gameObject.SetActive(true);
         }
         else
@@ -174,28 +186,37 @@ public class WellInteraction : MonoBehaviour
         InventorySystem.Instance.RemoveItem(bucketItemID);
         ShowDialogue("bucket_placed");
 
-        Debug.Log("Bucket attached to well");
-    }
-
-    private void StartReeling()
-    {
-        isReeling = true;
-        reelingProgress = 0f;
-        currentCheckpointIndex = 0;
-        waitingForCalibration = false;
-
-        if (wellAnimator != null)
+        // Show the slider canvas after bucket is attached
+        if (reelingSliderCanvas)
         {
-            wellAnimator.Play("Reeling");
+            reelingSliderCanvas.SetActive(true);
         }
 
         if (reelingSlider)
         {
-            reelingSlider.gameObject.SetActive(true);
             reelingSlider.value = 0f;
         }
 
-        Debug.Log("Started reeling bucket down");
+        Debug.Log("Bucket attached to well - Ready to reel!");
+    }
+
+    private void StartReeling()
+    {
+        if (!isReeling)
+        {
+            isReeling = true;
+            reelingProgress = 0f;
+            scrollCount = 0;
+            calibrationsCompleted = 0;
+            waitingForCalibration = false;
+
+            if (wellAnimator != null)
+            {
+                wellAnimator.Play("Reeling");
+            }
+
+            Debug.Log("Started reeling bucket down");
+        }
     }
 
     private void HandleReeling()
@@ -204,7 +225,8 @@ public class WellInteraction : MonoBehaviour
 
         if (scroll > 0)
         {
-            reelingProgress += scroll * scrollSensitivity * 100f;
+            scrollCount++;
+            reelingProgress += scroll * scrollSensitivity;
             reelingProgress = Mathf.Clamp(reelingProgress, 0f, targetProgress);
 
             if (reelingSlider)
@@ -212,20 +234,17 @@ public class WellInteraction : MonoBehaviour
                 reelingSlider.value = reelingProgress / targetProgress;
             }
 
-            // Check if we've reached a calibration checkpoint
-            if (currentCheckpointIndex < calibrationCheckpoints.Length)
-            {
-                float nextCheckpoint = calibrationCheckpoints[currentCheckpointIndex];
+            Debug.Log($"Scroll count: {scrollCount}/{scrollsBeforeCalibration} | Progress: {reelingProgress:F1}% | Calibrations: {calibrationsCompleted}/{totalCalibrationsNeeded}");
 
-                if (reelingProgress >= nextCheckpoint)
-                {
-                    TriggerTimeCalibration();
-                    return;
-                }
+            // Check if we've reached the required number of scrolls for calibration
+            if (scrollCount >= scrollsBeforeCalibration)
+            {
+                TriggerTimeCalibration();
+                return;
             }
 
-            // If we've completed all checkpoints and reached 100%
-            if (reelingProgress >= targetProgress && currentCheckpointIndex >= calibrationCheckpoints.Length)
+            // If we've completed all calibrations and reached 100%
+            if (reelingProgress >= targetProgress && calibrationsCompleted >= totalCalibrationsNeeded)
             {
                 RetrieveKey();
             }
@@ -235,11 +254,7 @@ public class WellInteraction : MonoBehaviour
     private void TriggerTimeCalibration()
     {
         waitingForCalibration = true;
-
-        if (interactionPromptText)
-        {
-            interactionPromptText.gameObject.SetActive(false);
-        }
+        scrollCount = 0; // Reset scroll count for next round
 
         if (timeCalibrationUI)
         {
@@ -252,14 +267,14 @@ public class WellInteraction : MonoBehaviour
             timeCalibrationScript.StartCalibration(OnCalibrationSuccess, OnCalibrationFail);
         }
 
-        Debug.Log($"Time calibration triggered at checkpoint {currentCheckpointIndex + 1}/{calibrationCheckpoints.Length}");
+        Debug.Log($"Time calibration triggered! Calibration {calibrationsCompleted + 1}/{totalCalibrationsNeeded}");
     }
 
     public void OnCalibrationSuccess()
     {
         Debug.Log("Calibration successful! Continuing reeling...");
 
-        currentCheckpointIndex++; // Move to next checkpoint
+        calibrationsCompleted++;
         waitingForCalibration = false;
 
         if (timeCalibrationUI)
@@ -267,8 +282,8 @@ public class WellInteraction : MonoBehaviour
             timeCalibrationUI.SetActive(false);
         }
 
-        // Check if this was the final checkpoint
-        if (reelingProgress >= targetProgress && currentCheckpointIndex >= calibrationCheckpoints.Length)
+        // Check if we've completed all calibrations and progress
+        if (reelingProgress >= targetProgress && calibrationsCompleted >= totalCalibrationsNeeded)
         {
             RetrieveKey();
         }
@@ -276,13 +291,19 @@ public class WellInteraction : MonoBehaviour
 
     public void OnCalibrationFail()
     {
-        Debug.Log("Player missed! Resetting progress and alerting enemy...");
+        Debug.Log("Player missed! Alerting enemy and resetting progress...");
 
-        // Alert enemy
+        // Show sound indicator UI
+        if (soundIndicatorUI)
+        {
+            soundIndicatorUI.SetActive(true);
+        }
+
+        // Alert enemy via noise system
         NoiseSystem.EmitNoise(transform.position, NoiseTypes.PuzzleFailRadius);
         SpawnEnemyAtNearestTV();
 
-        // Reset everything
+        // Reset progress but keep well items attached
         ResetWellProgress();
 
         if (timeCalibrationUI)
@@ -296,15 +317,15 @@ public class WellInteraction : MonoBehaviour
         isReeling = false;
         waitingForCalibration = false;
         reelingProgress = 0f;
-        currentCheckpointIndex = 0;
+        scrollCount = 0;
+        calibrationsCompleted = 0;
 
         if (reelingSlider)
         {
             reelingSlider.value = 0f;
-            reelingSlider.gameObject.SetActive(false);
         }
 
-        Debug.Log("Well progress reset");
+        Debug.Log("Well progress reset - rope and bucket still attached");
     }
 
     private void RetrieveKey()
@@ -312,9 +333,9 @@ public class WellInteraction : MonoBehaviour
         isReeling = false;
         keyRetrieved = true;
 
-        if (reelingSlider)
+        if (reelingSliderCanvas)
         {
-            reelingSlider.gameObject.SetActive(false);
+            reelingSliderCanvas.SetActive(false);
         }
 
         if (keyPrefab && keySpawnPoint)
@@ -335,7 +356,7 @@ public class WellInteraction : MonoBehaviour
             TaskManager.Instance.CompleteTask("well_puzzle");
         }
 
-        Debug.Log("Key retrieved successfully!");
+        Debug.Log("Key retrieved successfully! Well puzzle completed!");
     }
 
     private void SpawnEnemyAtNearestTV()
@@ -395,6 +416,12 @@ public class WellInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = true;
+
+            // Show slider if bucket is attached and key not retrieved
+            if (bucketAttached && !keyRetrieved && reelingSliderCanvas)
+            {
+                reelingSliderCanvas.SetActive(true);
+            }
         }
     }
 
@@ -404,9 +431,16 @@ public class WellInteraction : MonoBehaviour
         {
             playerNearby = false;
 
-            // If player leaves while reeling, reset everything
-            if (isReeling || waitingForCalibration)
+            // Always hide slider canvas when player leaves (unless key is retrieved)
+            if (!keyRetrieved && reelingSliderCanvas)
             {
+                reelingSliderCanvas.SetActive(false);
+            }
+
+            // If player leaves while reeling or in calibration, reset everything
+            if ((isReeling || waitingForCalibration) && !keyRetrieved)
+            {
+                Debug.Log("Player left the well area - resetting progress");
                 ResetWellProgress();
 
                 if (timeCalibrationUI)
