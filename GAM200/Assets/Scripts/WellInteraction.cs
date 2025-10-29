@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using static NoiseSystem;
 
 public class WellInteraction : MonoBehaviour
@@ -13,26 +14,29 @@ public class WellInteraction : MonoBehaviour
     private bool bucketAttached = false;
     private bool isReeling = false;
     private bool keyRetrieved = false;
+    private bool waitingForCalibration = false;
 
     [Header("Animation")]
-    public Animator wellAnimator; // Reference to well's Animator component
-    // Animation states should be: "Idle", "RopeAdded", "BucketAdded", "Reeling"
+    public Animator wellAnimator;
 
     [Header("Spawned Objects")]
-    public GameObject keyPrefab; // Key to spawn after success
-    public Transform keySpawnPoint; // Where to spawn the key
+    public GameObject keyPrefab;
+    public Transform keySpawnPoint;
 
     [Header("Time Calibration")]
-    public GameObject timeCalibrationUI; // The UI panel for time calibration
+    public GameObject timeCalibrationUI;
     public TimeCalibration timeCalibrationScript;
+    public float[] calibrationCheckpoints = { 33f, 66f, 100f }; // Progress points where calibration appears
+    private int currentCheckpointIndex = 0;
 
     [Header("Reeling Settings")]
     public float scrollSensitivity = 1f;
     private float reelingProgress = 0f;
-    private float targetProgress = 100f; // Need to reach 100 to start calibration
+    private float targetProgress = 100f;
 
     [Header("UI Elements")]
-    public Slider reelingSlider; // Shows reeling progress
+    public Slider reelingSlider;
+    public TextMeshProUGUI interactionPromptText;
 
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
@@ -41,17 +45,15 @@ public class WellInteraction : MonoBehaviour
 
     private void Start()
     {
-        // Hide UI elements at start
         if (timeCalibrationUI) timeCalibrationUI.SetActive(false);
         if (reelingSlider) reelingSlider.gameObject.SetActive(false);
+        if (interactionPromptText) interactionPromptText.gameObject.SetActive(false);
 
-        // Get EnemyManager if not assigned
         if (enemyManager == null)
         {
             enemyManager = EnemyManager.Instance;
         }
 
-        // Make sure animator is in idle state
         if (wellAnimator != null)
         {
             wellAnimator.Play("Idle");
@@ -62,19 +64,18 @@ public class WellInteraction : MonoBehaviour
     {
         if (!playerNearby) return;
 
-        // Handle different interaction states
+        UpdateInteractionPrompt();
+
         if (!ropeAttached)
         {
-            // Check for rope placement
-            if (Input.GetMouseButtonDown(0) && InventorySystem.Instance.HasItem(ropeItemID))
+            if (Input.GetKeyDown(KeyCode.E) && InventorySystem.Instance.HasItem(ropeItemID))
             {
                 PlaceRope();
             }
         }
         else if (!bucketAttached)
         {
-            // Check for bucket placement
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetKeyDown(KeyCode.E))
             {
                 if (InventorySystem.Instance.HasItem(bucketItemID))
                 {
@@ -82,25 +83,67 @@ public class WellInteraction : MonoBehaviour
                 }
                 else if (InventorySystem.Instance.HasItem(ropeItemID))
                 {
-                    // Player trying to place rope again - wrong sequence
                     ShowDialogue("wait_wrong_sequence");
                 }
             }
         }
-        else if (bucketAttached && !isReeling && !keyRetrieved)
+        else if (bucketAttached && !isReeling && !keyRetrieved && !waitingForCalibration)
         {
-            // Check for reeling input (mouse wheel)
             float scroll = Input.GetAxis("Mouse ScrollWheel");
-            if (scroll != 0)
+            if (scroll > 0)
             {
                 StartReeling();
             }
         }
 
-        // Handle reeling mechanics
-        if (isReeling)
+        // Handle reeling only when not waiting for calibration
+        if (isReeling && !waitingForCalibration)
         {
             HandleReeling();
+        }
+    }
+
+    private void UpdateInteractionPrompt()
+    {
+        if (interactionPromptText == null) return;
+
+        if (!ropeAttached)
+        {
+            if (InventorySystem.Instance.HasItem(ropeItemID))
+            {
+                interactionPromptText.text = "[E] Attach Rope";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else
+            {
+                interactionPromptText.gameObject.SetActive(false);
+            }
+        }
+        else if (!bucketAttached)
+        {
+            if (InventorySystem.Instance.HasItem(bucketItemID))
+            {
+                interactionPromptText.text = "[E] Attach Bucket";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else
+            {
+                interactionPromptText.gameObject.SetActive(false);
+            }
+        }
+        else if (bucketAttached && !isReeling && !keyRetrieved && !waitingForCalibration)
+        {
+            interactionPromptText.text = "[Scroll Up] Reel Down Bucket";
+            interactionPromptText.gameObject.SetActive(true);
+        }
+        else if (isReeling && !waitingForCalibration)
+        {
+            interactionPromptText.text = "[Scroll Up] Keep Reeling...";
+            interactionPromptText.gameObject.SetActive(true);
+        }
+        else
+        {
+            interactionPromptText.gameObject.SetActive(false);
         }
     }
 
@@ -108,16 +151,12 @@ public class WellInteraction : MonoBehaviour
     {
         ropeAttached = true;
 
-        // Trigger rope animation
         if (wellAnimator != null)
         {
             wellAnimator.Play("RopeAdded");
         }
 
-        // Remove rope from inventory
         InventorySystem.Instance.RemoveItem(ropeItemID);
-
-        // Show dialogue
         ShowDialogue("rope_placed");
 
         Debug.Log("Rope attached to well");
@@ -127,16 +166,12 @@ public class WellInteraction : MonoBehaviour
     {
         bucketAttached = true;
 
-        // Trigger bucket animation
         if (wellAnimator != null)
         {
             wellAnimator.Play("BucketAdded");
         }
 
-        // Remove bucket from inventory
         InventorySystem.Instance.RemoveItem(bucketItemID);
-
-        // Show dialogue
         ShowDialogue("bucket_placed");
 
         Debug.Log("Bucket attached to well");
@@ -146,8 +181,9 @@ public class WellInteraction : MonoBehaviour
     {
         isReeling = true;
         reelingProgress = 0f;
+        currentCheckpointIndex = 0;
+        waitingForCalibration = false;
 
-        // Start reeling animation
         if (wellAnimator != null)
         {
             wellAnimator.Play("Reeling");
@@ -159,7 +195,6 @@ public class WellInteraction : MonoBehaviour
             reelingSlider.value = 0f;
         }
 
-        ShowDialogue("start_reeling");
         Debug.Log("Started reeling bucket down");
     }
 
@@ -167,7 +202,7 @@ public class WellInteraction : MonoBehaviour
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
-        if (scroll > 0) // Scrolling up - reeling down
+        if (scroll > 0)
         {
             reelingProgress += scroll * scrollSensitivity * 100f;
             reelingProgress = Mathf.Clamp(reelingProgress, 0f, targetProgress);
@@ -177,24 +212,35 @@ public class WellInteraction : MonoBehaviour
                 reelingSlider.value = reelingProgress / targetProgress;
             }
 
-            // Check if reached bottom
-            if (reelingProgress >= targetProgress)
+            // Check if we've reached a calibration checkpoint
+            if (currentCheckpointIndex < calibrationCheckpoints.Length)
             {
-                StartTimeCalibration();
+                float nextCheckpoint = calibrationCheckpoints[currentCheckpointIndex];
+
+                if (reelingProgress >= nextCheckpoint)
+                {
+                    TriggerTimeCalibration();
+                    return;
+                }
+            }
+
+            // If we've completed all checkpoints and reached 100%
+            if (reelingProgress >= targetProgress && currentCheckpointIndex >= calibrationCheckpoints.Length)
+            {
+                RetrieveKey();
             }
         }
     }
 
-    private void StartTimeCalibration()
+    private void TriggerTimeCalibration()
     {
-        isReeling = false;
+        waitingForCalibration = true;
 
-        if (reelingSlider)
+        if (interactionPromptText)
         {
-            reelingSlider.gameObject.SetActive(false);
+            interactionPromptText.gameObject.SetActive(false);
         }
 
-        // Activate time calibration UI
         if (timeCalibrationUI)
         {
             timeCalibrationUI.SetActive(true);
@@ -203,29 +249,78 @@ public class WellInteraction : MonoBehaviour
         if (timeCalibrationScript)
         {
             timeCalibrationScript.enabled = true;
-            timeCalibrationScript.StartCalibration(OnCalibrationSuccess, OnCalibrationMiss);
+            timeCalibrationScript.StartCalibration(OnCalibrationSuccess, OnCalibrationFail);
         }
 
-        Debug.Log("Time calibration started!");
+        Debug.Log($"Time calibration triggered at checkpoint {currentCheckpointIndex + 1}/{calibrationCheckpoints.Length}");
     }
 
     public void OnCalibrationSuccess()
     {
-        Debug.Log("Calibration successful! Spawning key...");
-        keyRetrieved = true;
+        Debug.Log("Calibration successful! Continuing reeling...");
 
-        // Hide calibration UI
+        currentCheckpointIndex++; // Move to next checkpoint
+        waitingForCalibration = false;
+
         if (timeCalibrationUI)
         {
             timeCalibrationUI.SetActive(false);
         }
 
-        // Spawn the key
+        // Check if this was the final checkpoint
+        if (reelingProgress >= targetProgress && currentCheckpointIndex >= calibrationCheckpoints.Length)
+        {
+            RetrieveKey();
+        }
+    }
+
+    public void OnCalibrationFail()
+    {
+        Debug.Log("Player missed! Resetting progress and alerting enemy...");
+
+        // Alert enemy
+        NoiseSystem.EmitNoise(transform.position, NoiseTypes.PuzzleFailRadius);
+        SpawnEnemyAtNearestTV();
+
+        // Reset everything
+        ResetWellProgress();
+
+        if (timeCalibrationUI)
+        {
+            timeCalibrationUI.SetActive(false);
+        }
+    }
+
+    private void ResetWellProgress()
+    {
+        isReeling = false;
+        waitingForCalibration = false;
+        reelingProgress = 0f;
+        currentCheckpointIndex = 0;
+
+        if (reelingSlider)
+        {
+            reelingSlider.value = 0f;
+            reelingSlider.gameObject.SetActive(false);
+        }
+
+        Debug.Log("Well progress reset");
+    }
+
+    private void RetrieveKey()
+    {
+        isReeling = false;
+        keyRetrieved = true;
+
+        if (reelingSlider)
+        {
+            reelingSlider.gameObject.SetActive(false);
+        }
+
         if (keyPrefab && keySpawnPoint)
         {
             GameObject key = Instantiate(keyPrefab, keySpawnPoint.position, Quaternion.identity);
 
-            // Make sure the key has a Collectible component
             Collectible keyCollectible = key.GetComponent<Collectible>();
             if (keyCollectible != null)
             {
@@ -234,33 +329,23 @@ public class WellInteraction : MonoBehaviour
         }
 
         ShowDialogue("key_retrieved");
-    }
 
-    public void OnCalibrationMiss()
-    {
-        Debug.Log("Player missed! Alerting enemy...");
+        if (TaskManager.Instance != null && DialogueDatabase.tasks.ContainsKey("well_puzzle"))
+        {
+            TaskManager.Instance.CompleteTask("well_puzzle");
+        }
 
-        // EMIT PUZZLE FAIL NOISE - This will alert the enemy EVERY TIME player misses
-        NoiseSystem.EmitNoise(transform.position, NoiseTypes.PuzzleFailRadius);
-        Debug.Log($"Emitted puzzle fail noise at {transform.position}");
-
-        // Spawn enemy if not already active (only on first miss)
-        SpawnEnemyAtNearestTV();
-
-        // Player continues the minigame - no reset, just pressure!
-        // Enemy is now aware and heading to the well
+        Debug.Log("Key retrieved successfully!");
     }
 
     private void SpawnEnemyAtNearestTV()
     {
-        // Check if enemy is already active
         if (enemyManager != null && enemyManager.isEnemyActive)
         {
             Debug.Log("Enemy already active - noise will alert it");
             return;
         }
 
-        // Get TV spawn points from EnemyManager
         if (enemyManager == null)
         {
             Debug.LogError("EnemyManager not found!");
@@ -274,7 +359,6 @@ public class WellInteraction : MonoBehaviour
             return;
         }
 
-        // Find nearest TV spawn point to player
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
         {
@@ -295,7 +379,6 @@ public class WellInteraction : MonoBehaviour
             }
         }
 
-        // Spawn enemy at nearest TV
         if (nearestTV != null)
         {
             Debug.Log($"Spawning enemy at nearest TV: {nearestTV.name}");
@@ -320,6 +403,22 @@ public class WellInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = false;
+
+            // If player leaves while reeling, reset everything
+            if (isReeling || waitingForCalibration)
+            {
+                ResetWellProgress();
+
+                if (timeCalibrationUI)
+                {
+                    timeCalibrationUI.SetActive(false);
+                }
+            }
+
+            if (interactionPromptText)
+            {
+                interactionPromptText.gameObject.SetActive(false);
+            }
         }
     }
 
