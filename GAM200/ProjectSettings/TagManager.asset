@@ -57,14 +57,14 @@ TagManager:
   - name: Items Interactive
     uniqueID: 149747303
     locked: 0
+  - name: Items Props Under
+    uniqueID: 2950703875
+    locked: 0
   - name: Enemy
     uniqueID: 1687484579
     locked: 0
   - name: Player
     uniqueID: 1679586917
-    locked: 0
-  - name: Items Props Under
-    uniqueID: 2950703875
     locked: 0
   - name: Items Props
     uniqueID: 3237879885
