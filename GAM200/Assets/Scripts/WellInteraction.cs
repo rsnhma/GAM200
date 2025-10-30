@@ -26,18 +26,16 @@ public class WellInteraction : MonoBehaviour
     [Header("Time Calibration")]
     public GameObject timeCalibrationUI;
     public TimeCalibration timeCalibrationScript;
-    public int scrollsBeforeCalibration = 3; // Number of scrolls before each calibration appears
 
     [Header("Reeling Settings")]
-    public float scrollSensitivity = 10f; // Increased to make progress more noticeable
+    public float progressPerScroll = 10f; // Progress added per scroll (out of 100)
     private float reelingProgress = 0f;
     private float targetProgress = 100f;
-    private int scrollCount = 0;
-    private int totalCalibrationsNeeded = 3; // Total number of calibrations needed
+    private int totalCalibrationsNeeded = 3;
     private int calibrationsCompleted = 0;
 
     [Header("UI Elements")]
-    public GameObject reelingSliderCanvas; // Separate canvas for the progress slider
+    public GameObject reelingSliderCanvas;
     public Slider reelingSlider;
     public TextMeshProUGUI interactionPromptText;
 
@@ -45,9 +43,11 @@ public class WellInteraction : MonoBehaviour
     public EnemyManager enemyManager;
 
     [Header("Sound Indicator")]
-    public GameObject soundIndicatorUI; // The sound indicator UI to show on fail
+    public GameObject soundIndicatorUI;
 
     private bool playerNearby = false;
+    private float lastScrollTime = 0f;
+    private float scrollCooldown = 0.1f;
 
     private void Start()
     {
@@ -75,39 +75,62 @@ public class WellInteraction : MonoBehaviour
 
         if (!ropeAttached)
         {
-            if (Input.GetKeyDown(KeyCode.E) && InventorySystem.Instance.HasItem(ropeItemID))
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                PlaceRope();
+                // Only place rope if rope is equipped (not bucket or other items)
+                if (IsItemEquipped(ropeItemID))
+                {
+                    PlaceRope();
+                }
+                else if (InventorySystem.Instance.GetEquippedItemID() != null)
+                {
+                    // Player has something else equipped - show wrong sequence dialogue
+                    Debug.Log("Wrong item equipped. Need rope!");
+                    if (DialogueDatabase.dialogues.ContainsKey("well_wait_wrong_sequence"))
+                    {
+                        DialogueManager.Instance.StartDialogueSequence("well_wait_wrong_sequence");
+                    }
+                }
             }
         }
         else if (!bucketAttached)
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
-                if (InventorySystem.Instance.HasItem(bucketItemID))
+                if (IsItemEquipped(bucketItemID))
                 {
                     PlaceBucket();
                 }
-                else if (InventorySystem.Instance.HasItem(ropeItemID))
+                else if (InventorySystem.Instance.GetEquippedItemID() != null)
                 {
-                    ShowDialogue("wait_wrong_sequence");
+                    // Player has something else equipped
+                    Debug.Log("Wrong item equipped. Need bucket!");
+                    if (DialogueDatabase.dialogues.ContainsKey("well_wait_wrong_sequence"))
+                    {
+                        DialogueManager.Instance.StartDialogueSequence("well_wait_wrong_sequence");
+                    }
                 }
             }
         }
         else if (bucketAttached && !isReeling && !keyRetrieved && !waitingForCalibration)
         {
             float scroll = Input.GetAxis("Mouse ScrollWheel");
-            if (scroll > 0)
+            if (scroll > 0 && Time.time >= lastScrollTime + scrollCooldown)
             {
                 StartReeling();
             }
         }
 
-        // Handle reeling only when not waiting for calibration
         if (isReeling && !waitingForCalibration)
         {
             HandleReeling();
         }
+    }
+
+    private bool IsItemEquipped(string itemID)
+    {
+        string equippedID = InventorySystem.Instance.GetEquippedItemID();
+        return equippedID == itemID;
     }
 
     private void UpdateInteractionPrompt()
@@ -116,9 +139,22 @@ public class WellInteraction : MonoBehaviour
 
         if (!ropeAttached)
         {
-            if (InventorySystem.Instance.HasItem(ropeItemID))
+            string equippedID = InventorySystem.Instance.GetEquippedItemID();
+
+            if (IsItemEquipped(ropeItemID))
             {
                 interactionPromptText.text = "[E] Attach Rope";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else if (!string.IsNullOrEmpty(equippedID) && equippedID != ropeItemID)
+            {
+                // Wrong item equipped
+                interactionPromptText.text = "Wrong item! Equip rope from journal";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else if (InventorySystem.Instance.HasItem(ropeItemID))
+            {
+                interactionPromptText.text = "Equip rope from journal (right-click)";
                 interactionPromptText.gameObject.SetActive(true);
             }
             else
@@ -128,9 +164,22 @@ public class WellInteraction : MonoBehaviour
         }
         else if (!bucketAttached)
         {
-            if (InventorySystem.Instance.HasItem(bucketItemID))
+            string equippedID = InventorySystem.Instance.GetEquippedItemID();
+
+            if (IsItemEquipped(bucketItemID))
             {
                 interactionPromptText.text = "[E] Attach Bucket";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else if (!string.IsNullOrEmpty(equippedID) && equippedID != bucketItemID)
+            {
+                // Wrong item equipped
+                interactionPromptText.text = "Wrong item! Equip bucket from journal";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else if (InventorySystem.Instance.HasItem(bucketItemID))
+            {
+                interactionPromptText.text = "Equip bucket from journal (right-click)";
                 interactionPromptText.gameObject.SetActive(true);
             }
             else
@@ -168,8 +217,15 @@ public class WellInteraction : MonoBehaviour
             wellAnimator.Play("RopeAdded");
         }
 
+        // Remove from inventory AND journal UI
         InventorySystem.Instance.RemoveItem(ropeItemID);
-        ShowDialogue("rope_placed");
+        JournalManager.Instance.RemoveItemFromUI(ropeItemID);
+
+        // Use dialogue ID: well_rope_placed
+        if (DialogueDatabase.dialogues.ContainsKey("well_rope_placed"))
+        {
+            DialogueManager.Instance.StartDialogueSequence("well_rope_placed");
+        }
 
         Debug.Log("Rope attached to well");
     }
@@ -183,10 +239,16 @@ public class WellInteraction : MonoBehaviour
             wellAnimator.Play("BucketAdded");
         }
 
+        // Remove from inventory AND journal UI
         InventorySystem.Instance.RemoveItem(bucketItemID);
-        ShowDialogue("bucket_placed");
+        JournalManager.Instance.RemoveItemFromUI(bucketItemID);
 
-        // Show the slider canvas after bucket is attached
+        // Use dialogue ID: well_bucket_placed
+        if (DialogueDatabase.dialogues.ContainsKey("well_bucket_placed"))
+        {
+            DialogueManager.Instance.StartDialogueSequence("well_bucket_placed");
+        }
+
         if (reelingSliderCanvas)
         {
             reelingSliderCanvas.SetActive(true);
@@ -206,7 +268,6 @@ public class WellInteraction : MonoBehaviour
         {
             isReeling = true;
             reelingProgress = 0f;
-            scrollCount = 0;
             calibrationsCompleted = 0;
             waitingForCalibration = false;
 
@@ -223,10 +284,11 @@ public class WellInteraction : MonoBehaviour
     {
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
-        if (scroll > 0)
+        if (scroll > 0 && Time.time >= lastScrollTime + scrollCooldown)
         {
-            scrollCount++;
-            reelingProgress += scroll * scrollSensitivity;
+            lastScrollTime = Time.time;
+
+            reelingProgress += progressPerScroll;
             reelingProgress = Mathf.Clamp(reelingProgress, 0f, targetProgress);
 
             if (reelingSlider)
@@ -234,16 +296,18 @@ public class WellInteraction : MonoBehaviour
                 reelingSlider.value = reelingProgress / targetProgress;
             }
 
-            Debug.Log($"Scroll count: {scrollCount}/{scrollsBeforeCalibration} | Progress: {reelingProgress:F1}% | Calibrations: {calibrationsCompleted}/{totalCalibrationsNeeded}");
+            Debug.Log($"Progress: {reelingProgress:F1}/{targetProgress} | Calibrations: {calibrationsCompleted}/{totalCalibrationsNeeded}");
 
-            // Check if we've reached the required number of scrolls for calibration
-            if (scrollCount >= scrollsBeforeCalibration)
+            // Trigger calibrations at 33%, 66%, and 100%
+            float progressPercent = (reelingProgress / targetProgress) * 100f;
+            int expectedCalibrations = Mathf.FloorToInt(progressPercent / (100f / totalCalibrationsNeeded));
+
+            if (expectedCalibrations > calibrationsCompleted && calibrationsCompleted < totalCalibrationsNeeded)
             {
                 TriggerTimeCalibration();
                 return;
             }
 
-            // If we've completed all calibrations and reached 100%
             if (reelingProgress >= targetProgress && calibrationsCompleted >= totalCalibrationsNeeded)
             {
                 RetrieveKey();
@@ -254,7 +318,6 @@ public class WellInteraction : MonoBehaviour
     private void TriggerTimeCalibration()
     {
         waitingForCalibration = true;
-        scrollCount = 0; // Reset scroll count for next round
 
         if (timeCalibrationUI)
         {
@@ -282,7 +345,6 @@ public class WellInteraction : MonoBehaviour
             timeCalibrationUI.SetActive(false);
         }
 
-        // Check if we've completed all calibrations and progress
         if (reelingProgress >= targetProgress && calibrationsCompleted >= totalCalibrationsNeeded)
         {
             RetrieveKey();
@@ -293,17 +355,20 @@ public class WellInteraction : MonoBehaviour
     {
         Debug.Log("Player missed! Alerting enemy and resetting progress...");
 
-        // Show sound indicator UI
         if (soundIndicatorUI)
         {
             soundIndicatorUI.SetActive(true);
         }
 
-        // Alert enemy via noise system
+        // Show calibration failed dialogue
+        if (DialogueDatabase.dialogues.ContainsKey("well_calibration_failed"))
+        {
+            DialogueManager.Instance.StartDialogueSequence("well_calibration_failed");
+        }
+
         NoiseSystem.EmitNoise(transform.position, NoiseTypes.PuzzleFailRadius);
         SpawnEnemyAtNearestTV();
 
-        // Reset progress but keep well items attached
         ResetWellProgress();
 
         if (timeCalibrationUI)
@@ -317,7 +382,6 @@ public class WellInteraction : MonoBehaviour
         isReeling = false;
         waitingForCalibration = false;
         reelingProgress = 0f;
-        scrollCount = 0;
         calibrationsCompleted = 0;
 
         if (reelingSlider)
@@ -349,7 +413,11 @@ public class WellInteraction : MonoBehaviour
             }
         }
 
-        ShowDialogue("key_retrieved");
+        // Use dialogue ID: well_key_retrieved
+        if (DialogueDatabase.dialogues.ContainsKey("well_key_retrieved"))
+        {
+            DialogueManager.Instance.StartDialogueSequence("well_key_retrieved");
+        }
 
         if (TaskManager.Instance != null && DialogueDatabase.tasks.ContainsKey("well_puzzle"))
         {
@@ -417,7 +485,6 @@ public class WellInteraction : MonoBehaviour
         {
             playerNearby = true;
 
-            // Show slider if bucket is attached and key not retrieved
             if (bucketAttached && !keyRetrieved && reelingSliderCanvas)
             {
                 reelingSliderCanvas.SetActive(true);
@@ -431,13 +498,11 @@ public class WellInteraction : MonoBehaviour
         {
             playerNearby = false;
 
-            // Always hide slider canvas when player leaves (unless key is retrieved)
             if (!keyRetrieved && reelingSliderCanvas)
             {
                 reelingSliderCanvas.SetActive(false);
             }
 
-            // If player leaves while reeling or in calibration, reset everything
             if ((isReeling || waitingForCalibration) && !keyRetrieved)
             {
                 Debug.Log("Player left the well area - resetting progress");

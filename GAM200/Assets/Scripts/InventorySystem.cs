@@ -7,11 +7,11 @@ public class InventorySystem : MonoBehaviour
     public static InventorySystem Instance;
 
     [Header("Player Hand Reference")]
-    public Transform playerHandTransform; // Assign the player's hand/weapon holder in inspector
+    public Transform playerHandTransform;
 
     private HashSet<string> items = new HashSet<string>();
     private Dictionary<string, Action> useActions = new Dictionary<string, Action>();
-    private Dictionary<string, GameObject> itemPrefabs = new Dictionary<string, GameObject>(); // For visual items in hands
+    private Dictionary<string, GameObject> itemPrefabs = new Dictionary<string, GameObject>();
 
     private string currentlyEquippedItemID = null;
     private string currentlySelectedItemID = null;
@@ -127,7 +127,7 @@ public class InventorySystem : MonoBehaviour
                 JournalManager.Instance.HideItemDetailsPanel();
             }
 
-            // Remove from journal UI
+            // Remove from journal UI - THIS WAS ALREADY HERE
             JournalManager.Instance.RemoveItemFromUI(itemID);
 
             Debug.Log($"Used and removed item: {itemID}");
@@ -152,7 +152,13 @@ public class InventorySystem : MonoBehaviour
         if (currentlySelectedItemID == itemID)
         {
             currentlySelectedItemID = null;
+            JournalManager.Instance.HideItemDetailsPanel();
         }
+
+        // ADD THIS LINE - Remove from journal UI when item is removed
+        JournalManager.Instance.RemoveItemFromUI(itemID);
+
+        Debug.Log($"Removed item: {itemID}");
     }
 
     public List<string> GetAllItems()
