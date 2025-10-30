@@ -4,44 +4,36 @@ using UnityEngine;
 public class MapTransition : MonoBehaviour
 {
     [Header("Room Settings")]
-    [SerializeField] PolygonCollider2D mapBoundary; // New room bounds
+    [SerializeField] PolygonCollider2D mapBoundary;
     [SerializeField] Direction direction;
     [SerializeField] float additivePos = 2f;
 
     [Header("References")]
-    [SerializeField] Collider2D doorCollider;     // Solid door collider
-    [SerializeField] Collider2D triggerCollider;  // Small trigger in front of door
+    [SerializeField] Collider2D doorCollider;
+    [SerializeField] Collider2D triggerCollider;
 
     private CinemachineConfiner confiner;
     private bool playerAtDoor = false;
     private GameObject player;
+    private bool transitioning = false; // prevent spam E during transition
 
     enum Direction { Up, Down, Left, Right }
 
     private void Awake()
     {
         confiner = FindObjectOfType<CinemachineConfiner>();
-        if (confiner == null)
-            Debug.LogWarning("No CinemachineConfiner found in scene!");
-
-        if (doorCollider == null)
-            Debug.LogWarning("Door Collider not assigned!");
-        if (triggerCollider == null)
-            Debug.LogWarning("Trigger Collider not assigned!");
     }
 
     private void Update()
     {
-        if (playerAtDoor && Input.GetKeyDown(KeyCode.E))
+        if (playerAtDoor && Input.GetKeyDown(KeyCode.E) && !transitioning)
         {
-            EnterRoom();
+            StartCoroutine(HandleTransition());
         }
     }
 
-    // Detect when player enters the trigger area
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision == null) return;
         if (collision.CompareTag("Player"))
         {
             playerAtDoor = true;
@@ -52,7 +44,6 @@ public class MapTransition : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision == null) return;
         if (collision.CompareTag("Player"))
         {
             playerAtDoor = false;
@@ -61,21 +52,23 @@ public class MapTransition : MonoBehaviour
         }
     }
 
-    private void EnterRoom()
+    private System.Collections.IEnumerator HandleTransition()
     {
-        if (player == null || confiner == null || mapBoundary == null || doorCollider == null)
-            return;
-
-        // Temporarily disable the solid door so the player can pass
+        transitioning = true;
         doorCollider.enabled = false;
-        Debug.Log("Door temporarily disabled. Player can enter.");
 
-        // Move the player slightly inward
+        // Move player slightly inward
         UpdatePlayerPosition(player);
 
-        // Switch Cinemachine confiner to the new room
+        // Switch Cinemachine confiner
         confiner.m_BoundingShape2D = mapBoundary;
+
         Debug.Log("Camera transitioned to new room.");
+
+        // Wait a short time before re-enabling door
+        yield return new WaitForSeconds(1f);
+        doorCollider.enabled = true;
+        transitioning = false;
     }
 
     private void UpdatePlayerPosition(GameObject player)
