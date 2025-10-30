@@ -73,6 +73,7 @@ public class JournalManager : MonoBehaviour
         ItemSlotUI slotUI = entry.GetComponent<ItemSlotUI>();
         slotUI.itemID = itemID;
         slotUI.onUse = useAction;
+        slotUI.isMemorabilia = false; 
 
         Image icon = entry.transform.Find("ItemIcon").GetComponent<Image>();
 
@@ -90,7 +91,6 @@ public class JournalManager : MonoBehaviour
 
         itemSlots[itemID] = slotUI;
         InventorySystem.Instance.AddItem(itemID, useAction, itemPrefab);
-
     }
 
     public void AddMemorabilia(string itemID)
@@ -108,6 +108,7 @@ public class JournalManager : MonoBehaviour
         ItemSlotUI slotUI = entry.GetComponent<ItemSlotUI>();
         slotUI.itemID = itemID;
         slotUI.onUse = null;
+        slotUI.isMemorabilia = true; 
 
         Image icon = entry.transform.Find("ItemIcon").GetComponent<Image>();
 
