@@ -11,7 +11,6 @@ public class TimeCalibration : MonoBehaviour
     public float maxAngle = 80f;
 
     public RectTransform[] hitZones;
-    public float hitTolerance = 10f;
 
     private bool isActive = false;
     private float timeOffset;
@@ -20,6 +19,10 @@ public class TimeCalibration : MonoBehaviour
     [Header("Input Cooldown")]
     public float inputCooldown = 0.3f;
     private float lastInputTime = 0f;
+
+    [Header("Collision Detection")]
+    public Collider2D pointerCollider; // Reference to the pointer's collider
+    private bool isPointerInHitZone = false; // Track if pointer is currently in hit zone
 
     public AudioSource successAudio;
     public AudioSource keyAudio;
@@ -37,6 +40,17 @@ public class TimeCalibration : MonoBehaviour
         if (pointerPivot == null)
         {
             Debug.LogError("TimeCalibration: pointerPivot is not assigned!");
+        }
+        if (pointerCollider == null)
+        {
+            Debug.LogError("TimeCalibration: pointerCollider is not assigned!");
+        }
+
+        // Add PointerTriggerDetector component to the pointer collider
+        if (pointerCollider != null && pointerCollider.GetComponent<PointerTriggerDetector>() == null)
+        {
+            PointerTriggerDetector detector = pointerCollider.gameObject.AddComponent<PointerTriggerDetector>();
+            detector.timeCalibration = this;
         }
     }
 
@@ -72,6 +86,7 @@ public class TimeCalibration : MonoBehaviour
         isActive = true;
         timeOffset = Time.time;
         lastInputTime = 0f;
+        isPointerInHitZone = false;
 
         onSuccess = successCallback;
         onFail = failCallback;
@@ -97,55 +112,53 @@ public class TimeCalibration : MonoBehaviour
         Debug.Log("Time Calibration Started! Press SPACE when pointer is in red zone!");
     }
 
+    // Called by PointerTriggerDetector when pointer enters a hit zone
+    public void OnPointerEnterHitZone(bool inHitZone)
+    {
+        if (!isActive) return;
+
+        // Check if this is the active hit zone
+        //if (currentHitZoneIndex >= 0 && currentHitZoneIndex < hitZones.Length)
+        //{
+        //    RectTransform activeHitZone = hitZones[currentHitZoneIndex];
+        //    if (activeHitZone != null && hitZone.transform == activeHitZone.transform)
+        //    {
+                isPointerInHitZone = inHitZone;
+                Debug.Log("POINTER ENTERED HIT ZONE!");
+            //}
+        //}
+    }
+
+    // Called by PointerTriggerDetector when pointer exits a hit zone
+    public void OnPointerExitHitZone(bool inHitZone)
+    {
+        if (!isActive) return;
+
+        //if (currentHitZoneIndex >= 0 && currentHitZoneIndex < hitZones.Length)
+        //{
+        //    RectTransform activeHitZone = hitZones[currentHitZoneIndex];
+        //    if (activeHitZone != null && hitZone.transform == activeHitZone.transform)
+        //    {
+                isPointerInHitZone = inHitZone;
+                Debug.Log("POINTER EXITED HIT ZONE!");
+        //    }
+        //}
+    }
+
     void CheckHit()
     {
-        if (currentHitZoneIndex < 0 || currentHitZoneIndex >= hitZones.Length)
+        Debug.Log($"Space Pressed! Pointer in hit zone: {isPointerInHitZone}");
+
+        if (isPointerInHitZone)
         {
-            Debug.LogError("CheckHit: Invalid hitZone index " + currentHitZoneIndex);
-            return;
-        }
-
-        RectTransform activeHitZone = hitZones[currentHitZoneIndex];
-
-        if (activeHitZone == null)
-        {
-            Debug.LogError("CheckHit: hitZone at index " + currentHitZoneIndex + " is null!");
-            return;
-        }
-
-        float pointerAngle = pointerPivot.localEulerAngles.z;
-        if (pointerAngle > 180) pointerAngle -= 360;
-
-        Vector2 hitZonePos = activeHitZone.anchoredPosition;
-        float hitZoneAngle = Mathf.Atan2(hitZonePos.y, hitZonePos.x) * Mathf.Rad2Deg;
-
-        hitZoneAngle -= 90f;
-        if (hitZoneAngle < -180) hitZoneAngle += 360;
-        if (hitZoneAngle > 180) hitZoneAngle -= 360;
-
-        float angleDifference = Mathf.Abs(pointerAngle - hitZoneAngle);
-
-        if (angleDifference > 180)
-        {
-            angleDifference = 360 - angleDifference;
-        }
-
-        Debug.Log("Pointer: " + pointerAngle + " | HitZone Angle: " + hitZoneAngle + " | Difference: " + angleDifference + " | Tolerance: " + hitTolerance);
-
-        if (angleDifference <= hitTolerance)
-        {
-            Debug.Log("HIT! Angle difference: " + angleDifference);
-
+            Debug.Log("HIT! Pointer was in the hit zone!");
             if (successAudio) successAudio.Play();
-
             CompleteCalibration(true);
         }
         else
         {
-            Debug.Log("MISS! Angle difference: " + angleDifference + " (needed less than " + hitTolerance + ")");
-
+            Debug.Log("MISS! Pointer was not in the hit zone!");
             if (missAudio) missAudio.Play();
-
             CompleteCalibration(false);
         }
     }
@@ -153,6 +166,7 @@ public class TimeCalibration : MonoBehaviour
     void CompleteCalibration(bool success)
     {
         isActive = false;
+        isPointerInHitZone = false;
 
         if (keyAudio) keyAudio.Stop();
 
@@ -183,6 +197,7 @@ public class TimeCalibration : MonoBehaviour
     public void StopCalibration()
     {
         isActive = false;
+        isPointerInHitZone = false;
         if (keyAudio) keyAudio.Stop();
 
         if (hitZones != null)
@@ -195,5 +210,32 @@ public class TimeCalibration : MonoBehaviour
                 }
             }
         }
+    }
+}
+
+public class PointerTriggerDetector : MonoBehaviour
+{
+    public TimeCalibration timeCalibration;
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (timeCalibration != null)
+        {
+            timeCalibration.OnPointerEnterHitZone(true);
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (timeCalibration != null)
+        {
+            timeCalibration.OnPointerExitHitZone(false);
+        }
+    }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        // Optional: Log continuously while overlapping
+        // Debug.Log($"Pointer staying in: {other.name}");
     }
 }
