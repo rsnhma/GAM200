@@ -51,6 +51,9 @@ TagManager:
   - name: 'Walls '
     uniqueID: 3123669433
     locked: 0
+  - name: floor effects
+    uniqueID: 524682073
+    locked: 0
   - name: Borders
     uniqueID: 570394817
     locked: 0
