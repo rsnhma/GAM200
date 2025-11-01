@@ -15,3 +15,5 @@ well_wait_wrong_sequence,Player,"Wait, this isn't the right sequence. I need to 
 well_key_retrieved,Player,"I got the key!",,
 well_calibration_failed,Player,"I need to try again...",,
 well_key,Player,"Key to the faculty room..",,
+torn_class_photo_preview,Player,"Class photo... why is it torn",,
+classroom_3b_entry,Player"Here it is..Classroom 3B.",,
