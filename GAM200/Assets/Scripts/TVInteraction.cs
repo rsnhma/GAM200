@@ -128,6 +128,11 @@ public class TVInteraction : MonoBehaviour
         {
             Debug.LogError("Cannot spawn enemy - missing enemyPrefab or spawnPoint!");
         }
+      
+        if (AVRoomController.Instance != null)
+        {
+            AVRoomController.Instance.OnEnemySpawned();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)

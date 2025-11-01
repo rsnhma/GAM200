@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using TMPro;
 
 public class SoundIndicatorUI : MonoBehaviour
 {
@@ -8,8 +9,8 @@ public class SoundIndicatorUI : MonoBehaviour
 
     [Header("UI References")]
     public GameObject background; // Reference to "Background" GameObject
-    public Image indicatorImage; // Reference to "Image" (the ear icon)
-    public Text warningText; 
+    public Image indicatorImage;
+    public TextMeshPro warningText;
 
     [Header("Animation Settings")]
     public float displayDuration = 2f; // How long the indicator shows
@@ -47,8 +48,9 @@ public class SoundIndicatorUI : MonoBehaviour
                 // Store original scale of background
                 originalScale = background.transform.localScale;
 
-                // Start hidden
                 canvasGroup.alpha = 0f;
+
+                // Start with background hidden but active parent
                 background.SetActive(false);
             }
             else
@@ -62,11 +64,22 @@ public class SoundIndicatorUI : MonoBehaviour
         }
     }
 
-  
+
     /// Show the sound indicator when player is heard (only if not already detected)
     public void ShowIndicator()
     {
-        if (background == null) return;
+        if (background == null)
+        {
+            Debug.LogError("SoundIndicatorUI: Background is null!");
+            return;
+        }
+
+        // Check if this GameObject (SoundIndicator parent) is active
+        if (!gameObject.activeInHierarchy)
+        {
+            Debug.LogError("SoundIndicatorUI: Parent GameObject is inactive! Cannot start coroutine.");
+            return;
+        }
 
         // Only show if player hasn't been detected yet this cycle
         if (hasBeenDetected)
@@ -77,6 +90,10 @@ public class SoundIndicatorUI : MonoBehaviour
 
         // Mark as detected
         hasBeenDetected = true;
+        Debug.Log("SoundIndicatorUI: Player detected! Showing indicator");
+
+        // Activate the background before starting coroutine
+        background.SetActive(true);
 
         // If already showing, restart the display
         if (displayCoroutine != null)
@@ -88,11 +105,19 @@ public class SoundIndicatorUI : MonoBehaviour
     }
 
 
-    /// Reset detection state - call this when line of sight is broken
+    /// Reset detection state - call this when line of sight is broken or chase ends
     public void ResetDetection()
     {
         hasBeenDetected = false;
         Debug.Log("SoundIndicatorUI: Detection state reset");
+    }
+
+
+    /// Mark player as already detected (call when enemy spawns already chasing)
+    public void MarkAsDetected()
+    {
+        hasBeenDetected = true;
+        Debug.Log("SoundIndicatorUI: Marked as already detected (spawn chase)");
     }
 
 
@@ -105,7 +130,6 @@ public class SoundIndicatorUI : MonoBehaviour
     private IEnumerator DisplayIndicator()
     {
         isShowing = true;
-        background.SetActive(true);
 
         // Apply alert color to the ear icon
         if (indicatorImage != null)
@@ -155,7 +179,10 @@ public class SoundIndicatorUI : MonoBehaviour
         }
 
         canvasGroup.alpha = 0f;
+
+        // Hide background when done
         background.SetActive(false);
+
         isShowing = false;
         displayCoroutine = null;
     }
@@ -174,6 +201,7 @@ public class SoundIndicatorUI : MonoBehaviour
         canvasGroup.alpha = 0f;
         background.transform.localScale = originalScale;
         background.SetActive(false);
+
         isShowing = false;
     }
 
