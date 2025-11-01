@@ -155,7 +155,7 @@ public class InventorySystem : MonoBehaviour
             JournalManager.Instance.HideItemDetailsPanel();
         }
 
-        // ADD THIS LINE - Remove from journal UI when item is removed
+        
         JournalManager.Instance.RemoveItemFromUI(itemID);
 
         Debug.Log($"Removed item: {itemID}");
