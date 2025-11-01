@@ -15,4 +15,4 @@ MonoBehaviour:
   itemID: well_key
   itemName: Key
   itemIcon: {fileID: -7717672087124903878, guid: 5040b920cb74311498bc255c962b9d4a, type: 3}
-  itemDescription: 'Seems like a key to some place in school. '
+  itemDescription: Faculty room key.

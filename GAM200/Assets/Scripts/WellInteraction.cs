@@ -42,8 +42,7 @@ public class WellInteraction : MonoBehaviour
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
 
-    [Header("Sound Indicator")]
-    public GameObject soundIndicatorUI;
+    // REMOVED: soundIndicatorUI reference - not needed here!
 
     private bool playerNearby = false;
     private float lastScrollTime = 0f;
@@ -54,7 +53,8 @@ public class WellInteraction : MonoBehaviour
         if (timeCalibrationUI) timeCalibrationUI.SetActive(false);
         if (reelingSliderCanvas) reelingSliderCanvas.SetActive(false);
         if (interactionPromptText) interactionPromptText.gameObject.SetActive(false);
-        if (soundIndicatorUI) soundIndicatorUI.SetActive(false);
+
+        // REMOVED: Don't deactivate SoundIndicatorUI - it manages itself!
 
         if (enemyManager == null)
         {
@@ -273,7 +273,13 @@ public class WellInteraction : MonoBehaviour
 
             if (wellAnimator != null)
             {
-                wellAnimator.Play("Reeling");
+                Debug.Log("Setting IsReeling = true in animator");
+                // Use a bool parameter instead of Play() - more reliable
+                wellAnimator.SetBool("isReeling", true);
+            }
+            else
+            {
+                Debug.LogError("Well Animator is NULL!");
             }
 
             Debug.Log("Started reeling bucket down");
@@ -282,6 +288,9 @@ public class WellInteraction : MonoBehaviour
 
     private void HandleReeling()
     {
+        // Animation is handled by the Animator Controller via IsReeling bool parameter
+        // No need to manually play it here
+
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (scroll > 0 && Time.time >= lastScrollTime + scrollCooldown)
@@ -319,6 +328,9 @@ public class WellInteraction : MonoBehaviour
     {
         waitingForCalibration = true;
 
+        // Keep the reeling animation playing during calibration
+        // Don't set IsReeling to false here
+
         if (timeCalibrationUI)
         {
             timeCalibrationUI.SetActive(true);
@@ -345,6 +357,8 @@ public class WellInteraction : MonoBehaviour
             timeCalibrationUI.SetActive(false);
         }
 
+        // Animation already playing, no need to restart it
+
         if (reelingProgress >= targetProgress && calibrationsCompleted >= totalCalibrationsNeeded)
         {
             RetrieveKey();
@@ -355,10 +369,8 @@ public class WellInteraction : MonoBehaviour
     {
         Debug.Log("Player missed! Alerting enemy and resetting progress...");
 
-        if (soundIndicatorUI)
-        {
-            soundIndicatorUI.SetActive(true);
-        }
+        // REMOVED: Don't manually activate soundIndicatorUI
+        // The SoundIndicatorUI singleton will handle showing itself when noise is emitted
 
         // Show calibration failed dialogue
         if (DialogueDatabase.dialogues.ContainsKey("well_calibration_failed"))
@@ -366,6 +378,7 @@ public class WellInteraction : MonoBehaviour
             DialogueManager.Instance.StartDialogueSequence("well_calibration_failed");
         }
 
+        // This will trigger SoundIndicatorUI.ShowIndicator() automatically via MainEnemy.OnNoiseHeard
         NoiseSystem.EmitNoise(transform.position, NoiseTypes.PuzzleFailRadius);
         SpawnEnemyAtNearestTV();
 
@@ -389,6 +402,12 @@ public class WellInteraction : MonoBehaviour
             reelingSlider.value = 0f;
         }
 
+        // Stop reeling animation
+        if (wellAnimator != null)
+        {
+            wellAnimator.SetBool("isReeling", false);
+        }
+
         Debug.Log("Well progress reset - rope and bucket still attached");
     }
 
@@ -396,6 +415,12 @@ public class WellInteraction : MonoBehaviour
     {
         isReeling = false;
         keyRetrieved = true;
+
+        // Stop reeling animation
+        if (wellAnimator != null)
+        {
+            wellAnimator.SetBool("isReeling", false);
+        }
 
         if (reelingSliderCanvas)
         {

@@ -127,6 +127,13 @@ public class MainEnemy : EnemyBase
 
     private IEnumerator StartChaseWithBuffer()
     {
+        // Mark as detected immediately since we're starting in chase mode
+        if (SoundIndicatorUI.Instance != null)
+        {
+            SoundIndicatorUI.Instance.MarkAsDetected();
+            Debug.Log("Enemy spawned chasing - marked as detected, UI won't show");
+        }
+
         yield return new WaitForSeconds(1f);
         Debug.Log("Buffer time ended - starting chase");
         TransitionToState(EnemyManager.EnemyState.Chasing);

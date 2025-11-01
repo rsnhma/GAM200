@@ -1,6 +1,8 @@
 dialogueID,speakerName,dialogueText,nextDialogueID,triggerTaskID
 bulletin_board_intro,Player,"All started at the AV room...then that's where we shall start",,find_av_room
+explore_av_room_first,Player,"I'll explore this area later. I need to find the AV room first.",,
 av_room_entry,Player,"This must be the place. Let me look around.",,
+av_room_cant_leave,Player,"I can't leave yet. I need to explore this room first.",,
 vhs_tape_pickup,Player,"An old VHS tape. Maybe it works with the TV?",,
 table_scribble,Player,"What truth? And who is 'she'?",table_scribble_2,
 table_scribble_2,Player,"That's be where I'll head to next. But this room...",table_scribble_3,
@@ -12,3 +14,4 @@ well_bucket_placed,Player,"Now.. Time to lower it down.",,
 well_wait_wrong_sequence,Player,"Wait, this isn't the right sequence. I need to attach the rope first.",,
 well_key_retrieved,Player,"I got the key!",,
 well_calibration_failed,Player,"I need to try again...",,
+well_key,Player,"Key to the faculty room..",,
