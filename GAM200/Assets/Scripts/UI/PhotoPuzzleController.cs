@@ -8,6 +8,11 @@ public class PhotoPuzzleController : MonoBehaviour
     [Header("Puzzle Pieces")]
     [SerializeField] private Transform[] photoPieces; // 4 torn pieces
 
+    [Header("Complete Photo")]
+    [SerializeField] private GameObject completePhotoImage; // The whole pieced image
+    [SerializeField] private CanvasGroup completePhotoCanvasGroup; // For fade effect
+    [SerializeField] private float completePhotoDisplayTime = 2f; // How long to show complete image
+
     [Header("UI Elements")]
     [SerializeField] private GameObject puzzlePanel;
     [SerializeField] private TextMeshProUGUI bloodText;
@@ -18,13 +23,13 @@ public class PhotoPuzzleController : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float panelFadeSpeed = 2f;
-    [SerializeField] private float bloodTextDelay = 1f;
+    [SerializeField] private float bloodTextDelay = 2f;
     [SerializeField] private float bloodTextFadeDuration = 2f;
     [SerializeField] private float panelCloseDelay = 4f;
 
     public static bool puzzleSolved = false;
     private bool isPuzzleActive = false;
-    private string bloodMessage = "They said I took their key. But they took my future.";
+    private string bloodMessage = "They said I stole the key. They framed me.";
 
     void Start()
     {
@@ -37,6 +42,16 @@ public class PhotoPuzzleController : MonoBehaviour
         {
             bloodText.gameObject.SetActive(false);
             bloodText.text = bloodMessage;
+        }
+
+        // Keep complete photo hidden initially
+        if (completePhotoImage != null)
+        {
+            completePhotoImage.SetActive(false);
+            if (completePhotoCanvasGroup != null)
+            {
+                completePhotoCanvasGroup.alpha = 0f;
+            }
         }
 
         puzzleSolved = false;
@@ -118,10 +133,19 @@ public class PhotoPuzzleController : MonoBehaviour
                 touchScript.enabled = false;
         }
 
+        // Hide the individual pieces
+        yield return StartCoroutine(HidePuzzlePieces());
+
+        // Show the complete photo image
+        yield return StartCoroutine(ShowCompletePhoto());
+
+        // Wait to let player view the complete image
+        yield return new WaitForSeconds(completePhotoDisplayTime);
+
         // Wait before showing blood text
         yield return new WaitForSeconds(bloodTextDelay);
 
-        // Show blood text with fade-in effect
+        // Show blood text with fade-in effect (on top of the complete photo)
         if (bloodText != null)
         {
             bloodText.gameObject.SetActive(true);
@@ -131,11 +155,61 @@ public class PhotoPuzzleController : MonoBehaviour
         // Wait before closing panel
         yield return new WaitForSeconds(panelCloseDelay);
 
-        // Close puzzle panel
+        // Fade out everything together (complete photo, blood text, and panel)
         yield return StartCoroutine(FadeOutPanel());
 
         // Complete the puzzle
         CompletePuzzle();
+    }
+
+    private IEnumerator HidePuzzlePieces()
+    {
+        // Fade out or instantly hide the puzzle pieces
+        foreach (Transform piece in photoPieces)
+        {
+            if (piece != null)
+            {
+                CanvasGroup pieceCanvasGroup = piece.GetComponent<CanvasGroup>();
+                if (pieceCanvasGroup != null)
+                {
+                    float elapsed = 0f;
+                    float fadeTime = 0.5f;
+                    while (elapsed < fadeTime)
+                    {
+                        elapsed += Time.deltaTime;
+                        pieceCanvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeTime);
+                        yield return null;
+                    }
+                    piece.gameObject.SetActive(false);
+                }
+                else
+                {
+                    piece.gameObject.SetActive(false);
+                }
+            }
+        }
+    }
+
+    private IEnumerator ShowCompletePhoto()
+    {
+        if (completePhotoImage != null)
+        {
+            completePhotoImage.SetActive(true);
+
+            if (completePhotoCanvasGroup != null)
+            {
+                completePhotoCanvasGroup.alpha = 0f;
+                float elapsed = 0f;
+                float fadeTime = 1f;
+
+                while (elapsed < fadeTime)
+                {
+                    elapsed += Time.deltaTime;
+                    completePhotoCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / fadeTime);
+                    yield return null;
+                }
+            }
+        }
     }
 
     private void CompletePuzzle()

@@ -15,6 +15,10 @@ public class WellInteraction : MonoBehaviour
     private bool isReeling = false;
     private bool keyRetrieved = false;
     private bool waitingForCalibration = false;
+    private bool hasShownFirstEncounter = false; 
+
+    [Header("Dialogue Settings")]
+    public string firstEncounterDialogueID = "well_first_encounter"; 
 
     [Header("Animation")]
     public Animator wellAnimator;
@@ -42,8 +46,6 @@ public class WellInteraction : MonoBehaviour
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
 
-    // REMOVED: soundIndicatorUI reference - not needed here!
-
     private bool playerNearby = false;
     private float lastScrollTime = 0f;
     private float scrollCooldown = 0.1f;
@@ -53,8 +55,6 @@ public class WellInteraction : MonoBehaviour
         if (timeCalibrationUI) timeCalibrationUI.SetActive(false);
         if (reelingSliderCanvas) reelingSliderCanvas.SetActive(false);
         if (interactionPromptText) interactionPromptText.gameObject.SetActive(false);
-
-        // REMOVED: Don't deactivate SoundIndicatorUI - it manages itself!
 
         if (enemyManager == null)
         {
@@ -146,17 +146,6 @@ public class WellInteraction : MonoBehaviour
                 interactionPromptText.text = "[E] Attach Rope";
                 interactionPromptText.gameObject.SetActive(true);
             }
-            else if (!string.IsNullOrEmpty(equippedID) && equippedID != ropeItemID)
-            {
-                // Wrong item equipped
-                interactionPromptText.text = "Wrong item! Equip rope from journal";
-                interactionPromptText.gameObject.SetActive(true);
-            }
-            else if (InventorySystem.Instance.HasItem(ropeItemID))
-            {
-                interactionPromptText.text = "Equip rope from journal (right-click)";
-                interactionPromptText.gameObject.SetActive(true);
-            }
             else
             {
                 interactionPromptText.gameObject.SetActive(false);
@@ -169,17 +158,6 @@ public class WellInteraction : MonoBehaviour
             if (IsItemEquipped(bucketItemID))
             {
                 interactionPromptText.text = "[E] Attach Bucket";
-                interactionPromptText.gameObject.SetActive(true);
-            }
-            else if (!string.IsNullOrEmpty(equippedID) && equippedID != bucketItemID)
-            {
-                // Wrong item equipped
-                interactionPromptText.text = "Wrong item! Equip bucket from journal";
-                interactionPromptText.gameObject.SetActive(true);
-            }
-            else if (InventorySystem.Instance.HasItem(bucketItemID))
-            {
-                interactionPromptText.text = "Equip bucket from journal (right-click)";
                 interactionPromptText.gameObject.SetActive(true);
             }
             else
@@ -369,9 +347,6 @@ public class WellInteraction : MonoBehaviour
     {
         Debug.Log("Player missed! Alerting enemy and resetting progress...");
 
-        // REMOVED: Don't manually activate soundIndicatorUI
-        // The SoundIndicatorUI singleton will handle showing itself when noise is emitted
-
         // Show calibration failed dialogue
         if (DialogueDatabase.dialogues.ContainsKey("well_calibration_failed"))
         {
@@ -509,6 +484,18 @@ public class WellInteraction : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = true;
+
+            // Show first encounter dialogue (only once)
+            if (!hasShownFirstEncounter)
+            {
+                hasShownFirstEncounter = true;
+
+                if (!string.IsNullOrEmpty(firstEncounterDialogueID))
+                {
+                    DialogueManager.Instance?.StartDialogueSequence(firstEncounterDialogueID);
+                    Debug.Log("Player discovered the well - showing first encounter dialogue");
+                }
+            }
 
             if (bucketAttached && !keyRetrieved && reelingSliderCanvas)
             {
