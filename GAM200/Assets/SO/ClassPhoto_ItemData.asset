@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: torn_class_photo
   itemName: Class Photo
-  itemIcon: {fileID: 1359476126034741147, guid: 3173f783932b9d14eac436f2c0b71567, type: 3}
-  itemDescription: 'Class Photo '
+  itemIcon: {fileID: 4767522968755458736, guid: 50ca91569b6417148a5bc57a225dc391, type: 3}
+  itemDescription: Class photo with a girl scribbled out....

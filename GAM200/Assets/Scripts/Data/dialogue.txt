@@ -1,17 +1,19 @@
 dialogueID,speakerName,dialogueText,nextDialogueID,triggerTaskID
 bulletin_board_intro,Player,"All started at the AV room...then that's where we shall start",,find_av_room
-explore_av_room_first,Player,"I'll explore this area later. I need to find the AV room first.",,
+explore_av_room_first,Player,"This place goes on forever... I should be careful where I start.",,
 av_room_entry,Player,"This must be the place. Let me look around.",,
 av_room_cant_leave,Player,"I can't leave yet. I need to explore this room first.",,
 vhs_tape_pickup,Player,"An old VHS tape. Maybe it works with the TV?",,
-table_scribble,Player,"What truth? And who is 'she'?",table_scribble_2,
-table_scribble_2,Player,"That's be where I'll head to next. But this room...",table_scribble_3,
-table_scribble_3,Player,"This room feels wrong... Like it's waiting for me to find something.",,head_to_the_courtyard_afterwards
+table_scribble,Player,"Scapegoat...they called her that. Over and over.",table_scribble_2,
+table_scribble_2,Player,"The courtyard...I'll check that out next. But this room..The air's heavy here.",table_scribble_3,
+table_scribble_3,Player,"Yuki..you wouldn't have just left. Something happened in this school.",,head_to_the_courtyard_afterwards
+courtyard_entry,Player,"Table scrible said someone threw the key into the well..let's see if the key is still there.",,
+well_first_encounter,Player,"The well is missing some items... I'll look around here to see if I can find the components.",,
 rope_pickup,Player,"A sturdy rope. This could be useful.",,
 bucket_pickup,Player,"An old wooden bucket. I should bring this to the well.",,
 well_rope_placed,Player,"The rope is secured.",,
 well_bucket_placed,Player,"Now.. Time to lower it down.",,
-well_wait_wrong_sequence,Player,"Wait, this isn't the right sequence. I need to attach the rope first.",,
+well_wait_wrong_sequence,Player,"I need to attach the rope first.",,
 well_key_retrieved,Player,"I got the key!",,
 well_calibration_failed,Player,"I need to try again...",,
 well_key,Player,"Key to the faculty room..",,
