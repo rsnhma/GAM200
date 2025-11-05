@@ -33,6 +33,7 @@ public class MainEnemy : EnemyBase
     private Vector2 lastMovement;
 
     // Enemy states
+    private Rigidbody2D rb;
     private EnemyManager.EnemyState currentState = EnemyManager.EnemyState.Inactive;
 
     // Suspicion variables
@@ -88,6 +89,11 @@ public class MainEnemy : EnemyBase
         if (animator != null)
         {
             animator.SetFloat("Speed", 0f);
+        }
+        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+        {
+            rb = gameObject.AddComponent<Rigidbody2D>();
         }
     }
 
@@ -337,7 +343,8 @@ public class MainEnemy : EnemyBase
             PickNewRoamDirection();
         }
 
-        transform.position += (Vector3)(roamDirection * roamSpeed * Time.deltaTime);
+        Vector2 targetPosition = (Vector2)transform.position + (roamDirection * roamSpeed * Time.deltaTime);
+        rb.MovePosition(targetPosition);
 
         if (HasLineOfSight())
         {

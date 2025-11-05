@@ -6416,36 +6416,6 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
-  - first: {x: -10, y: -8, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 10
-      m_TileSpriteIndex: 10
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
-  - first: {x: -9, y: -8, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 9
-      m_TileSpriteIndex: 9
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
-  - first: {x: -8, y: -8, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 4
-      m_TileSpriteIndex: 4
-      m_TileMatrixIndex: 2
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
   - first: {x: -7, y: -8, z: 0}
     second:
       serializedVersion: 2
@@ -6496,8 +6466,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 6e8ca185724456b4e8000df42efde9a2, type: 2}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 3
     m_Data: {fileID: 11400000, guid: ce14f15f5a3f3cb4fabd70c449e1cb46, type: 2}
   - m_RefCount: 21
@@ -6506,10 +6476,10 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 44fb4fcc4734d634abb29476cc02504c, type: 2}
   - m_RefCount: 26
     m_Data: {fileID: 11400000, guid: 98aa1434bf79fc446ab4d0000e50021a, type: 2}
-  - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 697ac6227a69163448571125e5f9b0bb, type: 2}
-  - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 0b1bee20276130040b00db4829971a17, type: 2}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: 76485d4c45f05a74885773c878da7133, type: 2}
   m_TileSpriteArray:
@@ -6521,8 +6491,8 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 1
-    m_Data: {fileID: 371932839, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 3
     m_Data: {fileID: -752003772, guid: b8048a854f32af64b84130cf58fbf5b6, type: 3}
   - m_RefCount: 21
@@ -6531,10 +6501,10 @@ Tilemap:
     m_Data: {fileID: -8185252286816643056, guid: b8048a854f32af64b84130cf58fbf5b6, type: 3}
   - m_RefCount: 26
     m_Data: {fileID: 2063826154672905881, guid: 2fd8e18f532339d40b014900f0af450d, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: -737557243, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: -804799843576879722, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 825738703, guid: b8048a854f32af64b84130cf58fbf5b6, type: 3}
   m_TileMatrixArray:
@@ -6574,7 +6544,7 @@ Tilemap:
       e31: 4.96e-43
       e32: 4.99e-43
       e33: 4.96e-43
-  - m_RefCount: 71
+  - m_RefCount: 68
     m_Data:
       e00: 1
       e01: 0
@@ -6611,7 +6581,7 @@ Tilemap:
       e32: 4.99e-43
       e33: 4.96e-43
   m_TileColorArray:
-  - m_RefCount: 71
+  - m_RefCount: 68
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   - m_RefCount: 0
     m_Data: {r: 6.7265e-41, g: 6.7265e-41, b: 6.7265e-41, a: 6.7265e-41}
@@ -7509,6 +7479,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 550660765}
   triggerCollider: {fileID: 137860317}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &140336684
 GameObject:
   m_ObjectHideFlags: 0
@@ -9984,6 +9958,116 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &148950030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 148950031}
+  - component: {fileID: 148950033}
+  - component: {fileID: 148950032}
+  m_Layer: 0
+  m_Name: 'Courtyard Entrance  '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &148950031
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148950030}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -37.510002, y: -65.0092, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1912721597}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &148950032
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148950030}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 149747303
+  m_SortingLayer: 5
+  m_SortingOrder: 0
+  m_Sprite: {fileID: -526043743, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 3, y: 2}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!95 &148950033
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148950030}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c96e6c2a0954c4aeda0d41dc8a731c33, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &151434445
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13455,6 +13539,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 913446219}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &285416394
 GameObject:
   m_ObjectHideFlags: 0
@@ -14125,6 +14213,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 1186776601}
   triggerCollider: {fileID: 315842911}
+  doorAnimator: {fileID: 148950033}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &316011866
 GameObject:
   m_ObjectHideFlags: 0
@@ -28458,6 +28550,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!4 &550660767
 Transform:
   m_ObjectHideFlags: 0
@@ -32008,7 +32104,7 @@ Transform:
   m_GameObject: {fileID: 685090998}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -117.30212, y: -35.78339, z: -10}
+  m_LocalPosition: {x: -121.4147, y: -17.400345, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -34251,6 +34347,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 1791851323}
   triggerCollider: {fileID: 802127520}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &803756096
 GameObject:
   m_ObjectHideFlags: 0
@@ -35247,11 +35347,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -117.3
+      value: -130.6
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -40.2
+      value: -17.4
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -50868,6 +50968,116 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 907578216}
   m_CullTransparentMesh: 1
+--- !u!1 &913446216
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 913446217}
+  - component: {fileID: 913446219}
+  - component: {fileID: 913446218}
+  m_Layer: 0
+  m_Name: Faculty Room Entrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &913446217
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913446216}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -118.70053, y: -5.210003, z: -0.4944358}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &913446218
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913446216}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 149747303
+  m_SortingLayer: 5
+  m_SortingOrder: 0
+  m_Sprite: {fileID: -526043743, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 3, y: 2}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!95 &913446219
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 913446216}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c96e6c2a0954c4aeda0d41dc8a731c33, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &918689407
 GameObject:
   m_ObjectHideFlags: 0
@@ -55964,6 +56174,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 284013903}
   triggerCollider: {fileID: 1075507289}
+  doorAnimator: {fileID: 913446219}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &1082799151
 GameObject:
   m_ObjectHideFlags: 0
@@ -66503,6 +66717,10 @@ MonoBehaviour:
   additivePos: 1.5
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &1173961395
 GameObject:
   m_ObjectHideFlags: 0
@@ -67264,6 +67482,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 148950033}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &1191593476
 GameObject:
   m_ObjectHideFlags: 0
@@ -82026,7 +82248,7 @@ Transform:
   m_GameObject: {fileID: 1458050089}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 10.41, y: -5.63, z: 0}
+  m_LocalPosition: {x: 10.41, y: -5.66, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -82097,6 +82319,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &1460818746
 GameObject:
   m_ObjectHideFlags: 0
@@ -83665,6 +83891,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 2031758069}
   triggerCollider: {fileID: 1482861477}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &1483744588
 GameObject:
   m_ObjectHideFlags: 0
@@ -89512,7 +89742,7 @@ Transform:
   m_GameObject: {fileID: 1698797674}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -117.3, y: -40.2, z: -10}
+  m_LocalPosition: {x: -130.6, y: -17.4, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -90252,36 +90482,6 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
-  - first: {x: -10, y: -9, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 7
-      m_TileSpriteIndex: 7
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
-  - first: {x: -9, y: -9, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 6
-      m_TileSpriteIndex: 3
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
-  - first: {x: -8, y: -9, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 5
-      m_TileSpriteIndex: 2
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 0
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
   - first: {x: -7, y: -9, z: 0}
     second:
       serializedVersion: 2
@@ -90334,12 +90534,12 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 3abc3aa63a08d944d8c5dc4917ee6570, type: 2}
-  - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 883d1d93710179e4499c19584954029d, type: 2}
-  - m_RefCount: 1
-    m_Data: {fileID: 11400000, guid: 72b10ce79c2735a429149bf6c0324398, type: 2}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 26
     m_Data: {fileID: 11400000, guid: 98aa1434bf79fc446ab4d0000e50021a, type: 2}
   - m_RefCount: 4
@@ -90349,22 +90549,22 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 1
-    m_Data: {fileID: -864650355, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: 1243770294, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 21
     m_Data: {fileID: 1407080034, guid: b8048a854f32af64b84130cf58fbf5b6, type: 3}
   - m_RefCount: 4
     m_Data: {fileID: 825738703, guid: b8048a854f32af64b84130cf58fbf5b6, type: 3}
   - m_RefCount: 17
     m_Data: {fileID: -1330946131, guid: b8048a854f32af64b84130cf58fbf5b6, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: -1209880395, guid: df8cc06fc13e8154e82dcfbdb94392de, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 26
     m_Data: {fileID: 2063826154672905881, guid: 2fd8e18f532339d40b014900f0af450d, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 71
+  - m_RefCount: 68
     m_Data:
       e00: 1
       e01: 0
@@ -90383,7 +90583,7 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 71
+  - m_RefCount: 68
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   - m_RefCount: 0
     m_Data: {r: 7.0872e-41, g: 7.0872e-41, b: 7.0872e-41, a: 7.0872e-41}
@@ -104390,6 +104590,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &1792199154
 GameObject:
   m_ObjectHideFlags: 0
@@ -107816,6 +108020,7 @@ Transform:
   - {fileID: 2077954073}
   - {fileID: 1434440544}
   - {fileID: 24323659}
+  - {fileID: 148950031}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1914813909
@@ -109948,6 +110153,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 1458050091}
   triggerCollider: {fileID: 2008347253}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &2011140584
 GameObject:
   m_ObjectHideFlags: 0
@@ -111003,6 +111212,10 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 0}
   triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 0}
+  hasAnimation: 1
+  autoOpenForEnemies: 1
+  autoCloseDelay: 2
 --- !u!1 &2039566873
 GameObject:
   m_ObjectHideFlags: 0
@@ -115815,6 +116028,7 @@ SceneRoots:
   - {fileID: 975696276}
   - {fileID: 821642865}
   - {fileID: 1378317949}
+  - {fileID: 913446217}
   - {fileID: 1958800352}
   - {fileID: 1912721597}
   - {fileID: 1828380115}
