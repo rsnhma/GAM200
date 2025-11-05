@@ -65,6 +65,7 @@ public class BulletinBoard : MonoBehaviour
     {
         if (bulletinBoardPanel != null)
         {
+            SoundManager.Instance.PlayInteractSound();
             bulletinBoardPanel.SetActive(true);
             isPanelOpen = true;
 

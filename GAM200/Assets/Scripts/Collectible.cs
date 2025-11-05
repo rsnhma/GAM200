@@ -43,6 +43,7 @@ public class Collectible : MonoBehaviour
         // Left click to pick up item when player is nearby
         if (playerNearby && Input.GetMouseButtonDown(0))
         {
+            SoundManager.Instance.PlayPickUpSound();
             Pickup();
         }
     }
@@ -61,6 +62,7 @@ public class Collectible : MonoBehaviour
 
     public void Pickup()
     {
+        SoundManager.Instance.PlayPickUpSound();
         // Show dialogue if it exists
         string dialogueID = itemID + "_pickup";
         if (DialogueDatabase.dialogues.ContainsKey(dialogueID))
