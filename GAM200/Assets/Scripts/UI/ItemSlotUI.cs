@@ -36,23 +36,10 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         Debug.Log($"ItemSlotUI initialized: {itemID}, isMemorabilia: {isMemorabilia}");
     }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // Left click to select and view details
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            SelectItem();
-        }
-        // Right click to equip (only for inventory items)
-        else if (eventData.button == PointerEventData.InputButton.Right && !isMemorabilia)
-        {
-            InventorySystem.Instance.EquipItem(itemID);
-            Debug.Log($"Equipped item: {itemID}");
-        }
-    }
-
     private void SelectItem()
     {
+        SoundManager.Instance.PlayClickSound();
+
         JournalManager.Instance.UpdateItemSelectionHighlight(itemID);
 
         if (isMemorabilia)
@@ -64,6 +51,20 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         {
             InventorySystem.Instance.SelectItem(itemID);
             Debug.Log($"Selected inventory item: {itemID}");
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            SelectItem();
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right && !isMemorabilia)
+        {
+            SoundManager.Instance.PlayEquipSound();
+            InventorySystem.Instance.EquipItem(itemID);
+            Debug.Log($"Equipped item: {itemID}");
         }
     }
 
@@ -81,4 +82,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             }
         }
     }
+
+
 }

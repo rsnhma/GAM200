@@ -111,6 +111,8 @@ public class DialogueManager : MonoBehaviour
 
     private void OnDialogueButtonClick()
     {
+        SoundManager.Instance.PlayClickSound();
+
         if (isTyping)
         {
             // Skip typing animation

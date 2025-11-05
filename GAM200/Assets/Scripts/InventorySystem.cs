@@ -72,6 +72,8 @@ public class InventorySystem : MonoBehaviour
     {
         if (!items.Contains(itemID)) return;
 
+        SoundManager.Instance.PlayEquipSound();
+
         // Remove previous hand item if exists
         if (currentHandItemObject != null)
         {

@@ -63,6 +63,7 @@ public class TableScribble : MonoBehaviour
 
     private void Interact()
     {
+        SoundManager.Instance.PlayInteractSound();
         if (tableScribblePanel != null)
         {
             tableScribblePanel.SetActive(true);

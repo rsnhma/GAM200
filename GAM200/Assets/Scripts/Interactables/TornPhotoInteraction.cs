@@ -11,9 +11,6 @@ public class TornPhotoInteraction : MonoBehaviour
     [Header("Dialogue Settings")]
     [SerializeField] private string previewDialogueID = "torn_class_photo_preview";
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip pickupSound;
-
     private Transform playerTransform;
     private AudioSource audioSource;
     private bool hasBeenUsed = false;
@@ -69,9 +66,7 @@ public class TornPhotoInteraction : MonoBehaviour
 
         Debug.Log("InteractWithPhoto called!");
 
-        // Play pickup sound
-        if (pickupSound != null && audioSource != null)
-            audioSource.PlayOneShot(pickupSound);
+        SoundManager.Instance.PlayInteractSound();
 
         // Show dialogue first, then open puzzle when dialogue closes
         if (DialogueManager.Instance != null && !string.IsNullOrEmpty(previewDialogueID))

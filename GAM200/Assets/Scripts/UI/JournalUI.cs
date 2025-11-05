@@ -11,15 +11,15 @@ public class JournalUI : MonoBehaviour
 
     [Header("Tabs")]
     public Button settingsTabButton;
-    public Button tasksTabButton;         
-    public Button memorabiliaTabButton;   
-    public Button inventoryTabButton;    
+    public Button tasksTabButton;
+    public Button memorabiliaTabButton;
+    public Button inventoryTabButton;
 
     [Header("Panels")]
-    public GameObject settingsPanel;      
-    public GameObject tasksPanel;         
-    public GameObject memorabiliaPanel;   
-    public GameObject inventoryPanel;    
+    public GameObject settingsPanel;
+    public GameObject tasksPanel;
+    public GameObject memorabiliaPanel;
+    public GameObject inventoryPanel;
 
     private bool isOpen = false;
     private Dictionary<string, GameObject> panels;
@@ -28,7 +28,6 @@ public class JournalUI : MonoBehaviour
     {
         journalPanel.SetActive(false);
 
-        // Tab setup - now includes all 4 tabs
         panels = new Dictionary<string, GameObject>
         {
             {"Settings", settingsPanel},
@@ -61,7 +60,7 @@ public class JournalUI : MonoBehaviour
         }
 
         // Start with settings by default
-        ShowPanel("Settings");
+        ShowPanel("Settings", playSound: false);
     }
 
     void Update()
@@ -84,7 +83,7 @@ public class JournalUI : MonoBehaviour
             }
         }
 
-        // NEW: Toggle memorabilia tab with M
+        // Toggle memorabilia tab with M
         if (Input.GetKeyDown(KeyCode.M))
         {
             if (isOpen)
@@ -96,7 +95,7 @@ public class JournalUI : MonoBehaviour
             }
         }
 
-        // NEW: Toggle tasks tab with T
+        // Toggle tasks tab with T
         if (Input.GetKeyDown(KeyCode.T))
         {
             if (isOpen)
@@ -141,8 +140,14 @@ public class JournalUI : MonoBehaviour
         isOpen = false;
     }
 
-    private void ShowPanel(string panelName)
+    private void ShowPanel(string panelName, bool playSound = true)
     {
+        // Only play sound if requested (not during initialization)
+        if (playSound && SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayJournalTabSound();
+        }
+
         foreach (var kvp in panels)
             kvp.Value.SetActive(kvp.Key == panelName);
     }

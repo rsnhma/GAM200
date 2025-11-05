@@ -24,9 +24,7 @@ public class TimeCalibration : MonoBehaviour
     public Collider2D pointerCollider; // Reference to the pointer's collider
     private bool isPointerInHitZone = false; // Track if pointer is currently in hit zone
 
-    public AudioSource successAudio;
     public AudioSource keyAudio;
-    public AudioSource missAudio;
 
     private Action onSuccess;
     private Action onFail;
@@ -152,13 +150,13 @@ public class TimeCalibration : MonoBehaviour
         if (isPointerInHitZone)
         {
             Debug.Log("HIT! Pointer was in the hit zone!");
-            if (successAudio) successAudio.Play();
+            SoundManager.Instance.PlayPuzzleSuccessSound();
             CompleteCalibration(true);
         }
         else
         {
             Debug.Log("MISS! Pointer was not in the hit zone!");
-            if (missAudio) missAudio.Play();
+            SoundManager.Instance.PlayWellFailSound();
             CompleteCalibration(false);
         }
     }
