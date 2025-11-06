@@ -1,5 +1,5 @@
 taskID,taskName,taskDescription,category,completionDialogueID
 find_av_room,Find the AV room,Find the AV room,main,av_room_entry
 head_to_the_courtyard_afterwards,Head to the Courtyard afterwards,Head to the Courtyard,main,
-find_faculty_office,Find Faculty Office,Locate the faculty office,main,
+find_faculty_office,Find Faculty Office,Locate the faculty office where the key belongs,main,
 

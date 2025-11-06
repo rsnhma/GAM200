@@ -49,10 +49,6 @@ public class WellInteraction : MonoBehaviour
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
 
-    [Header("Sanity Reward")]
-    public float sanityReward = 2f; // Amount of sanity to restore when puzzle is completed
-
-
     private bool playerNearby = false;
     private float lastScrollTime = 0f;
     private float scrollCooldown = 0.1f;
@@ -438,12 +434,6 @@ public class WellInteraction : MonoBehaviour
         if (TaskManager.Instance != null && DialogueDatabase.tasks.ContainsKey("well_puzzle"))
         {
             TaskManager.Instance.CompleteTask("well_puzzle");
-        }
-
-        if (PlayerSanity.Instance != null)
-        {
-            PlayerSanity.Instance.GainSanity(sanityReward);
-            Debug.Log($"Player gained {sanityReward} sanity for completing the well puzzle!");
         }
 
         Debug.Log("Key retrieved successfully! Well puzzle completed!");
