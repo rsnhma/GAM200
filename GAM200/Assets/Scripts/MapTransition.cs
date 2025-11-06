@@ -1,6 +1,6 @@
 using Unity.Cinemachine;
 using UnityEngine;
-using System.Collections;   
+using System.Collections;
 
 public class MapTransition : MonoBehaviour
 {
@@ -17,8 +17,9 @@ public class MapTransition : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private bool hasAnimation = true;
-    [SerializeField] private bool autoOpenForEnemies = true; // Allow enemies to pass through
-    [SerializeField] private float autoCloseDelay = 2f; // Time before door closes after enemy passes
+    [SerializeField] private bool autoOpenForEnemies = true;
+    [SerializeField] private float autoCloseDelay = 2f;
+    [SerializeField] private float enemyFollowDelay = 0.5f; // Delay before enemy follows player
 
     private CinemachineConfiner confiner;
     private GameObject player;
@@ -40,7 +41,7 @@ public class MapTransition : MonoBehaviour
         transitioning = false;
         isDoorOpen = false;
         canInteract = false;
-        
+
         ResetDoorToClosed();
     }
 
@@ -62,7 +63,7 @@ public class MapTransition : MonoBehaviour
             playerAtDoor = true;
             player = collision.gameObject;
             StartCoroutine(EnableInteractionNextFrame());
-            
+
             Debug.Log("Player at door. Press E to open/close.");
         }
         else if (collision.CompareTag("Enemy") && autoOpenForEnemies)
@@ -70,9 +71,14 @@ public class MapTransition : MonoBehaviour
             // Enemy enters - open door automatically if not already open
             if (!isDoorOpen && !transitioning)
             {
-                StartCoroutine(OpenDoorForEnemy(collision.gameObject));
+                MainEnemy enemy = collision.GetComponent<MainEnemy>();
+                if (enemy != null)
+                {
+                    Debug.Log("Enemy approaching door - opening automatically");
+                    StartCoroutine(OpenDoorForEnemy(collision.gameObject));
+                }
             }
-            
+
             // Cancel any pending auto-close since enemy is at door
             if (autoCloseCoroutine != null)
             {
@@ -134,11 +140,64 @@ public class MapTransition : MonoBehaviour
         // Handle the player/camera transition
         yield return HandleTransition();
 
+        // Check if enemy should follow player through door
+        StartCoroutine(CheckForChasingEnemy());
+
         // Close the door immediately after transition
         yield return ForceDoorClosed();
 
         isDoorOpen = false;
         transitioning = false;
+    }
+
+    // Check if an enemy is chasing and teleport them through the door
+    private IEnumerator CheckForChasingEnemy()
+    {
+        yield return new WaitForSeconds(enemyFollowDelay);
+
+        // Find all enemies in the scene
+        MainEnemy[] enemies = FindObjectsOfType<MainEnemy>();
+
+        foreach (MainEnemy enemy in enemies)
+        {
+            if (enemy == null) continue;
+
+            // Check if enemy is chasing and close to the door
+            float distanceToDoor = Vector2.Distance(enemy.transform.position, transform.position);
+
+            if (distanceToDoor < 5f) // Enemy is close to the door
+            {
+                Debug.Log($"Enemy {enemy.name} is close to door (distance: {distanceToDoor}), teleporting through!");
+
+                // Calculate target position for enemy
+                Vector2 enemyTargetPos = CalculateEnemyTargetPosition(enemy.transform.position);
+
+                // Teleport enemy
+                enemy.OnTeleportedThroughDoor(enemyTargetPos);
+
+                Debug.Log($"Enemy teleported to {enemyTargetPos}");
+            }
+        }
+    }
+
+    private Vector2 CalculateEnemyTargetPosition(Vector2 enemyCurrentPos)
+    {
+        if (direction == Direction.Teleport && teleportTargetPosition != null)
+        {
+            // Add slight offset so enemy doesn't spawn exactly on player
+            return (Vector2)teleportTargetPosition.position + (Random.insideUnitCircle * 1.5f);
+        }
+
+        Vector2 targetPos = enemyCurrentPos;
+        switch (direction)
+        {
+            case Direction.Up: targetPos.y += additivePos; break;
+            case Direction.Down: targetPos.y -= additivePos; break;
+            case Direction.Left: targetPos.x -= additivePos; break;
+            case Direction.Right: targetPos.x += additivePos; break;
+        }
+
+        return targetPos;
     }
 
     // Enemy opens door automatically - NO camera transition
@@ -182,12 +241,12 @@ public class MapTransition : MonoBehaviour
     private IEnumerator AutoCloseDoorAfterDelay()
     {
         yield return new WaitForSeconds(autoCloseDelay);
-        
+
         if (isDoorOpen)
         {
             yield return CloseDoor();
         }
-        
+
         autoCloseCoroutine = null;
     }
 
@@ -285,21 +344,14 @@ public class MapTransition : MonoBehaviour
     {
         if (enemyObj == null) return;
 
-        if (direction == Direction.Teleport && teleportTargetPosition != null)
-        {
-            enemyObj.transform.position = teleportTargetPosition.position;
-            return;
-        }
+        MainEnemy enemy = enemyObj.GetComponent<MainEnemy>();
+        Vector2 targetPos = CalculateEnemyTargetPosition(enemyObj.transform.position);
 
-        Vector3 newPos = enemyObj.transform.position;
-        switch (direction)
-        {
-            case Direction.Up: newPos.y += additivePos; break;
-            case Direction.Down: newPos.y -= additivePos; break;
-            case Direction.Left: newPos.x -= additivePos; break;
-            case Direction.Right: newPos.x += additivePos; break;
-        }
+        enemyObj.transform.position = targetPos;
 
-        enemyObj.transform.position = newPos;
+        if (enemy != null)
+        {
+            enemy.OnTeleportedThroughDoor(targetPos);
+        }
     }
 }

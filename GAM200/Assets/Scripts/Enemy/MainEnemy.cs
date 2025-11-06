@@ -86,7 +86,7 @@ public class MainEnemy : EnemyBase
         chaseAudioSource.loop = true;
         chaseAudioSource.playOnAwake = false;
         chaseAudioSource.clip = chaseMusic;
-        chaseAudioSource.volume = 0f; // Start at 0 for fade in
+        chaseAudioSource.volume = 0f;
 
         FindCurrentRoom();
         StartCoroutine(StartChaseWithBuffer());
@@ -100,10 +100,25 @@ public class MainEnemy : EnemyBase
             animator.SetFloat("Speed", 0f);
         }
 
+        // Setup Rigidbody2D properly for collision detection
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody2D>();
+        }
+
+        // CRITICAL: Set these properties for proper collision
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.gravityScale = 0f; // No gravity for top-down
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Prevent physics rotation
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Better collision detection
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate; // Smooth movement
+
+        // Ensure collider exists
+        Collider2D col = GetComponent<Collider2D>();
+        if (col == null)
+        {
+            Debug.LogError("Enemy needs a Collider2D component! Add CircleCollider2D or CapsuleCollider2D");
         }
     }
 
@@ -170,7 +185,6 @@ public class MainEnemy : EnemyBase
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
         }
 
-        // Stop chase music when enemy is destroyed
         StopChaseMusic();
     }
 
@@ -406,20 +420,20 @@ public class MainEnemy : EnemyBase
                 Debug.Log("Enemy state: Chasing");
                 isChasing = true;
                 hasExtendedLingering = false;
-                PlayChaseMusic(); // Start chase music
+                PlayChaseMusic();
                 break;
 
             case EnemyManager.EnemyState.Suspicious:
                 Debug.Log("Enemy state: Suspicious");
                 isChasing = true;
-                PlayChaseMusic(); // Keep chase music playing during suspicious state
+                PlayChaseMusic();
                 break;
 
             case EnemyManager.EnemyState.Patrolling:
                 Debug.Log("Enemy state: Patrolling");
                 isChasing = false;
                 PickNewRoamDirection();
-                StopChaseMusic(); // Stop chase music when patrolling
+                StopChaseMusic();
 
                 if (SoundIndicatorUI.Instance != null)
                 {
@@ -430,7 +444,7 @@ public class MainEnemy : EnemyBase
             case EnemyManager.EnemyState.Inactive:
                 Debug.Log("Enemy state: Inactive");
                 isChasing = false;
-                StopChaseMusic(); // Stop chase music when inactive
+                StopChaseMusic();
 
                 if (SoundIndicatorUI.Instance != null)
                 {
@@ -645,6 +659,23 @@ public class MainEnemy : EnemyBase
             PlayerInput playerInput = player.GetComponent<PlayerInput>();
             if (playerInput != null) playerInput.enabled = true;
             if (playerMovement != null) playerMovement.UnfreezeMovement();
+        }
+    }
+
+    // Called when enemy is teleported through a door
+    public void OnTeleportedThroughDoor(Vector2 newPosition)
+    {
+        Debug.Log($"Enemy teleported through door to {newPosition}");
+        transform.position = newPosition;
+
+        // Update room tracking
+        currentRoom = FindRoomByPosition(newPosition);
+
+        // If chasing, update last known position to player's current position
+        if (currentState == EnemyManager.EnemyState.Chasing && player != null)
+        {
+            lastKnownPosition = player.position;
+            Debug.Log("Continuing chase in new room");
         }
     }
 
