@@ -16,18 +16,43 @@ public class TimeCalibration : MonoBehaviour
     private float timeOffset;
     private int currentHitZoneIndex = -1;
 
+    [Header("UI References")]
+    [SerializeField] private GameObject calibrationUI; // The parent GameObject containing all UI elements
+
     [Header("Input Cooldown")]
     public float inputCooldown = 0.3f;
     private float lastInputTime = 0f;
 
     [Header("Collision Detection")]
-    public Collider2D pointerCollider; // Reference to the pointer's collider
-    private bool isPointerInHitZone = false; // Track if pointer is currently in hit zone
+    public Collider2D pointerCollider;
+    private bool isPointerInHitZone = false;
 
     public AudioSource keyAudio;
 
     private Action onSuccess;
     private Action onFail;
+
+    void Awake()
+    {
+        // Hide the entire calibration UI on start
+        if (calibrationUI != null)
+        {
+            calibrationUI.SetActive(false);
+            Debug.Log("Time Calibration UI hidden on Awake");
+        }
+        else if (transform.parent != null)
+        {
+            // If calibrationUI not assigned, try to hide the parent GameObject
+            transform.parent.gameObject.SetActive(false);
+            Debug.Log("Time Calibration parent UI hidden on Awake");
+        }
+        else
+        {
+            // Last resort: hide this GameObject
+            gameObject.SetActive(false);
+            Debug.Log("Time Calibration GameObject hidden on Awake");
+        }
+    }
 
     void Start()
     {
@@ -49,6 +74,18 @@ public class TimeCalibration : MonoBehaviour
         {
             PointerTriggerDetector detector = pointerCollider.gameObject.AddComponent<PointerTriggerDetector>();
             detector.timeCalibration = this;
+        }
+
+        // Hide all hit zones on start
+        if (hitZones != null)
+        {
+            foreach (var zone in hitZones)
+            {
+                if (zone != null)
+                {
+                    zone.gameObject.SetActive(false);
+                }
+            }
         }
     }
 
@@ -81,6 +118,20 @@ public class TimeCalibration : MonoBehaviour
             return;
         }
 
+        // Show the UI when calibration starts
+        if (calibrationUI != null)
+        {
+            calibrationUI.SetActive(true);
+        }
+        else if (transform.parent != null)
+        {
+            transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            gameObject.SetActive(true);
+        }
+
         isActive = true;
         timeOffset = Time.time;
         lastInputTime = 0f;
@@ -110,37 +161,18 @@ public class TimeCalibration : MonoBehaviour
         Debug.Log("Time Calibration Started! Press SPACE when pointer is in red zone!");
     }
 
-    // Called by PointerTriggerDetector when pointer enters a hit zone
     public void OnPointerEnterHitZone(bool inHitZone)
     {
         if (!isActive) return;
-
-        // Check if this is the active hit zone
-        //if (currentHitZoneIndex >= 0 && currentHitZoneIndex < hitZones.Length)
-        //{
-        //    RectTransform activeHitZone = hitZones[currentHitZoneIndex];
-        //    if (activeHitZone != null && hitZone.transform == activeHitZone.transform)
-        //    {
-                isPointerInHitZone = inHitZone;
-                Debug.Log("POINTER ENTERED HIT ZONE!");
-            //}
-        //}
+        isPointerInHitZone = inHitZone;
+        Debug.Log("POINTER ENTERED HIT ZONE!");
     }
 
-    // Called by PointerTriggerDetector when pointer exits a hit zone
     public void OnPointerExitHitZone(bool inHitZone)
     {
         if (!isActive) return;
-
-        //if (currentHitZoneIndex >= 0 && currentHitZoneIndex < hitZones.Length)
-        //{
-        //    RectTransform activeHitZone = hitZones[currentHitZoneIndex];
-        //    if (activeHitZone != null && hitZone.transform == activeHitZone.transform)
-        //    {
-                isPointerInHitZone = inHitZone;
-                Debug.Log("POINTER EXITED HIT ZONE!");
-        //    }
-        //}
+        isPointerInHitZone = inHitZone;
+        Debug.Log("POINTER EXITED HIT ZONE!");
     }
 
     void CheckHit()
@@ -184,6 +216,27 @@ public class TimeCalibration : MonoBehaviour
         {
             StartCoroutine(DelayedCallback(onFail));
         }
+
+        // Hide UI after completion
+        StartCoroutine(HideUIAfterDelay(0.3f));
+    }
+
+    IEnumerator HideUIAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (calibrationUI != null)
+        {
+            calibrationUI.SetActive(false);
+        }
+        else if (transform.parent != null)
+        {
+            transform.parent.gameObject.SetActive(false);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     IEnumerator DelayedCallback(Action callback)
@@ -208,6 +261,20 @@ public class TimeCalibration : MonoBehaviour
                 }
             }
         }
+
+        // Hide UI when stopped
+        if (calibrationUI != null)
+        {
+            calibrationUI.SetActive(false);
+        }
+        else if (transform.parent != null)
+        {
+            transform.parent.gameObject.SetActive(false);
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 }
 
@@ -229,11 +296,5 @@ public class PointerTriggerDetector : MonoBehaviour
         {
             timeCalibration.OnPointerExitHitZone(false);
         }
-    }
-
-    void OnTriggerStay2D(Collider2D other)
-    {
-        // Optional: Log continuously while overlapping
-        // Debug.Log($"Pointer staying in: {other.name}");
     }
 }
