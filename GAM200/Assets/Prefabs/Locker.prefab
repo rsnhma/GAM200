@@ -343,6 +343,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactText: {fileID: 6353001304774927054}
+  lockerAnimator: {fileID: 0}
+  hidePlayerDelay: 0.3
   audioSource: {fileID: 6162651625181962124}
   lockerSound: {fileID: 8300000, guid: e934e73e3505e0949b21f69d453abeda, type: 3}
   noiseRadius: 8
@@ -443,7 +445,7 @@ AudioSource:
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
-  m_Pitch: 1
+  m_Pitch: 2
   Loop: 0
   Mute: 0
   Spatialize: 0
