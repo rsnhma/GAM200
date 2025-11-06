@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class JournalUI : MonoBehaviour
@@ -20,6 +21,10 @@ public class JournalUI : MonoBehaviour
     public GameObject tasksPanel;
     public GameObject memorabiliaPanel;
     public GameObject inventoryPanel;
+
+    [Header("Main Menu Settings")]
+    public Button mainMenuButton;
+    public string mainMenuSceneName = "MainMenu";
 
     private bool isOpen = false;
     private Dictionary<string, GameObject> panels;
@@ -42,6 +47,12 @@ public class JournalUI : MonoBehaviour
         tasksTabButton.onClick.AddListener(() => ShowPanel("Tasks"));
         memorabiliaTabButton.onClick.AddListener(() => ShowPanel("Memorabilia"));
         inventoryTabButton.onClick.AddListener(() => ShowPanel("Inventory"));
+
+        // Main Menu button listener
+        if (mainMenuButton != null)
+        {
+            mainMenuButton.onClick.AddListener(LoadMainMenu);
+        }
 
         // Add click listener to journal icon
         if (journalIconImage != null)
@@ -171,6 +182,20 @@ public class JournalUI : MonoBehaviour
 
         foreach (var kvp in panels)
             kvp.Value.SetActive(kvp.Key == panelName);
+    }
+
+    public void LoadMainMenu()
+    {
+        // Play click sound
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayClickSound();
+        }
+
+        Debug.Log($"Loading Main Menu scene: {mainMenuSceneName}");
+
+        // Load the main menu scene
+        SceneManager.LoadScene(mainMenuSceneName);
     }
 
     public void OpenToInventory()
