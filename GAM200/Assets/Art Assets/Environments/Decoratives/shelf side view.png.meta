@@ -127,10 +127,10 @@ TextureImporter:
         serializedVersion: 2
         x: 319
         y: 289
-        width: 23
+        width: 24
         height: 49
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -152,7 +152,7 @@ TextureImporter:
         width: 24
         height: 22
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -161,6 +161,28 @@ TextureImporter:
       bones: []
       spriteID: 4a6018803e1d7f043922e5a139aa9958
       internalID: -1425707797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shelf side view_3
+      rect:
+        serializedVersion: 2
+        x: 319
+        y: 315
+        width: 24
+        height: 23
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d3e3be44808ad3c4991b8d747a58375e
+      internalID: -1903937581
       vertices: []
       indices: 
       edges: []
@@ -182,6 +204,7 @@ TextureImporter:
       shelf side view_0: 4278677707705082728
       shelf side view_1: -1216768084
       shelf side view_2: -1425707797
+      shelf side view_3: -1903937581
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
