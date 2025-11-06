@@ -1,5 +1,5 @@
 dialogueID,speakerName,dialogueText,nextDialogueID,triggerTaskID
-bulletin_board_intro,Player,"All started at the AV room...then that's where we shall start",,find_av_room
+bulletin_board_intro,Player,"The AV room...then that's where we shall start",,find_av_room
 explore_av_room_first,Player,"This place goes on forever... I should be careful where I start.",,
 av_room_entry,Player,"This must be the place. Let me look around.",,
 av_room_cant_leave,Player,"I can't leave yet. I need to explore this room first.",,
@@ -19,5 +19,5 @@ well_calibration_failed,Player,"I need to try again...",,
 well_key_pickup,Player,"I got the key!",well_key_pickup_2,
 well_key_pickup_2,Player,"Key to the faculty?... Why would they throw this down?",well_key_pickup_3,
 well_key_pickup_3,Player,"I'll go there next.",,find_faculty_office
+faculty_room_locked,Player,"The door is locked...I need a key.",, 
 torn_class_photo_preview,Player,"Class photo... why is it torn",,
-classroom_3b_entry,Player"Here it is..Classroom 3B.",,
