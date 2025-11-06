@@ -12,7 +12,11 @@ public class TableScribble : MonoBehaviour
     public string initialDialogueID = "table_scribble";
     public float dialogueDelay = 2f;
 
-    private KeyCode interactionKey = KeyCode.Mouse0; // Left click
+    [Header("Memorabilia Settings")]
+    public ItemData memorabiliaData; // Assign your ScriptableObject here
+    public bool addToMemorabiliaOnFirstView = true;
+
+    private KeyCode interactionKey = KeyCode.Mouse0;
     private float interactionRange = 2f;
     private bool isPlayerInRange = false;
     private bool hasTriggeredInitialDialogue = false;
@@ -21,14 +25,12 @@ public class TableScribble : MonoBehaviour
 
     private void Start()
     {
-        // Find player
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
             playerTransform = player.transform;
         }
 
-        // Hide panel initially
         if (tableScribblePanel != null)
         {
             tableScribblePanel.SetActive(false);
@@ -37,23 +39,19 @@ public class TableScribble : MonoBehaviour
 
     private void Update()
     {
-        // Check if player is in range
         if (playerTransform != null)
         {
             float distance = Vector2.Distance(transform.position, playerTransform.position);
             isPlayerInRange = distance <= interactionRange;
         }
 
-        // Handle interaction - works every time player clicks
         if (isPlayerInRange && Input.GetKeyDown(interactionKey))
         {
-            // Don't interact if dialogue is currently active
             if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive())
             {
                 return;
             }
 
-            // Don't interact if panel is already open
             if (!isPanelOpen)
             {
                 Interact();
@@ -64,18 +62,31 @@ public class TableScribble : MonoBehaviour
     private void Interact()
     {
         SoundManager.Instance.PlayInteractSound();
+
         if (tableScribblePanel != null)
         {
             tableScribblePanel.SetActive(true);
             isPanelOpen = true;
 
+            // Add to memorabilia on first interaction
+            if (addToMemorabiliaOnFirstView && !hasTriggeredInitialDialogue && memorabiliaData != null)
+            {
+                AddToMemorabilia();
+            }
 
-            // Determine which dialogue to show
             if (!hasTriggeredInitialDialogue)
             {
-                // First time interaction - trigger main dialogue and task after delay
                 StartCoroutine(ShowDialogueAfterDelay(initialDialogueID, true));
             }
+        }
+    }
+
+    private void AddToMemorabilia()
+    {
+        if (JournalManager.Instance != null && memorabiliaData != null)
+        {
+            JournalManager.Instance.AddMemorabilia(memorabiliaData.itemID);
+            Debug.Log($"Added {memorabiliaData.itemName} to memorabilia");
         }
     }
 
@@ -83,16 +94,13 @@ public class TableScribble : MonoBehaviour
     {
         yield return new WaitForSeconds(dialogueDelay);
 
-        // Close bulletin board panel
         CloseTableInspect();
 
-        // Start dialogue sequence
         if (DialogueManager.Instance != null)
         {
             DialogueManager.Instance.StartDialogueSequence(dialogueID);
         }
 
-        // Mark as triggered after first dialogue starts
         if (isFirstTime)
         {
             hasTriggeredInitialDialogue = true;
@@ -110,12 +118,10 @@ public class TableScribble : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Visualize interaction range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, interactionRange);
     }
 
-    // Trigger-based interaction (alternative)
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))

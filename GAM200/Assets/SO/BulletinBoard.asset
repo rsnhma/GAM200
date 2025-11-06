@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44bf302af91aa4b4e999ca69979089cb, type: 3}
-  m_Name: Key_ItemData
+  m_Name: BulletinBoard
   m_EditorClassIdentifier: 
-  itemID: well_key
-  itemName: Key
-  itemIcon: {fileID: -5907802019831103965, guid: 5318de54542ccc84f8999a4320bbcfec, type: 3}
-  itemDescription: Faculty room key
+  itemID: bulletin_board
+  itemName: Bulletin Board
+  itemIcon: {fileID: -1282543200104641734, guid: 062c54e6ee0a76643aa831119fd3a573, type: 3}
+  itemDescription: AV room...something sinister happend there

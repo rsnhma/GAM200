@@ -43,6 +43,9 @@ public class WellInteraction : MonoBehaviour
     public Slider reelingSlider;
     public TextMeshProUGUI interactionPromptText;
 
+    [Header("Audio Settings")]
+    public AudioSource keySpawnAudio;
+
     [Header("Enemy Settings")]
     public EnemyManager enemyManager;
 
@@ -411,13 +414,22 @@ public class WellInteraction : MonoBehaviour
             {
                 keyCollectible.itemID = "well_key";
             }
+
+            if (keySpawnAudio != null)
+            {
+                keySpawnAudio.Play();
+            }
+            else
+            {
+                Debug.LogWarning("Key spawn audio not assigned in Inspector!");
+            }
         }
 
         // Use dialogue ID: well_key_retrieved
-        if (DialogueDatabase.dialogues.ContainsKey("well_key_retrieved"))
-        {
-            DialogueManager.Instance.StartDialogueSequence("well_key_retrieved");
-        }
+        //if (DialogueDatabase.dialogues.ContainsKey("well_key_retrieved"))
+        //{
+        //    DialogueManager.Instance.StartDialogueSequence("well_key_retrieved");
+        //}
 
         if (TaskManager.Instance != null && DialogueDatabase.tasks.ContainsKey("well_puzzle"))
         {

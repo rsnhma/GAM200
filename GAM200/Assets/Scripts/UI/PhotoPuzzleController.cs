@@ -18,6 +18,12 @@ public class PhotoPuzzleController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI bloodText;
     [SerializeField] private CanvasGroup puzzlePanelCanvasGroup;
 
+    [Header("TBC Panel")]
+    [SerializeField] private GameObject tbcPanel;              
+    [SerializeField] private CanvasGroup tbcCanvasGroup;       
+    [SerializeField] private Button backToMenuButton;          
+    [SerializeField] private float tbcFadeDuration = 1.5f;
+
     [Header("Memorabilia Settings")]
     [SerializeField] private string memorabiliaItemID = "torn_class_photo"; // Memorabilia ID to add
 
@@ -53,6 +59,17 @@ public class PhotoPuzzleController : MonoBehaviour
                 completePhotoCanvasGroup.alpha = 0f;
             }
         }
+
+        if (tbcPanel != null)
+        {
+            tbcPanel.SetActive(false);
+            if (tbcCanvasGroup != null)
+                tbcCanvasGroup.alpha = 0f;
+        }
+
+        // Hook up the Back to Menu button
+        if (backToMenuButton != null)
+            backToMenuButton.onClick.AddListener(ReturnToMainMenu);
 
         puzzleSolved = false;
     }
@@ -157,7 +174,9 @@ public class PhotoPuzzleController : MonoBehaviour
 
         // Fade out everything together (complete photo, blood text, and panel)
         yield return StartCoroutine(FadeOutPanel());
-
+        
+        yield return StartCoroutine(ShowTBCPanel());
+   
         // Complete the puzzle
         CompletePuzzle();
     }
@@ -270,4 +289,33 @@ public class PhotoPuzzleController : MonoBehaviour
             }
         }
     }
+
+    private IEnumerator ShowTBCPanel()
+    {
+        if (tbcPanel != null)
+        {
+            tbcPanel.SetActive(true);
+
+            if (tbcCanvasGroup != null)
+            {
+                tbcCanvasGroup.alpha = 0f;
+                float elapsed = 0f;
+
+                while (elapsed < tbcFadeDuration)
+                {
+                    elapsed += Time.deltaTime;
+                    tbcCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / tbcFadeDuration);
+                    yield return null;
+                }
+
+                tbcCanvasGroup.alpha = 1f;
+            }
+        }
+    }
+
+    private void ReturnToMainMenu()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
+
 }

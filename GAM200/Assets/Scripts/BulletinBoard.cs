@@ -12,7 +12,11 @@ public class BulletinBoard : MonoBehaviour
     public string initialDialogueID = "bulletin_board_intro";
     public float dialogueDelay = 2f;
 
-    private KeyCode interactionKey = KeyCode.Mouse0; // Left click
+    [Header("Memorabilia Settings")]
+    public ItemData memorabiliaData; // ScriptableObject here
+    public bool addToMemorabiliaOnFirstView = true;
+
+    private KeyCode interactionKey = KeyCode.Mouse0;
     private float interactionRange = 2f;
     private bool isPlayerInRange = false;
     private bool hasTriggeredInitialDialogue = false;
@@ -21,14 +25,12 @@ public class BulletinBoard : MonoBehaviour
 
     private void Start()
     {
-        // Find player
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
             playerTransform = player.transform;
         }
 
-        // Hide panel initially
         if (bulletinBoardPanel != null)
         {
             bulletinBoardPanel.SetActive(false);
@@ -37,23 +39,19 @@ public class BulletinBoard : MonoBehaviour
 
     private void Update()
     {
-        // Check if player is in range
         if (playerTransform != null)
         {
             float distance = Vector2.Distance(transform.position, playerTransform.position);
             isPlayerInRange = distance <= interactionRange;
         }
 
-        // Handle interaction - works every time player clicks
         if (isPlayerInRange && Input.GetKeyDown(interactionKey))
         {
-            // Don't interact if dialogue is currently active
             if (DialogueManager.Instance != null && DialogueManager.Instance.IsDialogueActive())
             {
                 return;
             }
 
-            // Don't interact if panel is already open
             if (!isPanelOpen)
             {
                 Interact();
@@ -69,13 +67,25 @@ public class BulletinBoard : MonoBehaviour
             bulletinBoardPanel.SetActive(true);
             isPanelOpen = true;
 
-         
-            // Determine which dialogue to show
+            // Add to memorabilia on first interaction
+            if (addToMemorabiliaOnFirstView && !hasTriggeredInitialDialogue && memorabiliaData != null)
+            {
+                AddToMemorabilia();
+            }
+
             if (!hasTriggeredInitialDialogue)
             {
-                // First time interaction - trigger main dialogue and task after delay
                 StartCoroutine(ShowDialogueAfterDelay(initialDialogueID, true));
             }
+        }
+    }
+
+    private void AddToMemorabilia()
+    {
+        if (JournalManager.Instance != null && memorabiliaData != null)
+        {
+            JournalManager.Instance.AddMemorabilia(memorabiliaData.itemID);
+            Debug.Log($"Added {memorabiliaData.itemName} to memorabilia");
         }
     }
 
@@ -83,16 +93,13 @@ public class BulletinBoard : MonoBehaviour
     {
         yield return new WaitForSeconds(dialogueDelay);
 
-        // Close bulletin board panel
         CloseBulletinBoard();
 
-        // Start dialogue sequence
         if (DialogueManager.Instance != null)
         {
             DialogueManager.Instance.StartDialogueSequence(dialogueID);
         }
 
-        // Mark as triggered after first dialogue starts
         if (isFirstTime)
         {
             hasTriggeredInitialDialogue = true;
@@ -110,12 +117,10 @@ public class BulletinBoard : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Visualize interaction range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, interactionRange);
     }
 
-    // Trigger-based interaction (alternative)
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))

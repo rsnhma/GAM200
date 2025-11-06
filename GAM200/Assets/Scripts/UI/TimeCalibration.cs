@@ -27,8 +27,6 @@ public class TimeCalibration : MonoBehaviour
     public Collider2D pointerCollider;
     private bool isPointerInHitZone = false;
 
-    public AudioSource keyAudio;
-
     private Action onSuccess;
     private Action onFail;
 
@@ -156,8 +154,6 @@ public class TimeCalibration : MonoBehaviour
             Debug.Log("Showing random hit zone: " + currentHitZoneIndex);
         }
 
-        if (keyAudio) keyAudio.Play();
-
         Debug.Log("Time Calibration Started! Press SPACE when pointer is in red zone!");
     }
 
@@ -197,8 +193,6 @@ public class TimeCalibration : MonoBehaviour
     {
         isActive = false;
         isPointerInHitZone = false;
-
-        if (keyAudio) keyAudio.Stop();
 
         foreach (var zone in hitZones)
         {
@@ -249,7 +243,6 @@ public class TimeCalibration : MonoBehaviour
     {
         isActive = false;
         isPointerInHitZone = false;
-        if (keyAudio) keyAudio.Stop();
 
         if (hitZones != null)
         {

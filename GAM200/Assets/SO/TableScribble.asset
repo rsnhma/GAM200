@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44bf302af91aa4b4e999ca69979089cb, type: 3}
-  m_Name: Key_ItemData
+  m_Name: TableScribble
   m_EditorClassIdentifier: 
-  itemID: well_key
-  itemName: Key
-  itemIcon: {fileID: -5907802019831103965, guid: 5318de54542ccc84f8999a4320bbcfec, type: 3}
-  itemDescription: Faculty room key
+  itemID: table_scribble
+  itemName: Table Scribble
+  itemIcon: {fileID: 416631055435176568, guid: d42121370f5b036439e775035ceaa715, type: 3}
+  itemDescription: Key thrown to the well..someone was framed...

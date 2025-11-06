@@ -11,7 +11,14 @@ public class MainEnemy : EnemyBase
 
     [Header("QTE System")]
     public SpacebarQTESystem spacebarQTESystem;
-    public float pushbackDistance = 3f; // How far to push enemy back on successful escape
+    public float pushbackDistance = 3f;
+
+    [Header("Audio")]
+    public AudioSource chaseAudioSource;
+    public AudioClip chaseMusic;
+    [Range(0f, 1f)] public float chaseMusicVolume = 0.7f;
+    public float musicFadeTime = 1f;
+    private bool isChaseMusicPlaying = false;
 
     [Header("Roam/Patrol Settings")]
     public float roamSpeed = 1.5f;
@@ -32,21 +39,17 @@ public class MainEnemy : EnemyBase
     private Vector2 lastPosition;
     private Vector2 lastMovement;
 
-    // Enemy states
     private Rigidbody2D rb;
     private EnemyManager.EnemyState currentState = EnemyManager.EnemyState.Inactive;
 
-    // Suspicion variables
     private Vector2 lastKnownPosition;
     private float lingeringTimer = 3f;
     private bool hasExtendedLingering = false;
 
-    // Roam variables
     private Vector2 roamDirection;
     private float roamCooldown = 0f;
     private Vector2 currentRoamTarget;
 
-    // Player components
     private CharacterMovement playerMovement;
     private PlayerSanity playerSanity;
 
@@ -63,7 +66,6 @@ public class MainEnemy : EnemyBase
             playerSanity = player.GetComponent<PlayerSanity>();
         }
 
-        // Subscribe to noise events
         NoiseSystem.OnNoiseEmitted += OnNoiseHeard;
 
         entityData = baseData as TheEntityData;
@@ -75,13 +77,20 @@ public class MainEnemy : EnemyBase
 
         chaseSpeed = 5f;
 
-        // Find which room the enemy is currently in
-        FindCurrentRoom();
+        // Setup audio source if not assigned
+        if (chaseAudioSource == null)
+        {
+            chaseAudioSource = gameObject.AddComponent<AudioSource>();
+        }
 
-        // Start chasing immediately
+        chaseAudioSource.loop = true;
+        chaseAudioSource.playOnAwake = false;
+        chaseAudioSource.clip = chaseMusic;
+        chaseAudioSource.volume = 0f; // Start at 0 for fade in
+
+        FindCurrentRoom();
         StartCoroutine(StartChaseWithBuffer());
 
-        // Initialize animation
         lastPosition = transform.position;
         lastMovement = new Vector2(0f, 1f);
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -90,6 +99,7 @@ public class MainEnemy : EnemyBase
         {
             animator.SetFloat("Speed", 0f);
         }
+
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
@@ -133,7 +143,6 @@ public class MainEnemy : EnemyBase
 
     private IEnumerator StartChaseWithBuffer()
     {
-        // Mark as detected immediately since we're starting in chase mode
         if (SoundIndicatorUI.Instance != null)
         {
             SoundIndicatorUI.Instance.MarkAsDetected();
@@ -160,6 +169,9 @@ public class MainEnemy : EnemyBase
         {
             enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
         }
+
+        // Stop chase music when enemy is destroyed
+        StopChaseMusic();
     }
 
     private void OnNoiseHeard(Vector2 position, float radius)
@@ -183,16 +195,15 @@ public class MainEnemy : EnemyBase
             }
         }
     }
+
     protected override void Update()
     {
-        // Handle pause timer (enemy stunned after player escapes)
         if (pauseTimer > 0)
         {
             pauseTimer -= Time.deltaTime;
             return;
         }
 
-        // Handle capture cooldown (prevents immediate re-capture)
         if (captureCooldown > 0)
         {
             captureCooldown -= Time.deltaTime;
@@ -252,10 +263,9 @@ public class MainEnemy : EnemyBase
     {
         if (other.CompareTag("Player") && currentState == EnemyManager.EnemyState.Chasing && !isCapturing)
         {
-            // Check cooldown before allowing capture
             if (captureCooldown > 0)
             {
-                return; // Silent cooldown
+                return;
             }
 
             float distance = Vector2.Distance(transform.position, other.transform.position);
@@ -396,17 +406,20 @@ public class MainEnemy : EnemyBase
                 Debug.Log("Enemy state: Chasing");
                 isChasing = true;
                 hasExtendedLingering = false;
+                PlayChaseMusic(); // Start chase music
                 break;
 
             case EnemyManager.EnemyState.Suspicious:
                 Debug.Log("Enemy state: Suspicious");
                 isChasing = true;
+                PlayChaseMusic(); // Keep chase music playing during suspicious state
                 break;
 
             case EnemyManager.EnemyState.Patrolling:
                 Debug.Log("Enemy state: Patrolling");
                 isChasing = false;
                 PickNewRoamDirection();
+                StopChaseMusic(); // Stop chase music when patrolling
 
                 if (SoundIndicatorUI.Instance != null)
                 {
@@ -417,6 +430,7 @@ public class MainEnemy : EnemyBase
             case EnemyManager.EnemyState.Inactive:
                 Debug.Log("Enemy state: Inactive");
                 isChasing = false;
+                StopChaseMusic(); // Stop chase music when inactive
 
                 if (SoundIndicatorUI.Instance != null)
                 {
@@ -424,6 +438,71 @@ public class MainEnemy : EnemyBase
                 }
                 break;
         }
+    }
+
+    private void PlayChaseMusic()
+    {
+        if (chaseMusic == null || chaseAudioSource == null)
+        {
+            Debug.LogWarning("Chase music or audio source not assigned!");
+            return;
+        }
+
+        if (!isChaseMusicPlaying)
+        {
+            isChaseMusicPlaying = true;
+
+            if (!chaseAudioSource.isPlaying)
+            {
+                chaseAudioSource.Play();
+            }
+
+            StopAllCoroutines();
+            StartCoroutine(FadeMusic(0f, chaseMusicVolume, musicFadeTime));
+
+            Debug.Log("Chase music started!");
+        }
+    }
+
+    private void StopChaseMusic()
+    {
+        if (isChaseMusicPlaying)
+        {
+            isChaseMusicPlaying = false;
+            StopAllCoroutines();
+            StartCoroutine(FadeMusicAndStop(chaseMusicVolume, 0f, musicFadeTime));
+
+            Debug.Log("Chase music stopping...");
+        }
+    }
+
+    private IEnumerator FadeMusic(float startVolume, float targetVolume, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            chaseAudioSource.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+            yield return null;
+        }
+
+        chaseAudioSource.volume = targetVolume;
+    }
+
+    private IEnumerator FadeMusicAndStop(float startVolume, float targetVolume, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            chaseAudioSource.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+            yield return null;
+        }
+
+        chaseAudioSource.volume = 0f;
+        chaseAudioSource.Stop();
     }
 
     private void TryCapturePlayer()
@@ -468,7 +547,6 @@ public class MainEnemy : EnemyBase
 
         isCapturing = false;
 
-        // Unfreeze player FIRST
         PlayerInput playerInput = player.GetComponent<PlayerInput>();
         if (playerInput != null)
         {
@@ -482,27 +560,22 @@ public class MainEnemy : EnemyBase
             Debug.Log("Player movement unfrozen");
         }
 
-        // PUSHBACK: Enemy gets knocked back away from player
         Vector2 pushDirection = (transform.position - player.position).normalized;
         Vector2 pushbackPosition = (Vector2)transform.position + (pushDirection * pushbackDistance);
 
-        // Check if pushback position hits a wall
         RaycastHit2D hit = Physics2D.Raycast(transform.position, pushDirection, pushbackDistance, obstacleLayers);
         if (hit.collider != null)
         {
-            // Hit a wall, push back less
             pushbackPosition = hit.point - (pushDirection * 0.5f);
         }
 
         transform.position = pushbackPosition;
         Debug.Log($"Enemy pushed back to {pushbackPosition}");
 
-        // Set stun timer and capture cooldown
         pauseTimer = entityData.successPauseTime;
         captureCooldown = entityData.successPauseTime + 2f;
         Debug.Log($"Enemy stunned for {pauseTimer}s, capture cooldown: {captureCooldown}s");
 
-        // Apply sanity loss
         if (PlayerSanity.Instance != null)
         {
             PlayerSanity.Instance.OnQTESuccess();
@@ -524,17 +597,14 @@ public class MainEnemy : EnemyBase
 
         Debug.Log("Player failed spacebar QTE! Losing sanity and retrying...");
 
-        // Apply larger sanity loss for failure
         if (PlayerSanity.Instance != null)
         {
             PlayerSanity.Instance.OnQTEFailed();
 
-            // Check for game over condition
             if (PlayerSanity.Instance.GetSanityPercent() <= 0.2f)
             {
                 Debug.Log("Player sanity too low - triggering game over");
 
-                // Release player before game over
                 isCapturing = false;
                 PlayerInput playerInput = player.GetComponent<PlayerInput>();
                 if (playerInput != null) playerInput.enabled = true;
@@ -549,7 +619,6 @@ public class MainEnemy : EnemyBase
             }
         }
 
-        // Player stays caught - retry QTE after brief delay
         StartCoroutine(RetryQTEAfterDelay());
     }
 

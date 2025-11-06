@@ -42,8 +42,8 @@ public class JournalManager : MonoBehaviour
 
     private void Start()
     {
-        PrecacheAllItemIcons();
         BuildItemDataLookup();
+        PrecacheAllItemIcons();
         ClearItemDetails();
         ClearMemorabiliaDetails();
     }
@@ -55,7 +55,17 @@ public class JournalManager : MonoBehaviour
             if (!string.IsNullOrEmpty(data.itemID))
             {
                 itemDataLookup[data.itemID] = data;
-                Debug.Log($"Registered ItemData: {data.itemID}");
+
+                // IMPORTANT: Cache the icon from ItemData
+                if (data.itemIcon != null)
+                {
+                    itemIconCache[data.itemID] = data.itemIcon;
+                    Debug.Log($"Registered ItemData with icon: {data.itemID}");
+                }
+                else
+                {
+                    Debug.LogWarning($"ItemData {data.itemID} is missing an icon!");
+                }
             }
         }
     }
@@ -73,7 +83,7 @@ public class JournalManager : MonoBehaviour
         ItemSlotUI slotUI = entry.GetComponent<ItemSlotUI>();
         slotUI.itemID = itemID;
         slotUI.onUse = useAction;
-        slotUI.isMemorabilia = false; 
+        slotUI.isMemorabilia = false;
 
         Image icon = entry.transform.Find("ItemIcon").GetComponent<Image>();
 
@@ -82,15 +92,21 @@ public class JournalManager : MonoBehaviour
         {
             icon.sprite = itemSprite;
             icon.enabled = true;
-            Debug.Log("Icon sprite assigned: " + itemSprite.name + " for item: " + itemID);
+            Debug.Log($"Icon sprite assigned: {itemSprite.name} for item: {itemID}");
         }
         else
         {
-            Debug.LogWarning("Could not find sprite for item: " + itemID);
+            Debug.LogWarning($"Could not find sprite for item: {itemID}");
         }
 
         itemSlots[itemID] = slotUI;
         InventorySystem.Instance.AddItem(itemID, useAction, itemPrefab);
+
+        // Notify that a new inventory item was added
+        if (JournalNotificationManager.Instance != null)
+        {
+            JournalNotificationManager.Instance.NotifyNewInventoryItem(itemID);
+        }
     }
 
     public void AddMemorabilia(string itemID)
@@ -108,7 +124,7 @@ public class JournalManager : MonoBehaviour
         ItemSlotUI slotUI = entry.GetComponent<ItemSlotUI>();
         slotUI.itemID = itemID;
         slotUI.onUse = null;
-        slotUI.isMemorabilia = true; 
+        slotUI.isMemorabilia = true;
 
         Image icon = entry.transform.Find("ItemIcon").GetComponent<Image>();
 
@@ -117,14 +133,20 @@ public class JournalManager : MonoBehaviour
         {
             icon.sprite = itemSprite;
             icon.enabled = true;
-            Debug.Log("Memorabilia icon assigned: " + itemSprite.name + " for item: " + itemID);
+            Debug.Log($"Memorabilia icon assigned: {itemSprite.name} for item: {itemID}");
         }
         else
         {
-            Debug.LogWarning("Could not find sprite for memorabilia: " + itemID);
+            Debug.LogWarning($"Could not find sprite for memorabilia: {itemID}");
         }
 
         memorabiliaSlots[itemID] = slotUI;
+
+        // NOTIFY that a new memorabilia was added
+        if (JournalNotificationManager.Instance != null)
+        {
+            JournalNotificationManager.Instance.NotifyNewMemorabilia(itemID);
+        }
     }
 
     public bool HasMemorabilia(string itemID)
@@ -242,14 +264,6 @@ public class JournalManager : MonoBehaviour
             itemSlots.Remove(itemID);
             Debug.Log($"Removed {itemID} from inventory UI");
         }
-
-        //if (memorabiliaSlots.ContainsKey(itemID))
-        //{
-        //    Destroy(memorabiliaSlots[itemID].gameObject);
-        //    memorabiliaSlots.Remove(itemID);
-        //    collectedMemorabilia.Remove(itemID);
-        //    Debug.Log($"Removed {itemID} from memorabilia UI");
-        //}
     }
 
     public void HideItemDetailsPanel()
@@ -302,32 +316,47 @@ public class JournalManager : MonoBehaviour
 
     private Sprite GetItemSprite(string itemID)
     {
+        // First check if we have it cached
         if (itemIconCache.ContainsKey(itemID))
         {
-            Debug.Log("Found cached icon for: " + itemID);
+            Debug.Log($"Found cached icon for: {itemID}");
             return itemIconCache[itemID];
         }
 
+        // Try to get from ItemData lookup (should already be cached in BuildItemDataLookup)
+        if (itemDataLookup.ContainsKey(itemID))
+        {
+            Sprite icon = itemDataLookup[itemID].itemIcon;
+            if (icon != null)
+            {
+                itemIconCache[itemID] = icon;
+                Debug.Log($"Found icon from ItemData for: {itemID}");
+                return icon;
+            }
+        }
+
+        // Fallback: try to find from Collectible components in scene
         Collectible[] allCollectibles = Resources.FindObjectsOfTypeAll<Collectible>();
         foreach (Collectible col in allCollectibles)
         {
             if (col.itemID == itemID && col.itemIcon != null)
             {
                 itemIconCache[itemID] = col.itemIcon;
-                Debug.Log("Cached new icon for: " + itemID);
+                Debug.Log($"Found icon from Collectible for: {itemID}");
                 return col.itemIcon;
             }
         }
 
-        Debug.LogWarning("No collectible found with ID: " + itemID);
+        Debug.LogWarning($"No sprite found for: {itemID}");
         return null;
     }
 
     private void PrecacheAllItemIcons()
     {
+        // Cache icons from Collectibles in scene (for backward compatibility)
         Collectible[] allCollectibles = Resources.FindObjectsOfTypeAll<Collectible>();
 
-        Debug.Log("Pre-caching icons from " + allCollectibles.Length + " collectibles found in scene");
+        Debug.Log($"Pre-caching icons from {allCollectibles.Length} collectibles found in scene");
 
         foreach (Collectible col in allCollectibles)
         {
@@ -336,20 +365,12 @@ public class JournalManager : MonoBehaviour
                 if (!itemIconCache.ContainsKey(col.itemID))
                 {
                     itemIconCache[col.itemID] = col.itemIcon;
-                    Debug.Log("Pre-cached icon for: " + col.itemID);
+                    Debug.Log($"Pre-cached icon from Collectible: {col.itemID}");
                 }
-                else
-                {
-                    Debug.Log("Icon already cached for: " + col.itemID);
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Collectible missing itemID or itemIcon: " + col.name);
             }
         }
 
-        Debug.Log("Total icons cached: " + itemIconCache.Count);
+        Debug.Log($"Total icons cached: {itemIconCache.Count}");
     }
 
     public void ClearAllJournalData()

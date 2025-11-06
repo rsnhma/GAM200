@@ -111,7 +111,7 @@ public class DialogueManager : MonoBehaviour
 
     private void OnDialogueButtonClick()
     {
-        SoundManager.Instance.PlayClickSound();
+        //SoundManager.Instance.PlayClickSound();
 
         if (isTyping)
         {

@@ -6,8 +6,8 @@ using System.Collections.Generic;
 public class JournalUI : MonoBehaviour
 {
     [Header("References")]
-    public GameObject journalPanel;       // Root journal panel
-    public Image journalIconImage;        // The journal icon/image players can click
+    public GameObject journalPanel;
+    public Image journalIconImage;
 
     [Header("Tabs")]
     public Button settingsTabButton;
@@ -23,6 +23,7 @@ public class JournalUI : MonoBehaviour
 
     private bool isOpen = false;
     private Dictionary<string, GameObject> panels;
+    private string currentPanel = "Settings";
 
     void Start()
     {
@@ -45,14 +46,12 @@ public class JournalUI : MonoBehaviour
         // Add click listener to journal icon
         if (journalIconImage != null)
         {
-            // Add EventTrigger component if not present
             EventTrigger trigger = journalIconImage.gameObject.GetComponent<EventTrigger>();
             if (trigger == null)
             {
                 trigger = journalIconImage.gameObject.AddComponent<EventTrigger>();
             }
 
-            // Create pointer click entry
             EventTrigger.Entry entry = new EventTrigger.Entry();
             entry.eventID = EventTriggerType.PointerClick;
             entry.callback.AddListener((data) => { ToggleJournal(); });
@@ -132,6 +131,12 @@ public class JournalUI : MonoBehaviour
     {
         journalPanel.SetActive(true);
         isOpen = true;
+
+        // Notify that journal was opened
+        if (JournalNotificationManager.Instance != null)
+        {
+            JournalNotificationManager.Instance.OnJournalOpened();
+        }
     }
 
     private void CloseJournal()
@@ -146,6 +151,22 @@ public class JournalUI : MonoBehaviour
         if (playSound && SoundManager.Instance != null)
         {
             SoundManager.Instance.PlayJournalTabSound();
+        }
+
+        // Track which panel we're showing
+        currentPanel = panelName;
+
+        // Notify the notification manager when viewing specific tabs
+        if (JournalNotificationManager.Instance != null)
+        {
+            if (panelName == "Inventory")
+            {
+                JournalNotificationManager.Instance.OnInventoryTabViewed();
+            }
+            else if (panelName == "Memorabilia")
+            {
+                JournalNotificationManager.Instance.OnMemorabiliaTabViewed();
+            }
         }
 
         foreach (var kvp in panels)
