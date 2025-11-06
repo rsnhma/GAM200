@@ -1758,16 +1758,16 @@ MonoBehaviour:
   ropeItemID: rope
   bucketItemID: bucket
   firstEncounterDialogueID: well_first_encounter
-  wellAnimator: {fileID: 60732963}
-  keyPrefab: {fileID: 706775408985937470, guid: ed3fb287648022e4292bae2d0f5a8798, type: 3}
-  keySpawnPoint: {fileID: 180152201}
-  timeCalibrationUI: {fileID: 357216239}
-  timeCalibrationScript: {fileID: 357216241}
+  wellAnimator: {fileID: 0}
+  keyPrefab: {fileID: 0}
+  keySpawnPoint: {fileID: 0}
+  timeCalibrationUI: {fileID: 0}
+  timeCalibrationScript: {fileID: 0}
   progressPerScroll: 10
-  reelingSliderCanvas: {fileID: 1936578788}
-  reelingSlider: {fileID: 589024435}
-  interactionPromptText: {fileID: 1281093386}
-  enemyManager: {fileID: 1259372615}
+  reelingSliderCanvas: {fileID: 0}
+  reelingSlider: {fileID: 0}
+  interactionPromptText: {fileID: 0}
+  enemyManager: {fileID: 0}
 --- !u!95 &60732963
 Animator:
   serializedVersion: 7
@@ -7618,12 +7618,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 140bf6b1191bd1249826a8b12be4ee1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapBoundary: {fileID: 891024129}
-  direction: 2
-  teleportTargetPosition: {fileID: 1796080102}
+  mapBoundary: {fileID: 0}
+  direction: 0
+  teleportTargetPosition: {fileID: 0}
   additivePos: 2
-  doorCollider: {fileID: 2031758069}
-  triggerCollider: {fileID: 1482861477}
+  doorCollider: {fileID: 0}
+  triggerCollider: {fileID: 0}
   doorAnimator: {fileID: 0}
   hasAnimation: 1
   autoOpenForEnemies: 1
@@ -14465,13 +14465,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 140bf6b1191bd1249826a8b12be4ee1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapBoundary: {fileID: 776787176}
-  direction: 4
-  teleportTargetPosition: {fileID: 376871292}
+  mapBoundary: {fileID: 0}
+  direction: 0
+  teleportTargetPosition: {fileID: 0}
   additivePos: 2
-  doorCollider: {fileID: 1791851323}
-  triggerCollider: {fileID: 802127520}
-  doorAnimator: {fileID: 148950033}
+  doorCollider: {fileID: 0}
+  triggerCollider: {fileID: 0}
+  doorAnimator: {fileID: 0}
   hasAnimation: 1
   autoOpenForEnemies: 1
   autoCloseDelay: 2
@@ -23898,9 +23898,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vhsItemID: vhs_tape
-  enemyPrefab: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
-  spawnPoint: {fileID: 1687722512}
-  tvPromptText: {fileID: 669964743}
+  enemyPrefab: {fileID: 0}
+  spawnPoint: {fileID: 0}
+  tvPromptText: {fileID: 0}
   videoPlayer: {fileID: 0}
   videoPanel: {fileID: 0}
   dialogueAfterVideoID: tv_video_end
@@ -26027,16 +26027,16 @@ MonoBehaviour:
   ropeItemID: rope
   bucketItemID: bucket
   firstEncounterDialogueID: well_first_encounter
-  wellAnimator: {fileID: 490358386}
-  keyPrefab: {fileID: 706775408985937470, guid: ed3fb287648022e4292bae2d0f5a8798, type: 3}
-  keySpawnPoint: {fileID: 1046274131}
-  timeCalibrationUI: {fileID: 357216239}
-  timeCalibrationScript: {fileID: 357216241}
+  wellAnimator: {fileID: 0}
+  keyPrefab: {fileID: 0}
+  keySpawnPoint: {fileID: 0}
+  timeCalibrationUI: {fileID: 0}
+  timeCalibrationScript: {fileID: 0}
   progressPerScroll: 10
-  reelingSliderCanvas: {fileID: 417371828}
-  reelingSlider: {fileID: 392682022}
-  interactionPromptText: {fileID: 2139122596}
-  enemyManager: {fileID: 1259372615}
+  reelingSliderCanvas: {fileID: 0}
+  reelingSlider: {fileID: 0}
+  interactionPromptText: {fileID: 0}
+  enemyManager: {fileID: 0}
 --- !u!212 &490358388
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -28918,7 +28918,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapBoundary: {fileID: 0}
-  direction: 2
+  direction: 0
   teleportTargetPosition: {fileID: 0}
   additivePos: 2
   doorCollider: {fileID: 0}
@@ -31157,8 +31157,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vhsItemID: vhs_tape
-  enemyPrefab: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
-  spawnPoint: {fileID: 551085402}
+  enemyPrefab: {fileID: 0}
+  spawnPoint: {fileID: 0}
   tvPromptText: {fileID: 0}
   videoPlayer: {fileID: 0}
   videoPanel: {fileID: 0}
@@ -32627,7 +32627,7 @@ Transform:
   m_GameObject: {fileID: 685090998}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -123.75479, y: -8.116341, z: -10}
+  m_LocalPosition: {x: -114.80984, y: -36.39529, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35740,11 +35740,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -131.25
+      value: -114.8
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -8.18
+      value: -40.1
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -52242,9 +52242,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67bc70c66c5cc1b4cae882db11ef219d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tableScribblePanel: {fileID: 1014545845}
+  tableScribblePanel: {fileID: 0}
   initialDialogueID: table_scribble
-  dialogueDelay: 3
+  dialogueDelay: 2
 --- !u!212 &932758141
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -57092,7 +57092,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 000000008fd17f7cb9692fbac188ff2167f6ec08a3f8946465761c64032be0af4d20fec05903461f
@@ -68475,11 +68475,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vhsItemID: vhs_tape
-  enemyPrefab: {fileID: 2756953379035894791, guid: 9d7cde3d5785f26499cfa707e39c513c, type: 3}
-  spawnPoint: {fileID: 2016221538}
-  tvPromptText: {fileID: 535518464}
-  videoPlayer: {fileID: 1613857116}
-  videoPanel: {fileID: 1613857114}
+  enemyPrefab: {fileID: 0}
+  spawnPoint: {fileID: 0}
+  tvPromptText: {fileID: 0}
+  videoPlayer: {fileID: 0}
+  videoPanel: {fileID: 0}
   dialogueAfterVideoID: tv_video_end
 --- !u!61 &1182619643
 BoxCollider2D:
@@ -85223,12 +85223,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 140bf6b1191bd1249826a8b12be4ee1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapBoundary: {fileID: 1475923404}
-  direction: 3
-  teleportTargetPosition: {fileID: 470022573}
+  mapBoundary: {fileID: 0}
+  direction: 0
+  teleportTargetPosition: {fileID: 0}
   additivePos: 2
-  doorCollider: {fileID: 550660765}
-  triggerCollider: {fileID: 137860317}
+  doorCollider: {fileID: 0}
+  triggerCollider: {fileID: 0}
   doorAnimator: {fileID: 0}
   hasAnimation: 1
   autoOpenForEnemies: 1
@@ -91225,7 +91225,7 @@ Transform:
   m_GameObject: {fileID: 1698797674}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -131.25, y: -8.18, z: -10}
+  m_LocalPosition: {x: -114.8, y: -40.1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106089,12 +106089,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 140bf6b1191bd1249826a8b12be4ee1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapBoundary: {fileID: 1475923404}
-  direction: 4
-  teleportTargetPosition: {fileID: 810322799}
+  mapBoundary: {fileID: 0}
+  direction: 0
+  teleportTargetPosition: {fileID: 0}
   additivePos: 2
-  doorCollider: {fileID: 1186776601}
-  triggerCollider: {fileID: 315842911}
+  doorCollider: {fileID: 0}
+  triggerCollider: {fileID: 0}
   doorAnimator: {fileID: 0}
   hasAnimation: 1
   autoOpenForEnemies: 1
@@ -112849,7 +112849,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapBoundary: {fileID: 0}
-  direction: 3
+  direction: 0
   teleportTargetPosition: {fileID: 0}
   additivePos: 2
   doorCollider: {fileID: 0}
