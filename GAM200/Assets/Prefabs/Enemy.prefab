@@ -138,7 +138,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8789250016599124599}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
   chaseMusic: {fileID: 8300000, guid: 426517fd00fc3da4ab97cecf4577902c, type: 3}
   chaseMusicVolume: 0.7
   musicFadeTime: 1
-  roamSpeed: 1.5
+  roamSpeed: 1
   minRoamTime: 1
   maxRoamTime: 3
   obstacleCheckDistance: 0.5
