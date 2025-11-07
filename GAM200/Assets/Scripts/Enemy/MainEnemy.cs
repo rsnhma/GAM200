@@ -27,6 +27,11 @@ public class MainEnemy : EnemyBase
     public float obstacleCheckDistance = 1f;
     public LayerMask obstacleLayers;
 
+    [Header("Camera Visibility")]
+    [SerializeField] private float outOfViewDisableTime = 5f;
+    private float outOfViewTimer = 0f;
+    private bool isVisible = false;
+
     private TheEntityData entityData;
     private bool isCapturing = false;
     private float pauseTimer = 0f;
@@ -212,6 +217,22 @@ public class MainEnemy : EnemyBase
 
     protected override void Update()
     {
+        if (!isVisible)
+        {
+            outOfViewTimer += Time.deltaTime;
+
+            if (outOfViewTimer >= outOfViewDisableTime)
+            {
+                Debug.Log("Enemy out of view for 5+ seconds - disabling");
+                DisableEnemy();
+                return; // Stop updating
+            }
+        }
+        else
+        {
+            outOfViewTimer = 0f; // Reset timer when visible
+        }
+
         if (pauseTimer > 0)
         {
             pauseTimer -= Time.deltaTime;
@@ -244,6 +265,21 @@ public class MainEnemy : EnemyBase
         }
 
         UpdateAnimation();
+    }
+    private void DisableEnemy()
+    {
+        StopChaseMusic();
+        TransitionToState(EnemyManager.EnemyState.Inactive);
+
+        // Save state to enemy manager before disabling
+        if (enemyManager != null)
+        {
+            enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
+        }
+
+        // Disable the enemy GameObject
+        gameObject.SetActive(false);
+        Debug.Log("Enemy disabled - out of camera view");
     }
 
     private void UpdateAnimation()
@@ -519,6 +555,19 @@ public class MainEnemy : EnemyBase
         chaseAudioSource.Stop();
     }
 
+    private void OnBecameVisible()
+    {
+        isVisible = true;
+        outOfViewTimer = 0f;
+        Debug.Log("Enemy is visible to camera");
+    }
+
+    private void OnBecameInvisible()
+    {
+        isVisible = false;
+        Debug.Log("Enemy is invisible to camera - starting timer");
+    }
+
     private void TryCapturePlayer()
     {
         if (Locker.IsPlayerInsideLocker) return;
@@ -574,33 +623,28 @@ public class MainEnemy : EnemyBase
             Debug.Log("Player movement unfrozen");
         }
 
-        Vector2 pushDirection = (transform.position - player.position).normalized;
-        Vector2 pushbackPosition = (Vector2)transform.position + (pushDirection * pushbackDistance);
-
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, pushDirection, pushbackDistance, obstacleLayers);
-        if (hit.collider != null)
-        {
-            pushbackPosition = hit.point - (pushDirection * 0.5f);
-        }
-
-        transform.position = pushbackPosition;
-        Debug.Log($"Enemy pushed back to {pushbackPosition}");
-
-        pauseTimer = entityData.successPauseTime;
-        captureCooldown = entityData.successPauseTime + 2f;
-        Debug.Log($"Enemy stunned for {pauseTimer}s, capture cooldown: {captureCooldown}s");
-
         if (PlayerSanity.Instance != null)
         {
             PlayerSanity.Instance.OnQTESuccess();
         }
 
-        TransitionToState(EnemyManager.EnemyState.Patrolling);
-
         if (SoundIndicatorUI.Instance != null)
         {
             SoundIndicatorUI.Instance.ResetDetection();
         }
+
+        // ADDED: Stop chase music and disable enemy
+        StopChaseMusic();
+
+        // Save state before disabling
+        if (enemyManager != null)
+        {
+            enemyManager.UpdateEnemyState(EnemyManager.EnemyState.Inactive, transform.position, 0f);
+        }
+
+        // Disable/destroy the enemy
+        Debug.Log("Enemy disappearing after successful escape!");
+        gameObject.SetActive(false);
 
         Debug.Log("=== OnEscapeSuccess() COMPLETE ===");
     }
@@ -666,7 +710,18 @@ public class MainEnemy : EnemyBase
     public void OnTeleportedThroughDoor(Vector2 newPosition)
     {
         Debug.Log($"Enemy teleported through door to {newPosition}");
+
+        // Temporarily disable collider during teleport
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.enabled = false;
+        }
+
         transform.position = newPosition;
+
+        // Re-enable collider after a short delay
+        StartCoroutine(ReEnableColliderAfterDelay(0.2f));
 
         // Update room tracking
         currentRoom = FindRoomByPosition(newPosition);
@@ -676,6 +731,17 @@ public class MainEnemy : EnemyBase
         {
             lastKnownPosition = player.position;
             Debug.Log("Continuing chase in new room");
+        }
+    }
+
+    private IEnumerator ReEnableColliderAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.enabled = true;
         }
     }
 
@@ -716,4 +782,5 @@ public class MainEnemy : EnemyBase
     {
         TransitionToState(EnemyManager.EnemyState.Patrolling);
     }
+
 }

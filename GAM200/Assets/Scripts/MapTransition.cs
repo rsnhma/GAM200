@@ -18,13 +18,7 @@ public class MapTransition : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private bool hasAnimation = true;
-    [SerializeField] private bool autoOpenForEnemies = true;
-    [SerializeField] private float autoCloseDelay = 2f;
     [SerializeField] private float enemyFollowDelay = 0.5f; // Delay before enemy follows player
-
-    [Header("Audio")]
-    [SerializeField] private AudioClip doorOpenSound;
-    [SerializeField] private AudioClip doorCloseSound;
 
     private CinemachineConfiner confiner;
     private GameObject player;
@@ -32,7 +26,6 @@ public class MapTransition : MonoBehaviour
     private bool transitioning = false;
     private bool isDoorOpen = false;
     private bool canInteract = false;
-    private Coroutine autoCloseCoroutine;
 
     private enum Direction { Up, Down, Left, Right, Teleport }
 
@@ -71,26 +64,6 @@ public class MapTransition : MonoBehaviour
 
             Debug.Log("Player at door. Press E to open/close.");
         }
-        else if (collision.CompareTag("Enemy") && autoOpenForEnemies)
-        {
-            // Enemy enters - open door automatically if not already open
-            if (!isDoorOpen && !transitioning)
-            {
-                MainEnemy enemy = collision.GetComponent<MainEnemy>();
-                if (enemy != null)
-                {
-                    Debug.Log("Enemy approaching door - opening automatically");
-                    StartCoroutine(OpenDoorForEnemy(collision.gameObject));
-                }
-            }
-
-            // Cancel any pending auto-close since enemy is at door
-            if (autoCloseCoroutine != null)
-            {
-                StopCoroutine(autoCloseCoroutine);
-                autoCloseCoroutine = null;
-            }
-        }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -106,14 +79,6 @@ public class MapTransition : MonoBehaviour
 
             Debug.Log("Player left the door area.");
         }
-        else if (collision.CompareTag("Enemy") && autoOpenForEnemies)
-        {
-            // Enemy left the trigger - start auto-close timer
-            if (isDoorOpen && autoCloseCoroutine == null)
-            {
-                autoCloseCoroutine = StartCoroutine(AutoCloseDoorAfterDelay());
-            }
-        }
     }
 
     private IEnumerator EnableInteractionNextFrame()
@@ -127,7 +92,7 @@ public class MapTransition : MonoBehaviour
     {
         transitioning = true;
 
-        // REPLACE SoundManager line with this:
+        // Play door open sound
         if (doorInteraction != null)
         {
             doorInteraction.PlayDoorOpenSound();
@@ -172,7 +137,6 @@ public class MapTransition : MonoBehaviour
         foreach (MainEnemy enemy in enemies)
         {
             if (enemy == null) continue;
-
             // Check if enemy is chasing and close to the door
             float distanceToDoor = Vector2.Distance(enemy.transform.position, transform.position);
 
@@ -211,59 +175,11 @@ public class MapTransition : MonoBehaviour
         return targetPos;
     }
 
-    // Enemy opens door automatically - NO camera transition
-    private IEnumerator OpenDoorForEnemy(GameObject enemy)
-    {
-        transitioning = true;
-
-        if (hasAnimation && doorAnimator != null)
-        {
-            doorAnimator.SetTrigger("Open");
-
-            yield return new WaitUntil(() =>
-                doorAnimator.GetCurrentAnimatorStateInfo(0).IsName("Door_Open"));
-
-            float animLength = doorAnimator.GetCurrentAnimatorStateInfo(0).length;
-            yield return new WaitForSeconds(animLength);
-        }
-        else
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        isDoorOpen = true;
-
-        // Disable door collider temporarily so enemy can pass
-        if (doorCollider != null)
-            doorCollider.enabled = false;
-
-        // Move enemy through door
-        UpdateEnemyPosition(enemy);
-
-        yield return new WaitForSeconds(0.3f);
-
-        // Re-enable collider
-        if (doorCollider != null)
-            doorCollider.enabled = true;
-
-        transitioning = false;
-    }
-
-    private IEnumerator AutoCloseDoorAfterDelay()
-    {
-        yield return new WaitForSeconds(autoCloseDelay);
-
-        if (isDoorOpen)
-        {
-            yield return CloseDoor();
-        }
-
-        autoCloseCoroutine = null;
-    }
-
     private IEnumerator CloseDoor()
     {
         transitioning = true;
+
+        // Play door close sound
         if (doorInteraction != null)
         {
             doorInteraction.PlayDoorOpenSound();
@@ -353,20 +269,5 @@ public class MapTransition : MonoBehaviour
         }
 
         playerObj.transform.position = newPos;
-    }
-
-    private void UpdateEnemyPosition(GameObject enemyObj)
-    {
-        if (enemyObj == null) return;
-
-        MainEnemy enemy = enemyObj.GetComponent<MainEnemy>();
-        Vector2 targetPos = CalculateEnemyTargetPosition(enemyObj.transform.position);
-
-        enemyObj.transform.position = targetPos;
-
-        if (enemy != null)
-        {
-            enemy.OnTeleportedThroughDoor(targetPos);
-        }
     }
 }
