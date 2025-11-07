@@ -8,7 +8,7 @@ table_scribble,Player,"Scapegoat...they called her that. Over and over.",table_s
 table_scribble_2,Player,"The courtyard...I'll check that out next. But this room..The air's heavy here.",table_scribble_3,
 table_scribble_3,Player,"Yuki..you wouldn't have just left. Something happened in this school.",,head_to_the_courtyard_afterwards
 tv_video_end,Player,"What... what was that?! Something just came out of the TV!",,
-courtyard_entry,Player,"Table scrible said someone threw the key into the well..let's see if the key is still there.",,
+courtyard_entry,Player,"Table scribble said someone threw the key into the well..let's see if the key is still there.",,
 well_first_encounter,Player,"The well is missing some items... I'll look around here to see if I can find the components.",,
 rope_pickup,Player,"A sturdy rope. This could be useful.",,
 bucket_pickup,Player,"An old wooden bucket. I should bring this to the well.",,
