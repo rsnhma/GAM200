@@ -8853,11 +8853,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 42191619}
   doorInteraction: {fileID: 42191617}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &140336684
 GameObject:
   m_ObjectHideFlags: 0
@@ -15985,11 +15981,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &285416394
 GameObject:
   m_ObjectHideFlags: 0
@@ -16806,11 +16798,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &316011866
 GameObject:
   m_ObjectHideFlags: 0
@@ -28333,8 +28321,8 @@ MonoBehaviour:
   interactionPromptText: {fileID: 2139122596}
   keySpawnAudio: {fileID: 490358389}
   enemyManager: {fileID: 1259372615}
-  sanityReward: 2
-  sanityLoss: 5
+  sanityReward: 1
+  sanityLoss: 2
 --- !u!212 &490358388
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -31399,11 +31387,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!4 &550660767
 Transform:
   m_ObjectHideFlags: 0
@@ -33555,7 +33539,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -127, y: 114}
+  m_AnchoredPosition: {x: -168, y: 114}
   m_SizeDelta: {x: 144.49634, y: 144.5603}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &623071412
@@ -35675,7 +35659,7 @@ Transform:
   m_GameObject: {fileID: 685090998}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -118.74, y: -6.94, z: -10}
+  m_LocalPosition: {x: -115.10718, y: -36.39608, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -38344,11 +38328,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 2113983149}
   doorInteraction: {fileID: 2113983147}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &803756096
 GameObject:
   m_ObjectHideFlags: 0
@@ -39204,11 +39184,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -118.74
+      value: -115.1
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.94
+      value: -39.1
       objectReference: {fileID: 0}
     - target: {fileID: 8827831678350886317, guid: 27fdea705963623429365eda82e2836d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -51390,8 +51370,8 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 149747303
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!1 &882497228
 GameObject:
@@ -59243,11 +59223,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 781961525}
   doorInteraction: {fileID: 781961523}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1043885356
 GameObject:
   m_ObjectHideFlags: 0
@@ -59409,7 +59385,7 @@ Transform:
   m_GameObject: {fileID: 1046274130}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.56, y: -4.32, z: 0.062867165}
+  m_LocalPosition: {x: 2.92, y: -4.36, z: 0.062867165}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -61497,11 +61473,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 913446219}
   doorInteraction: {fileID: 913446221}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1082799151
 GameObject:
   m_ObjectHideFlags: 0
@@ -61740,7 +61712,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1
+  m_Intensity: 0
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 000000008fd17f7cb9692fbac188ff2167f6ec08a3f8946465761c64032be0af4d20fec05903461f
@@ -62318,7 +62290,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -328.5, y: 359.7}
+  m_AnchoredPosition: {x: -328.5, y: 358}
   m_SizeDelta: {x: 115.6484, y: 101.68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1125032387
@@ -62561,11 +62533,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1130621257
 GameObject:
   m_ObjectHideFlags: 0
@@ -74797,11 +74765,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!4 &1174026496 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3684781198198140559, guid: 2171808ff184ca145b57e1068b212a9b, type: 3}
@@ -75472,11 +75436,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1191593476
 GameObject:
   m_ObjectHideFlags: 0
@@ -75505,7 +75465,7 @@ Transform:
   m_GameObject: {fileID: 1191593476}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 107, y: -79.6, z: 0.0040460066}
+  m_LocalPosition: {x: 114.67, y: -82.96, z: 0.0040460066}
   m_LocalScale: {x: 0.33460927, y: 0.33460927, z: 0.33460927}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -75529,7 +75489,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   puzzleController: {fileID: 232982756}
   interactionRange: 2
+  useClickInteraction: 1
+  useKeyInteraction: 1
+  interactionKey: 323
   previewDialogueID: torn_class_photo_preview
+  showDebugLogs: 1
 --- !u!212 &1191593479
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -77970,7 +77934,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -432.8, y: 359.7}
+  m_AnchoredPosition: {x: -432.8, y: 358}
   m_SizeDelta: {x: 115.6484, y: 101.68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1270683994
@@ -78304,7 +78268,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 699, y: 243}
+  m_AnchoredPosition: {x: 705, y: 243}
   m_SizeDelta: {x: 115.6484, y: 101.68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1295258834
@@ -91837,11 +91801,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1460818746
 GameObject:
   m_ObjectHideFlags: 0
@@ -93505,11 +93465,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 583246314}
   doorInteraction: {fileID: 583246312}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1483744588
 GameObject:
   m_ObjectHideFlags: 0
@@ -104863,7 +104819,7 @@ Transform:
   m_GameObject: {fileID: 1698797674}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -118.74, y: -6.94, z: -10}
+  m_LocalPosition: {x: -115.1, y: -39.1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106801,7 +106757,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -536.8709, y: 359.7}
+  m_AnchoredPosition: {x: -536.8709, y: 358}
   m_SizeDelta: {x: 115.6484, y: 101.68}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1748686246
@@ -120474,11 +120430,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1792199154
 GameObject:
   m_ObjectHideFlags: 0
@@ -121771,11 +121723,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1824131765
 GameObject:
   m_ObjectHideFlags: 0
@@ -124596,11 +124544,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!4 &1911940205 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1700630589573873678, guid: 772a8a32d8173354b8ef667468fba2d5, type: 3}
@@ -125215,11 +125159,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &1933812044
 GameObject:
   m_ObjectHideFlags: 0
@@ -127084,11 +127024,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 735177505}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &2009142739
 GameObject:
   m_ObjectHideFlags: 0
@@ -128182,11 +128118,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 0}
   doorInteraction: {fileID: 0}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &2036305318
 GameObject:
   m_ObjectHideFlags: 0
@@ -129433,11 +129365,7 @@ MonoBehaviour:
   doorAnimator: {fileID: 1911940209}
   doorInteraction: {fileID: 1911940207}
   hasAnimation: 1
-  autoOpenForEnemies: 1
-  autoCloseDelay: 2
   enemyFollowDelay: 0.5
-  doorOpenSound: {fileID: 0}
-  doorCloseSound: {fileID: 0}
 --- !u!1 &2084184505
 GameObject:
   m_ObjectHideFlags: 0
@@ -133831,7 +133759,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.64, y: 1.1}
+  m_AnchoredPosition: {x: 2.6164, y: 0.88236}
   m_SizeDelta: {x: 14.3424, y: 5.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2139122596
@@ -133919,7 +133847,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 7.4472303, w: 0}
+  m_margin: {x: 0, y: 0, z: 5.20229, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
