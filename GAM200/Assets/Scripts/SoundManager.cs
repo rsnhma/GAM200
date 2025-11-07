@@ -21,6 +21,8 @@ public class SoundManager : MonoBehaviour
 
     [Header("Interaction SFX")]
     public AudioClip SFX_PickUp;      // For picking up items, puzzle pieces, interactables
+    public AudioClip SFX_Door;
+
 
     [Header("Puzzle SFX")]
     public AudioClip SFX_WellFail;
@@ -166,5 +168,9 @@ public class SoundManager : MonoBehaviour
     public void PlayPuzzleSuccessSound()
     {
         PlaySFX(SFX_PuzzleSuccess);
+    }
+    public void PlayDoorSound()
+    {
+        PlaySFX(SFX_Door);
     }
 }

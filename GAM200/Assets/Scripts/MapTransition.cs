@@ -14,12 +14,17 @@ public class MapTransition : MonoBehaviour
     [SerializeField] private Collider2D doorCollider;
     [SerializeField] private Collider2D triggerCollider;
     [SerializeField] private Animator doorAnimator;
+    [SerializeField] private DoorInteraction doorInteraction;
 
     [Header("Settings")]
     [SerializeField] private bool hasAnimation = true;
     [SerializeField] private bool autoOpenForEnemies = true;
     [SerializeField] private float autoCloseDelay = 2f;
     [SerializeField] private float enemyFollowDelay = 0.5f; // Delay before enemy follows player
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip doorOpenSound;
+    [SerializeField] private AudioClip doorCloseSound;
 
     private CinemachineConfiner confiner;
     private GameObject player;
@@ -121,6 +126,12 @@ public class MapTransition : MonoBehaviour
     private IEnumerator OpenDoorForPlayer()
     {
         transitioning = true;
+
+        // REPLACE SoundManager line with this:
+        if (doorInteraction != null)
+        {
+            doorInteraction.PlayDoorOpenSound();
+        }
 
         if (hasAnimation && doorAnimator != null)
         {
@@ -253,6 +264,10 @@ public class MapTransition : MonoBehaviour
     private IEnumerator CloseDoor()
     {
         transitioning = true;
+        if (doorInteraction != null)
+        {
+            doorInteraction.PlayDoorOpenSound();
+        }
 
         if (hasAnimation && doorAnimator != null)
         {
