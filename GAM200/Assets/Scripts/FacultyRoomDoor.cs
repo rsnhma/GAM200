@@ -11,99 +11,125 @@ public class FacultyRoomDoor : MonoBehaviour
     [Tooltip("The item ID required to open this door")]
     public string requiredItemID = "well_key";
 
-    [Tooltip("The physical barricade collider (non-trigger) that blocks player")]
-    public Collider2D barricadeCollider;
+    [Header("Door Components")]
+    [Tooltip("The NON-TRIGGER collider that physically blocks the player")]
+    public Collider2D blockingCollider;
+
+    [Tooltip("The MapTransition script that handles teleportation")]
+    public MapTransition mapTransitionScript;
 
     [Header("Debugging")]
     public bool showDebugLogs = true;
 
-    private BoxCollider2D triggerCollider;
     private bool playerAtDoor = false;
     private bool doorUnlocked = false;
+    private bool hasConsumedKeyPress = false;
 
     private void Awake()
     {
-        // This script's collider should be the TRIGGER
-        triggerCollider = GetComponent<BoxCollider2D>();
-        if (triggerCollider != null)
+        // Make sure blocking collider is enabled at start
+        if (blockingCollider != null)
         {
-            triggerCollider.isTrigger = true;
-        }
-
-        // Make sure barricade is enabled at start (blocking entry)
-        if (barricadeCollider != null)
-        {
-            barricadeCollider.enabled = true;
+            blockingCollider.enabled = true;
             if (showDebugLogs)
-                Debug.Log("Faculty Room door barricade enabled - door is locked");
+                Debug.Log($"Faculty door blocking collider enabled on: {blockingCollider.gameObject.name}");
         }
         else
         {
-            Debug.LogError("Barricade Collider not assigned! Please assign the non-trigger collider.");
+            Debug.LogError("Blocking Collider not assigned! Please assign the NON-TRIGGER collider.");
+        }
+
+        if (mapTransitionScript == null)
+        {
+            Debug.LogError("MapTransition script not assigned!");
         }
     }
 
     private void Update()
     {
-        // Player interaction with E key
+        // Check if MapTransition is trying to be used
         if (playerAtDoor && Input.GetKeyDown(KeyCode.E))
         {
-            if (PlayerHasEquippedKey())
+            if (!doorUnlocked)
             {
-                if (showDebugLogs)
-                    Debug.Log("Player used key - unlocking door!");
+                // Door is locked - intercept the keypress
+                hasConsumedKeyPress = true;
 
-                UnlockDoor();
+                if (PlayerHasEquippedKey())
+                {
+                    if (showDebugLogs)
+                        Debug.Log("Player used key - unlocking door!");
+
+                    UnlockDoor();
+                }
+                else
+                {
+                    if (showDebugLogs)
+                        Debug.Log("Door is locked - key not equipped.");
+
+                    // Trigger locked dialogue
+                    if (!string.IsNullOrEmpty(lockedDialogueID))
+                    {
+                        DialogueManager.Instance?.StartDialogueSequence(lockedDialogueID);
+                    }
+                }
             }
             else
             {
+                // Door is unlocked - let MapTransition handle it
                 if (showDebugLogs)
-                    Debug.Log("Door is locked - key not equipped.");
-
-                // Trigger locked dialogue
-                if (!string.IsNullOrEmpty(lockedDialogueID))
-                {
-                    DialogueManager.Instance?.StartDialogueSequence(lockedDialogueID);
-                }
+                    Debug.Log("Door unlocked - MapTransition should handle teleportation");
             }
+        }
+
+        // Reset key consumption flag
+        if (!Input.GetKeyDown(KeyCode.E))
+        {
+            hasConsumedKeyPress = false;
         }
     }
 
     private void UnlockDoor()
     {
-        if (doorUnlocked) return; // Already unlocked
+        if (doorUnlocked) return;
 
         doorUnlocked = true;
 
-        // Remove key from inventory AND journal UI (same as rope/bucket in well)
+        // Remove key from inventory AND journal UI
         if (InventorySystem.Instance != null)
         {
             InventorySystem.Instance.RemoveItem(requiredItemID);
-            JournalManager.Instance.RemoveItemFromUI(requiredItemID);
+            if (JournalManager.Instance != null)
+            {
+                JournalManager.Instance.RemoveItemFromUI(requiredItemID);
+            }
 
             if (showDebugLogs)
                 Debug.Log($"Key '{requiredItemID}' removed from inventory and journal");
         }
 
-        // Disable the barricade to allow passage
-        if (barricadeCollider != null)
+        // Disable the blocking collider
+        if (blockingCollider != null)
         {
-            barricadeCollider.enabled = false;
+            blockingCollider.enabled = false;
             if (showDebugLogs)
-                Debug.Log("Faculty Room door barricade removed - door is now open!");
+                Debug.Log($"Blocking collider disabled on: {blockingCollider.gameObject.name}");
         }
 
-        // Optional: Play unlock sound
-        SoundManager.Instance?.PlayInteractSound();
+        if (showDebugLogs)
+            Debug.Log("Faculty Room door is now unlocked! Press E again to enter.");
 
-        // Optional: Show unlock dialogue
-        if (!string.IsNullOrEmpty(lockedDialogueID))
+        // Play unlock sound
+        if (SoundManager.Instance != null)
         {
-            string unlockDialogueID = "faculty_room_unlocked"; // Create this dialogue if you want
-            if (DialogueDatabase.dialogues.ContainsKey(unlockDialogueID))
-            {
-                DialogueManager.Instance?.StartDialogueSequence(unlockDialogueID);
-            }
+            SoundManager.Instance.PlayInteractSound();
+        }
+
+        // Show unlock dialogue
+        string unlockDialogueID = "faculty_room_unlocked";
+        if (DialogueDatabase.dialogues.ContainsKey(unlockDialogueID))
+        {
+            DialogueManager.Instance?.StartDialogueSequence(unlockDialogueID);
         }
     }
 
@@ -135,8 +161,15 @@ public class FacultyRoomDoor : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             playerAtDoor = false;
+            hasConsumedKeyPress = false;
             if (showDebugLogs)
                 Debug.Log("Player left faculty room door trigger");
         }
+    }
+
+    // Public method to check if door blocks interaction
+    public bool IsDoorLocked()
+    {
+        return !doorUnlocked;
     }
 }

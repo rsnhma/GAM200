@@ -35,7 +35,7 @@ public class PhotoPuzzleController : MonoBehaviour
 
     public static bool puzzleSolved = false;
     private bool isPuzzleActive = false;
-    private string bloodMessage = "They said I stole the key. They framed me.";
+    private string bloodMessage = "They crossed me out once. Now, I cross back.";
 
     void Start()
     {

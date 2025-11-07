@@ -15,10 +15,10 @@ public class WellInteraction : MonoBehaviour
     private bool isReeling = false;
     private bool keyRetrieved = false;
     private bool waitingForCalibration = false;
-    private bool hasShownFirstEncounter = false; 
+    private bool hasShownFirstEncounter = false;
 
     [Header("Dialogue Settings")]
-    public string firstEncounterDialogueID = "well_first_encounter"; 
+    public string firstEncounterDialogueID = "well_first_encounter";
 
     [Header("Animation")]
     public Animator wellAnimator;
@@ -32,7 +32,7 @@ public class WellInteraction : MonoBehaviour
     public TimeCalibration timeCalibrationScript;
 
     [Header("Reeling Settings")]
-    public float progressPerScroll = 10f; // Progress added per scroll (out of 100)
+    public float progressPerScroll = 10f;
     private float reelingProgress = 0f;
     private float targetProgress = 100f;
     private int totalCalibrationsNeeded = 3;
@@ -50,8 +50,8 @@ public class WellInteraction : MonoBehaviour
     public EnemyManager enemyManager;
 
     [Header("Sanity Reward")]
-    public float sanityReward = 2f; // Amount of sanity to restore when puzzle is completed
-
+    public float sanityReward = 1f;
+    public float sanityLoss = 2f;
 
     private bool playerNearby = false;
     private float lastScrollTime = 0f;
@@ -84,15 +84,15 @@ public class WellInteraction : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
-                // Only place rope if rope is equipped (not bucket or other items)
+                // Check if rope is equipped
                 if (IsItemEquipped(ropeItemID))
                 {
                     PlaceRope();
                 }
-                else if (InventorySystem.Instance.GetEquippedItemID() != null)
+                else
                 {
-                    // Player has something else equipped - show wrong sequence dialogue
-                    Debug.Log("Wrong item equipped. Need rope!");
+                    // Show wrong sequence dialogue (even if nothing equipped)
+                    Debug.Log("Wrong item equipped or no item. Need rope!");
                     if (DialogueDatabase.dialogues.ContainsKey("well_wait_wrong_sequence"))
                     {
                         DialogueManager.Instance.StartDialogueSequence("well_wait_wrong_sequence");
@@ -104,14 +104,15 @@ public class WellInteraction : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
+                // Check if bucket is equipped
                 if (IsItemEquipped(bucketItemID))
                 {
                     PlaceBucket();
                 }
-                else if (InventorySystem.Instance.GetEquippedItemID() != null)
+                else
                 {
-                    // Player has something else equipped
-                    Debug.Log("Wrong item equipped. Need bucket!");
+                    // Show wrong sequence dialogue
+                    Debug.Log("Wrong item equipped or no item. Need bucket!");
                     if (DialogueDatabase.dialogues.ContainsKey("well_wait_wrong_sequence"))
                     {
                         DialogueManager.Instance.StartDialogueSequence("well_wait_wrong_sequence");
@@ -150,12 +151,21 @@ public class WellInteraction : MonoBehaviour
 
             if (IsItemEquipped(ropeItemID))
             {
+                // Correct item equipped
                 interactionPromptText.text = "[E] Attach Rope";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else if (equippedID != null)
+            {
+                // Wrong item equipped - show hint
+                interactionPromptText.text = "[E] Wrong Item (Need Rope)";
                 interactionPromptText.gameObject.SetActive(true);
             }
             else
             {
-                interactionPromptText.gameObject.SetActive(false);
+                // Nothing equipped
+                interactionPromptText.text = "";
+                interactionPromptText.gameObject.SetActive(true);
             }
         }
         else if (!bucketAttached)
@@ -164,12 +174,21 @@ public class WellInteraction : MonoBehaviour
 
             if (IsItemEquipped(bucketItemID))
             {
+                // Correct item equipped
                 interactionPromptText.text = "[E] Attach Bucket";
+                interactionPromptText.gameObject.SetActive(true);
+            }
+            else if (equippedID != null)
+            {
+                // Wrong item equipped - show hint
+                interactionPromptText.text = "[E] Wrong Item (Need Bucket)";
                 interactionPromptText.gameObject.SetActive(true);
             }
             else
             {
-                interactionPromptText.gameObject.SetActive(false);
+                // Nothing equipped
+                interactionPromptText.text = "";
+                interactionPromptText.gameObject.SetActive(true);
             }
         }
         else if (bucketAttached && !isReeling && !keyRetrieved && !waitingForCalibration)
@@ -202,11 +221,9 @@ public class WellInteraction : MonoBehaviour
             wellAnimator.Play("RopeAdded");
         }
 
-        // Remove from inventory AND journal UI
         InventorySystem.Instance.RemoveItem(ropeItemID);
         JournalManager.Instance.RemoveItemFromUI(ropeItemID);
 
-        // Use dialogue ID: well_rope_placed
         if (DialogueDatabase.dialogues.ContainsKey("well_rope_placed"))
         {
             DialogueManager.Instance.StartDialogueSequence("well_rope_placed");
@@ -224,11 +241,9 @@ public class WellInteraction : MonoBehaviour
             wellAnimator.Play("BucketAdded");
         }
 
-        // Remove from inventory AND journal UI
         InventorySystem.Instance.RemoveItem(bucketItemID);
         JournalManager.Instance.RemoveItemFromUI(bucketItemID);
 
-        // Use dialogue ID: well_bucket_placed
         if (DialogueDatabase.dialogues.ContainsKey("well_bucket_placed"))
         {
             DialogueManager.Instance.StartDialogueSequence("well_bucket_placed");
@@ -259,7 +274,6 @@ public class WellInteraction : MonoBehaviour
             if (wellAnimator != null)
             {
                 Debug.Log("Setting IsReeling = true in animator");
-                // Use a bool parameter instead of Play() - more reliable
                 wellAnimator.SetBool("isReeling", true);
             }
             else
@@ -273,9 +287,6 @@ public class WellInteraction : MonoBehaviour
 
     private void HandleReeling()
     {
-        // Animation is handled by the Animator Controller via IsReeling bool parameter
-        // No need to manually play it here
-
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (scroll > 0 && Time.time >= lastScrollTime + scrollCooldown)
@@ -292,7 +303,6 @@ public class WellInteraction : MonoBehaviour
 
             Debug.Log($"Progress: {reelingProgress:F1}/{targetProgress} | Calibrations: {calibrationsCompleted}/{totalCalibrationsNeeded}");
 
-            // Trigger calibrations at 33%, 66%, and 100%
             float progressPercent = (reelingProgress / targetProgress) * 100f;
             int expectedCalibrations = Mathf.FloorToInt(progressPercent / (100f / totalCalibrationsNeeded));
 
@@ -312,9 +322,6 @@ public class WellInteraction : MonoBehaviour
     private void TriggerTimeCalibration()
     {
         waitingForCalibration = true;
-
-        // Keep the reeling animation playing during calibration
-        // Don't set IsReeling to false here
 
         if (timeCalibrationUI)
         {
@@ -342,8 +349,6 @@ public class WellInteraction : MonoBehaviour
             timeCalibrationUI.SetActive(false);
         }
 
-        // Animation already playing, no need to restart it
-
         if (reelingProgress >= targetProgress && calibrationsCompleted >= totalCalibrationsNeeded)
         {
             RetrieveKey();
@@ -352,15 +357,14 @@ public class WellInteraction : MonoBehaviour
 
     public void OnCalibrationFail()
     {
+        PlayerSanity.Instance.LoseSanity(sanityLoss);
         Debug.Log("Player missed! Alerting enemy and resetting progress...");
 
-        // Show calibration failed dialogue
         if (DialogueDatabase.dialogues.ContainsKey("well_calibration_failed"))
         {
             DialogueManager.Instance.StartDialogueSequence("well_calibration_failed");
         }
 
-        // This will trigger SoundIndicatorUI.ShowIndicator() automatically via MainEnemy.OnNoiseHeard
         NoiseSystem.EmitNoise(transform.position, NoiseTypes.PuzzleFailRadius);
         SpawnEnemyAtNearestTV();
 
@@ -384,7 +388,6 @@ public class WellInteraction : MonoBehaviour
             reelingSlider.value = 0f;
         }
 
-        // Stop reeling animation
         if (wellAnimator != null)
         {
             wellAnimator.SetBool("isReeling", false);
@@ -398,7 +401,6 @@ public class WellInteraction : MonoBehaviour
         isReeling = false;
         keyRetrieved = true;
 
-        // Stop reeling animation
         if (wellAnimator != null)
         {
             wellAnimator.SetBool("isReeling", false);
@@ -428,12 +430,6 @@ public class WellInteraction : MonoBehaviour
                 Debug.LogWarning("Key spawn audio not assigned in Inspector!");
             }
         }
-
-        // Use dialogue ID: well_key_retrieved
-        //if (DialogueDatabase.dialogues.ContainsKey("well_key_retrieved"))
-        //{
-        //    DialogueManager.Instance.StartDialogueSequence("well_key_retrieved");
-        //}
 
         if (TaskManager.Instance != null && DialogueDatabase.tasks.ContainsKey("well_puzzle"))
         {
@@ -507,7 +503,6 @@ public class WellInteraction : MonoBehaviour
         {
             playerNearby = true;
 
-            // Show first encounter dialogue (only once)
             if (!hasShownFirstEncounter)
             {
                 hasShownFirstEncounter = true;
