@@ -21,9 +21,9 @@ public class MainEnemy : EnemyBase
     private bool isChaseMusicPlaying = false;
 
     [Header("Roam/Patrol Settings")]
-    public float roamSpeed = 1.5f;
-    public float minRoamTime = 1f;
-    public float maxRoamTime = 3f;
+    public float roamSpeed = 2.5f; // Increased from 1.5f
+    public float minRoamTime = 3f; // Increased from 1f
+    public float maxRoamTime = 6f; // Increased from 3f
     public float obstacleCheckDistance = 1f;
     public LayerMask obstacleLayers;
 
@@ -31,6 +31,16 @@ public class MainEnemy : EnemyBase
     [SerializeField] private float outOfViewDisableTime = 5f;
     private float outOfViewTimer = 0f;
     private bool isVisible = false;
+    private bool cameraDespawnEnabled = false;
+
+    [Header("Stun Settings")]
+    [SerializeField] private float stunDuration = 1.5f; // Reduced from 2.5s
+    [SerializeField] private float stunPushbackForce = 5f;
+    [SerializeField] private float stunRecoveryCooldown = 1f; // Cooldown before enemy can capture again
+    private bool isStunned = false;
+
+    [Header("Spawn Point Settings")]
+    [SerializeField] private float spawnPointSearchRadius = 3f;
 
     private TheEntityData entityData;
     private bool isCapturing = false;
@@ -82,7 +92,6 @@ public class MainEnemy : EnemyBase
 
         chaseSpeed = 5f;
 
-        // Setup audio source if not assigned
         if (chaseAudioSource == null)
         {
             chaseAudioSource = gameObject.AddComponent<AudioSource>();
@@ -105,25 +114,26 @@ public class MainEnemy : EnemyBase
             animator.SetFloat("Speed", 0f);
         }
 
-        // Setup Rigidbody2D properly for collision detection
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
             rb = gameObject.AddComponent<Rigidbody2D>();
         }
 
-        // CRITICAL: Set these properties for proper collision
         rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.gravityScale = 0f; // No gravity for top-down
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Prevent physics rotation
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Better collision detection
-        rb.interpolation = RigidbodyInterpolation2D.Interpolate; // Smooth movement
+        rb.gravityScale = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-        // Ensure collider exists
         Collider2D col = GetComponent<Collider2D>();
         if (col == null)
         {
-            Debug.LogError("Enemy needs a Collider2D component! Add CircleCollider2D or CapsuleCollider2D");
+            Debug.LogError("Enemy needs a Collider2D component!");
+        }
+        else
+        {
+            col.isTrigger = false;
         }
     }
 
@@ -166,7 +176,7 @@ public class MainEnemy : EnemyBase
         if (SoundIndicatorUI.Instance != null)
         {
             SoundIndicatorUI.Instance.MarkAsDetected();
-            Debug.Log("Enemy spawned chasing - marked as detected, UI won't show");
+            Debug.Log("Enemy spawned chasing - marked as detected");
         }
 
         yield return new WaitForSeconds(1f);
@@ -195,7 +205,7 @@ public class MainEnemy : EnemyBase
 
     private void OnNoiseHeard(Vector2 position, float radius)
     {
-        if (isCapturing) return;
+        if (isCapturing || isStunned) return;
 
         bool isValidNoise = Mathf.Approximately(radius, NoiseTypes.SprintRadius) ||
                             Mathf.Approximately(radius, NoiseTypes.LockerRadius) ||
@@ -205,6 +215,9 @@ public class MainEnemy : EnemyBase
         {
             lastKnownPosition = position;
             lingeringTimer = entityData.chaseBreakTime;
+
+            CheckAndTeleportToNoiseLocation(position);
+
             TransitionToState(EnemyManager.EnemyState.Suspicious);
             Debug.Log($"MainEnemy alerted by noise (radius {radius}) at {position}");
 
@@ -215,22 +228,54 @@ public class MainEnemy : EnemyBase
         }
     }
 
+    private void CheckAndTeleportToNoiseLocation(Vector2 noisePosition)
+    {
+        GameObject noiseRoom = FindRoomByPosition(noisePosition);
+        GameObject enemyRoom = FindRoomByPosition(transform.position);
+
+        if (noiseRoom != null && enemyRoom != null && noiseRoom != enemyRoom)
+        {
+            Debug.Log($"Noise in different room ({noiseRoom.name}), enemy in {enemyRoom.name} - teleporting to spawn point");
+
+            if (EnemySpawnPointManager.Instance != null)
+            {
+                Transform nearestSpawnPoint = EnemySpawnPointManager.Instance.GetNearestSpawnPoint(noisePosition);
+
+                if (nearestSpawnPoint != null)
+                {
+                    OnTeleportedThroughDoor(nearestSpawnPoint.position);
+                    Debug.Log($"Enemy teleported to spawn point {nearestSpawnPoint.name}");
+                }
+                else
+                {
+                    Debug.LogWarning("No spawn point found near noise location!");
+                }
+            }
+        }
+    }
+
     protected override void Update()
     {
-        if (!isVisible)
+        if (isStunned)
+        {
+            UpdateAnimation();
+            return;
+        }
+
+        if (cameraDespawnEnabled && !isVisible)
         {
             outOfViewTimer += Time.deltaTime;
 
             if (outOfViewTimer >= outOfViewDisableTime)
             {
-                Debug.Log("Enemy out of view for 5+ seconds - disabling");
-                DisableEnemy();
-                return; // Stop updating
+                Debug.Log("Enemy out of view for 5+ seconds - patrolling elsewhere");
+                TransitionToState(EnemyManager.EnemyState.Patrolling);
+                outOfViewTimer = 0f;
             }
         }
         else
         {
-            outOfViewTimer = 0f; // Reset timer when visible
+            outOfViewTimer = 0f;
         }
 
         if (pauseTimer > 0)
@@ -266,21 +311,6 @@ public class MainEnemy : EnemyBase
 
         UpdateAnimation();
     }
-    private void DisableEnemy()
-    {
-        StopChaseMusic();
-        TransitionToState(EnemyManager.EnemyState.Inactive);
-
-        // Save state to enemy manager before disabling
-        if (enemyManager != null)
-        {
-            enemyManager.UpdateEnemyState(currentState, lastKnownPosition, lingeringTimer);
-        }
-
-        // Disable the enemy GameObject
-        gameObject.SetActive(false);
-        Debug.Log("Enemy disabled - out of camera view");
-    }
 
     private void UpdateAnimation()
     {
@@ -311,7 +341,7 @@ public class MainEnemy : EnemyBase
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (other.CompareTag("Player") && currentState == EnemyManager.EnemyState.Chasing && !isCapturing)
+        if (other.CompareTag("Player") && currentState == EnemyManager.EnemyState.Chasing && !isCapturing && !isStunned)
         {
             if (captureCooldown > 0)
             {
@@ -334,6 +364,8 @@ public class MainEnemy : EnemyBase
             TransitionToState(EnemyManager.EnemyState.Suspicious);
             return;
         }
+
+        CheckPlayerRoomTransition();
 
         if (HasLineOfSight())
         {
@@ -365,6 +397,69 @@ public class MainEnemy : EnemyBase
         }
     }
 
+    private void CheckPlayerRoomTransition()
+    {
+        if (player == null) return;
+
+        GameObject playerRoom = FindRoomByPosition(player.position);
+        GameObject enemyRoom = FindRoomByPosition(transform.position);
+
+        // Log for debugging
+        Debug.Log($"[Room Check] Player room: {playerRoom?.name ?? "None"}, Enemy room: {enemyRoom?.name ?? "None"}");
+
+        // Player is in a different room than enemy
+        if (playerRoom != null && enemyRoom != null && playerRoom != enemyRoom)
+        {
+            Debug.Log($"<color=yellow>ROOM TRANSITION DETECTED! Player entered {playerRoom.name}, Enemy still in {enemyRoom.name}</color>");
+
+            // Use the spawn point manager to find nearest spawn point
+            if (EnemySpawnPointManager.Instance != null)
+            {
+                Transform nearestSpawnPoint = EnemySpawnPointManager.Instance.GetNearestSpawnPoint(player.position);
+
+                if (nearestSpawnPoint != null)
+                {
+                    // Verify the spawn point is actually in the player's room
+                    GameObject spawnPointRoom = FindRoomByPosition(nearestSpawnPoint.position);
+
+                    if (spawnPointRoom == playerRoom)
+                    {
+                        Debug.Log($"<color=green>Teleporting enemy to spawn point: {nearestSpawnPoint.name} at position {nearestSpawnPoint.position}</color>");
+
+                        // STOP chasing temporarily
+                        isChasing = false;
+
+                        // Teleport immediately
+                        OnTeleportedThroughDoor(nearestSpawnPoint.position);
+
+                        // Resume chase in new room
+                        isChasing = true;
+                        lastKnownPosition = player.position;
+
+                        Debug.Log($"<color=cyan>Enemy successfully teleported and resuming chase!</color>");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Nearest spawn point is in wrong room ({spawnPointRoom?.name}), looking for spawn point in {playerRoom.name}");
+
+                        // Fallback: teleport near player
+                        Vector2 fallbackPos = (Vector2)player.position + UnityEngine.Random.insideUnitCircle * 5f;
+                        transform.position = fallbackPos;
+                        currentRoom = playerRoom;
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"<color=red>NO SPAWN POINT FOUND! Check EnemySpawnPointManager!</color>");
+                }
+            }
+            else
+            {
+                Debug.LogError("<color=red>EnemySpawnPointManager.Instance is NULL! Make sure it exists in the scene!</color>");
+            }
+        }
+    }
+
     private void UpdateSuspicious()
     {
         lingeringTimer -= Time.deltaTime;
@@ -389,6 +484,7 @@ public class MainEnemy : EnemyBase
         {
             if (lingeringTimer <= 0f)
             {
+                StopChaseMusic();
                 TransitionToState(EnemyManager.EnemyState.Patrolling);
             }
         }
@@ -401,15 +497,20 @@ public class MainEnemy : EnemyBase
         if (roamCooldown <= 0f || IsPathBlocked(roamDirection))
         {
             PickNewRoamDirection();
+            Debug.Log("Patrolling: New direction picked");
         }
 
-        Vector2 targetPosition = (Vector2)transform.position + (roamDirection * roamSpeed * Time.deltaTime);
-        rb.MovePosition(targetPosition);
+        // Use transform movement for animation tracking
+        transform.position += (Vector3)(roamDirection * roamSpeed * Time.deltaTime);
 
+        // Check for line of sight while patrolling
         if (HasLineOfSight())
         {
+            Debug.Log("Patrolling: Spotted player, switching to chase!");
             TransitionToState(EnemyManager.EnemyState.Chasing);
         }
+
+        Debug.Log($"Patrolling: Moving in direction {roamDirection}, cooldown: {roamCooldown}");
     }
 
     private void PickNewRoamDirection()
@@ -460,16 +561,15 @@ public class MainEnemy : EnemyBase
                 break;
 
             case EnemyManager.EnemyState.Suspicious:
-                Debug.Log("Enemy state: Suspicious");
+                Debug.Log("Enemy state: Suspicious - searching for player");
                 isChasing = true;
                 PlayChaseMusic();
                 break;
 
             case EnemyManager.EnemyState.Patrolling:
-                Debug.Log("Enemy state: Patrolling");
+                Debug.Log("Enemy state: Patrolling - lost player");
                 isChasing = false;
                 PickNewRoamDirection();
-                StopChaseMusic();
 
                 if (SoundIndicatorUI.Instance != null)
                 {
@@ -633,20 +733,56 @@ public class MainEnemy : EnemyBase
             SoundIndicatorUI.Instance.ResetDetection();
         }
 
-        // ADDED: Stop chase music and disable enemy
-        StopChaseMusic();
-
-        // Save state before disabling
-        if (enemyManager != null)
-        {
-            enemyManager.UpdateEnemyState(EnemyManager.EnemyState.Inactive, transform.position, 0f);
-        }
-
-        // Disable/destroy the enemy
-        Debug.Log("Enemy disappearing after successful escape!");
-        gameObject.SetActive(false);
+        StartCoroutine(StunEnemy());
 
         Debug.Log("=== OnEscapeSuccess() COMPLETE ===");
+    }
+
+    private IEnumerator StunEnemy()
+    {
+        Debug.Log("Enemy stunned!");
+        isStunned = true;
+
+        // DON'T stop chase music - keep the tension!
+        // Chase music will continue playing
+
+        // Push enemy back from player
+        if (player != null)
+        {
+            Vector2 pushDirection = (transform.position - player.position).normalized;
+            Vector2 pushbackTarget = (Vector2)transform.position + (pushDirection * stunPushbackForce);
+
+            float pushTimer = 0f;
+            float pushDuration = 0.3f;
+            Vector2 startPos = transform.position;
+
+            while (pushTimer < pushDuration)
+            {
+                pushTimer += Time.deltaTime;
+                transform.position = Vector2.Lerp(startPos, pushbackTarget, pushTimer / pushDuration);
+                yield return null;
+            }
+        }
+
+        // Visual feedback
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+        }
+
+        // Wait for stun duration
+        yield return new WaitForSeconds(stunDuration);
+
+        // Recover from stun
+        isStunned = false;
+
+        // Set capture cooldown to prevent immediate re-capture
+        captureCooldown = stunRecoveryCooldown;
+
+        Debug.Log("Enemy recovered from stun, returning to patrol");
+
+        // Transition to patrol state after stun
+        TransitionToState(EnemyManager.EnemyState.Patrolling);
     }
 
     private void OnEscapeFail()
@@ -677,12 +813,12 @@ public class MainEnemy : EnemyBase
             }
         }
 
-        StartCoroutine(RetryQTEAfterDelay());
+        StartCoroutine(RetryQTE());
     }
 
-    private IEnumerator RetryQTEAfterDelay()
+    private IEnumerator RetryQTE()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.0f);
 
         if (isCapturing && PlayerSanity.Instance != null &&
             PlayerSanity.Instance.GetSanityPercent() > 0.2f)
@@ -706,42 +842,18 @@ public class MainEnemy : EnemyBase
         }
     }
 
-    // Called when enemy is teleported through a door
     public void OnTeleportedThroughDoor(Vector2 newPosition)
     {
         Debug.Log($"Enemy teleported through door to {newPosition}");
 
-        // Temporarily disable collider during teleport
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
-        {
-            col.enabled = false;
-        }
-
         transform.position = newPosition;
 
-        // Re-enable collider after a short delay
-        StartCoroutine(ReEnableColliderAfterDelay(0.2f));
-
-        // Update room tracking
         currentRoom = FindRoomByPosition(newPosition);
 
-        // If chasing, update last known position to player's current position
         if (currentState == EnemyManager.EnemyState.Chasing && player != null)
         {
             lastKnownPosition = player.position;
             Debug.Log("Continuing chase in new room");
-        }
-    }
-
-    private IEnumerator ReEnableColliderAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
-        {
-            col.enabled = true;
         }
     }
 
@@ -782,5 +894,4 @@ public class MainEnemy : EnemyBase
     {
         TransitionToState(EnemyManager.EnemyState.Patrolling);
     }
-
 }

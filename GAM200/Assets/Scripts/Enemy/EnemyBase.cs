@@ -10,7 +10,7 @@ public class EnemyBase : MonoBehaviour
     public LayerMask obstacleMask;
 
     [Header("Chase Settings")]
-    protected float chaseSpeed;
+    protected float chaseSpeed = 4f;
     protected Transform player;
     protected bool isChasing = false;
 

@@ -180,15 +180,25 @@ MonoBehaviour:
   pushbackDistance: 3
   chaseAudioSource: {fileID: -7731723232165579308}
   chaseMusic: {fileID: 8300000, guid: 426517fd00fc3da4ab97cecf4577902c, type: 3}
-  chaseMusicVolume: 0.7
+  chaseMusicVolume: 0.764
   musicFadeTime: 1
-  roamSpeed: 1
+  roamSpeed: 2
   minRoamTime: 1
   maxRoamTime: 3
   obstacleCheckDistance: 0.5
   obstacleLayers:
     serializedVersion: 2
     m_Bits: 8
+  outOfViewDisableTime: 5
+  stunDuration: 1.5
+  stunPushbackForce: 5
+  tvSpawnPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  spawnPointSearchRadius: 3
   animator: {fileID: 6722633689431689153}
   rotationSpeed: 10
 --- !u!95 &6722633689431689153
