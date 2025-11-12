@@ -121896,8 +121896,8 @@ MonoBehaviour:
   additivePos: 2
   doorCollider: {fileID: 1127690018}
   triggerCollider: {fileID: 1815907614}
-  doorAnimator: {fileID: 0}
-  doorInteraction: {fileID: 0}
+  doorAnimator: {fileID: 1911940209}
+  doorInteraction: {fileID: 1911940207}
   hasAnimation: 1
   enemyFollowDelay: 0.5
 --- !u!1 &1824131765
@@ -129322,7 +129322,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2077954072}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a73a933425aba4de6a7f624139e0453e, type: 3}
   m_Name: 
@@ -129430,7 +129430,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2077954072}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03992e071ff316c4597e0c8ed71eec2f, type: 3}
   m_Name: 
