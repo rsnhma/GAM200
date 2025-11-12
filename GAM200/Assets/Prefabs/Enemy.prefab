@@ -127,8 +127,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.0006211758, y: 0.005359745}
-  m_Size: {x: 0.226397, y: 0.6207827}
+  m_Offset: {x: -0.0074988096, y: -0.16786678}
+  m_Size: {x: 0.6107434, y: 0.96723574}
   m_Direction: 0
 --- !u!50 &2940951488197543827
 Rigidbody2D:
@@ -192,12 +192,7 @@ MonoBehaviour:
   outOfViewDisableTime: 5
   stunDuration: 1.5
   stunPushbackForce: 5
-  tvSpawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  stunRecoveryCooldown: 1
   spawnPointSearchRadius: 3
   animator: {fileID: 6722633689431689153}
   rotationSpeed: 10
