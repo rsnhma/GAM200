@@ -24,25 +24,29 @@ public class TornPhotoInteraction : MonoBehaviour
     private bool playerInRange = false;
     private Collider2D photoCollider;
 
-    void Start()
+    void Awake()
     {
-        // Find player
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerTransform = player.transform;
-            if (showDebugLogs)
-                Debug.Log("TornPhoto: Player found");
-        }
-        else
-        {
-            Debug.LogError("TornPhoto: Player not found!");
-        }
-
-        // Get or add audio source
+        // Get components in Awake - they should be available immediately
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+
+        photoCollider = GetComponent<Collider2D>();
+        if (photoCollider == null)
+        {
+            photoCollider = gameObject.AddComponent<BoxCollider2D>();
+        }
+
+        if (photoCollider != null)
+        {
+            photoCollider.enabled = true;
+        }
+    }
+
+    void Start()
+    {
+        // Try to find player in Start (might be more reliable)
+        FindPlayer();
 
         // Find puzzle controller if not assigned
         if (puzzleController == null)
@@ -57,31 +61,100 @@ public class TornPhotoInteraction : MonoBehaviour
                 Debug.Log("TornPhoto: PhotoPuzzleController found");
             }
         }
+    }
 
-        // Get collider
-        photoCollider = GetComponent<Collider2D>();
-        if (photoCollider == null)
-        {
-            Debug.LogError("TornPhoto: No Collider2D found! Adding one...");
-            photoCollider = gameObject.AddComponent<BoxCollider2D>();
-        }
-
-        // Ensure collider is enabled
-        if (photoCollider != null)
-        {
-            photoCollider.enabled = true;
-            if (showDebugLogs)
-                Debug.Log($"TornPhoto: Collider enabled = {photoCollider.enabled}");
-        }
+    void OnEnable()
+    {
+        // Also try to find player when this object becomes enabled
+        FindPlayer();
     }
 
     void Update()
     {
-        if (hasBeenUsed || playerTransform == null)
+        if (hasBeenUsed)
+        {
+            if (showDebugLogs && Time.frameCount % 60 == 0)
+                Debug.Log($"TornPhoto: Update - hasBeenUsed = true, skipping interaction checks");
             return;
+        }
 
-        // Check distance to player
-        float distance = Vector3.Distance(transform.position, playerTransform.position);
+        // Ensure we have a player reference
+        if (playerTransform == null)
+        {
+            FindPlayer();
+            if (playerTransform == null)
+            {
+                // Still no player, skip interaction checks
+                if (showDebugLogs && Time.frameCount % 120 == 0) // Log every 2 seconds to avoid spam
+                    Debug.LogWarning("TornPhoto: Still waiting for player reference...");
+                return;
+            }
+        }
+
+        // Now we can safely use playerTransform
+        CheckPlayerDistanceAndInteract();
+    }
+
+    private void FindPlayer()
+    {
+        if (playerTransform != null) return; // Already found
+
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerTransform = player.transform;
+            if (showDebugLogs)
+                Debug.Log("TornPhoto: Player found successfully in FindPlayer()");
+        }
+        else
+        {
+            // Try alternative methods to find player
+            player = GameObject.Find("Player"); // Try by name
+            if (player != null)
+            {
+                playerTransform = player.transform;
+                if (showDebugLogs)
+                    Debug.Log("TornPhoto: Player found by name 'Player'");
+                return;
+            }
+
+            // Try finding any object with PlayerController or similar
+            MonoBehaviour[] allObjects = FindObjectsOfType<MonoBehaviour>();
+            foreach (MonoBehaviour obj in allObjects)
+            {
+                if (obj.gameObject.name.ToLower().Contains("player"))
+                {
+                    playerTransform = obj.transform;
+                    if (showDebugLogs)
+                        Debug.Log($"TornPhoto: Player found by name containing 'player': {obj.gameObject.name}");
+                    return;
+                }
+            }
+
+            if (showDebugLogs)
+                Debug.LogWarning("TornPhoto: Could not find player object");
+        }
+    }
+
+    private void CheckPlayerDistanceAndInteract()
+    {
+        // Double-check player reference right before using it
+        if (playerTransform == null)
+        {
+            FindPlayer();
+            if (playerTransform == null)
+            {
+                if (showDebugLogs)
+                    Debug.LogError("TornPhoto: Player reference is still null in CheckPlayerDistanceAndInteract!");
+                return;
+            }
+        }
+
+        // Safe distance calculation
+        Vector2 photoPos = new Vector2(transform.position.x, transform.position.y);
+        Vector2 playerPos = new Vector2(playerTransform.position.x, playerTransform.position.y);
+        float distance = Vector2.Distance(photoPos, playerPos);
+
         bool wasInRange = playerInRange;
         playerInRange = distance <= interactionRange;
 
@@ -92,6 +165,12 @@ public class TornPhotoInteraction : MonoBehaviour
                 Debug.Log($"TornPhoto: Player entered range (distance: {distance:F2})");
             else
                 Debug.Log($"TornPhoto: Player left range (distance: {distance:F2})");
+        }
+
+        // Debug current state periodically
+        if (showDebugLogs && Time.frameCount % 120 == 0)
+        {
+            Debug.Log($"TornPhoto: State - InRange: {playerInRange}, Distance: {distance:F2}, HasBeenUsed: {hasBeenUsed}");
         }
 
         // Key-based interaction (E key)
@@ -250,5 +329,28 @@ public class TornPhotoInteraction : MonoBehaviour
         hasBeenUsed = false;
         if (showDebugLogs)
             Debug.Log("TornPhoto: Interaction reset");
+    }
+
+    // Debug method to check current state
+    public void DebugState()
+    {
+        Debug.Log($"=== TORN PHOTO DEBUG STATE ===");
+        Debug.Log($"Player Transform: {playerTransform}");
+        Debug.Log($"Has Been Used: {hasBeenUsed}");
+        Debug.Log($"Player In Range: {playerInRange}");
+        Debug.Log($"Collider Enabled: {photoCollider != null && photoCollider.enabled}");
+        Debug.Log($"GameObject Active: {gameObject.activeInHierarchy}");
+
+        if (playerTransform != null)
+        {
+            Vector2 photoPos = new Vector2(transform.position.x, transform.position.y);
+            Vector2 playerPos = new Vector2(playerTransform.position.x, playerTransform.position.y);
+            float distance = Vector2.Distance(photoPos, playerPos);
+            Debug.Log($"Distance to Player: {distance:F2}");
+            Debug.Log($"Interaction Range: {interactionRange}");
+            Debug.Log($"In Range: {distance <= interactionRange}");
+        }
+
+        Debug.Log($"=== END DEBUG ===");
     }
 }
