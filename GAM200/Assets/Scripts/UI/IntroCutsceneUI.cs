@@ -6,16 +6,19 @@ using UnityEngine.Video;
 public class IntroCutsceneUI : MonoBehaviour
 {
     [Header("References")]
-    public GameObject mainMenuPanel;      
-    public GameObject cutscenePanel;      
+    public GameObject mainMenuPanel;
+    public GameObject cutscenePanel;
 
     [Header("Video Settings")]
     public VideoPlayer videoPlayer;
-    public GameObject videoPanel;         
+    public GameObject videoPanel;
 
     [Header("Skip Button")]
     public Button skipButton;
-    public string gameSceneName = "CCAM LEVEL 1";  //lEVEL 1 UPDATED
+    public string gameSceneName = "CCAM LEVEL 1";
+
+    [Header("Audio")]
+    public float bgmFadeOutDuration = 1f;
 
     private bool videoPlaying = false;
 
@@ -24,7 +27,6 @@ public class IntroCutsceneUI : MonoBehaviour
         // Hide cutscene elements at start
         if (cutscenePanel != null)
             cutscenePanel.SetActive(false);
-
         if (videoPanel != null)
             videoPanel.SetActive(false);
 
@@ -39,7 +41,7 @@ public class IntroCutsceneUI : MonoBehaviour
         if (skipButton != null)
         {
             skipButton.onClick.AddListener(SkipCutscene);
-            skipButton.gameObject.SetActive(false);  // Hidden until video plays
+            skipButton.gameObject.SetActive(false);
         }
     }
 
@@ -47,6 +49,14 @@ public class IntroCutsceneUI : MonoBehaviour
     public void PlayIntroCutscene()
     {
         Debug.Log("Starting intro cutscene");
+
+        // STOP MENU BGM WHEN CUTSCENE STARTS
+        if (SoundManager.Instance != null)
+        {
+            // Choose one: instant stop or smooth fade
+            // SoundManager.Instance.StopMenuBGM(); // Instant
+            SoundManager.Instance.FadeOutMenuBGM(bgmFadeOutDuration); // Smooth
+        }
 
         // Hide main menu
         if (mainMenuPanel != null)
@@ -59,13 +69,11 @@ public class IntroCutsceneUI : MonoBehaviour
         // Play video
         if (videoPlayer != null && videoPlayer.clip != null)
         {
-            // Show video panel
             if (videoPanel != null)
             {
                 videoPanel.SetActive(true);
                 Debug.Log($"VideoPanel active: {videoPanel.activeSelf}");
 
-                // Ensure RawImage is enabled
                 RawImage rawImage = videoPanel.GetComponentInChildren<RawImage>();
                 if (rawImage != null)
                 {
@@ -78,7 +86,6 @@ public class IntroCutsceneUI : MonoBehaviour
                 }
             }
 
-            // Show skip button
             if (skipButton != null)
                 skipButton.gameObject.SetActive(true);
 
@@ -108,7 +115,6 @@ public class IntroCutsceneUI : MonoBehaviour
     {
         Debug.Log("Cutscene skipped by player");
 
-        // Stop video
         if (videoPlayer != null)
             videoPlayer.Stop();
 
@@ -118,13 +124,17 @@ public class IntroCutsceneUI : MonoBehaviour
 
     private void LoadGameScene()
     {
+        // Ensure menu BGM is stopped before loading game
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StopMenuBGM();
+        }
+
         // Hide everything
         if (cutscenePanel != null)
             cutscenePanel.SetActive(false);
-
         if (videoPanel != null)
             videoPanel.SetActive(false);
-
         if (skipButton != null)
             skipButton.gameObject.SetActive(false);
 
@@ -134,7 +144,6 @@ public class IntroCutsceneUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Clean up video player events
         if (videoPlayer != null)
         {
             videoPlayer.loopPointReached -= OnVideoFinished;

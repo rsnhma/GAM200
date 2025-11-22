@@ -8,7 +8,6 @@ public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
 
-    //[HideInInspector] public DialogueTrigger currentTrigger;
     [Header("UI References")]
     public GameObject dialoguePanel;
     public Image characterIcon;
@@ -17,15 +16,16 @@ public class DialogueManager : MonoBehaviour
     public Button dialogueButton;
     public TextMeshProUGUI buttonText;
 
+    [Header("Typing Settings")]
+    public float typingSpeed = 0.05f;
+    [Tooltip("Play typing sound every N characters (1 = every character, 2 = every other character)")]
+    public int typingSoundFrequency = 4;
 
-    public float typingSpeed = 0.2f;
     private Queue<DialogueData> dialogueQueue = new Queue<DialogueData>();
     private bool isTyping = false;
     private bool isDialogueActive = false;
     private Coroutine typingCoroutine;
     private string currentFullText = "";
-
-    // public Animator animator;
 
     private void Awake()
     {
@@ -38,12 +38,12 @@ public class DialogueManager : MonoBehaviour
     private void Start()
     {
         dialoguePanel.SetActive(false);
-
         if (dialogueButton != null)
         {
             dialogueButton.onClick.AddListener(OnDialogueButtonClick);
         }
     }
+
     public void StartDialogueSequence(string startDialogueID)
     {
         dialogueQueue.Clear();
@@ -74,7 +74,6 @@ public class DialogueManager : MonoBehaviour
         }
 
         DialogueData currentDialogue = dialogueQueue.Dequeue();
-
         characterName.text = currentDialogue.speakerName;
         currentFullText = currentDialogue.dialogueText;
 
@@ -99,9 +98,21 @@ public class DialogueManager : MonoBehaviour
         isTyping = true;
         dialogueArea.text = "";
 
+        int charCount = 0;
         foreach (char c in text)
         {
             dialogueArea.text += c;
+
+            // Play typing sound every N characters (skip spaces)
+            if (c != ' ' && charCount % typingSoundFrequency == 0)
+            {
+                if (SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlayDialogueSound();
+                }
+            }
+
+            charCount++;
             yield return new WaitForSeconds(typingSpeed);
         }
 
@@ -110,7 +121,10 @@ public class DialogueManager : MonoBehaviour
 
     private void OnDialogueButtonClick()
     {
-        //SoundManager.Instance.PlayClickSound();
+        //if (SoundManager.Instance != null)
+        //{
+        //    SoundManager.Instance.PlayClickSound();
+        //}
 
         if (isTyping)
         {
