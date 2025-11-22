@@ -5,7 +5,6 @@ using UnityEngine;
 public class CourtyardEntryTrigger : MonoBehaviour
 {
     [Header("Entry Settings")]
-    public string entryDialogueID = "courtyard_entry";
     private string taskToCompleteID = "head_to_the_courtyard_afterwards";
 
     [Tooltip("Should this only trigger once?")]
@@ -31,12 +30,6 @@ public class CourtyardEntryTrigger : MonoBehaviour
         if (showDebugLogs)
         {
             Debug.Log("Player entered Courtyard for the first time!");
-        }
-
-        // Trigger entry dialogue
-        if (!string.IsNullOrEmpty(entryDialogueID))
-        {
-            DialogueManager.Instance?.StartDialogueSequence(entryDialogueID);
         }
 
         // Complete the courtyard task
