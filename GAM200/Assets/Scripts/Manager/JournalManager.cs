@@ -101,12 +101,6 @@ public class JournalManager : MonoBehaviour
 
         itemSlots[itemID] = slotUI;
         InventorySystem.Instance.AddItem(itemID, useAction, itemPrefab);
-
-        // Notify that a new inventory item was added
-        if (JournalNotificationManager.Instance != null)
-        {
-            JournalNotificationManager.Instance.NotifyNewInventoryItem(itemID);
-        }
     }
 
     public void AddMemorabilia(string itemID)
@@ -141,12 +135,6 @@ public class JournalManager : MonoBehaviour
         }
 
         memorabiliaSlots[itemID] = slotUI;
-
-        // NOTIFY that a new memorabilia was added
-        if (JournalNotificationManager.Instance != null)
-        {
-            JournalNotificationManager.Instance.NotifyNewMemorabilia(itemID);
-        }
     }
 
     public bool HasMemorabilia(string itemID)
