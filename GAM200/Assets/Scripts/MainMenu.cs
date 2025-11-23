@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,7 +6,6 @@ public class MainMenu : MonoBehaviour
     [Header("Main Menu Panels")]
     public GameObject mainMenuPanel;
     public GameObject settingsPanel;
-    //public GameObject creditsPanel; //Don't have it yet
 
     [Header("Cutscene Reference")]
     public IntroCutsceneUI introCutsceneUI;  //Reference to cutscene script
@@ -18,7 +16,7 @@ public class MainMenu : MonoBehaviour
         ShowMainMenu();
     }
 
-    // === MAIN MENU BUTTONS ===
+    //MAIN MENU BUTTONS
     public void StartGame()
     {
         // Instead of loading scene directly, play cutscene first
@@ -41,20 +39,13 @@ public class MainMenu : MonoBehaviour
         //creditsPanel.SetActive(false);
     }
 
-    //public void OpenCredits()
-    //{
-    //    mainMenuPanel.SetActive(false);
-    //    settingsPanel.SetActive(false);
-    //    creditsPanel.SetActive(true);
-    //}
-
     public void QuitGame()
     {
         Debug.Log("Quitting game...");
         Application.Quit();
     }
 
-    // === BACK BUTTONS ===
+    //BACK BUTTONS
     public void BackToMainMenu()
     {
         ShowMainMenu();
@@ -64,6 +55,5 @@ public class MainMenu : MonoBehaviour
     {
         mainMenuPanel.SetActive(true);
         settingsPanel.SetActive(false);
-        //creditsPanel.SetActive(false);
     }
 }

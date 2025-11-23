@@ -154,9 +154,4 @@ public class EnemyBase : MonoBehaviour
         return Vector2.Distance(transform.position, player.position);
     }
 
-    //protected virtual Vector2 GetPlayerPosition()
-    //{
-    //    if (player == null) return Vector2.zero;
-    //    return player.position;
-    //}
 }

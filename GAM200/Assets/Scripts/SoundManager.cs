@@ -297,14 +297,6 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    //public void SetSFXVolume(float volume)
-    //{
-    //    if (sfxSource != null)
-    //    {
-    //        sfxSource.volume = Mathf.Clamp01(volume);
-    //    }
-    //}
-
     //SPECIFIC SFX METHODS
 
     // UI sounds
