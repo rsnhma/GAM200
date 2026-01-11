@@ -1,43 +1,50 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class DraggableDesk : MonoBehaviour
 {
     [Header("Desk Identity")]
-    [SerializeField] private string deskInitials = "M.K."; // For identification
+    [SerializeField] private string deskInitials = ""; // For identification
     [SerializeField] private Vector3 correctPosition; // Set this in Inspector for each desk
     [SerializeField] private bool isKayoDesk = false; // Mark the special desk
 
     [Header("Push Settings")]
-    [SerializeField] private float pushSpeed = 3f;
-    [SerializeField] private float pushDistance = 0.5f; // Distance per "push"
+    [SerializeField] private float pushSpeed = 2f;
+    [SerializeField] private float pushForce = 5f;
     [SerializeField] private LayerMask obstacleLayer; // What blocks movement
+    [SerializeField] private float stopThreshold = 0.1f; // When to stop moving
 
     [Header("Visual Feedback")]
     [SerializeField] private SpriteRenderer deskRenderer;
-    [SerializeField] private Color highlightColor = new Color(1f, 1f, 1f, 0.7f);
     [SerializeField] private GameObject correctPositionIndicator; // Optional glow effect
 
-    private Vector3 startPosition;
     private Color originalColor;
-    private bool isDragging = false;
     private bool isLocked = false;
-    private Vector3 targetPosition;
     private DeskPuzzleManager puzzleManager;
-    private Camera mainCamera;
+    private Rigidbody2D rb;
+    private Vector3 lastPosition;
+    private bool wasMovingLastFrame = false;
 
     private void Awake()
     {
-        mainCamera = Camera.main;
         if (deskRenderer == null)
             deskRenderer = GetComponent<SpriteRenderer>();
 
         originalColor = deskRenderer.color;
-        startPosition = transform.position;
-        targetPosition = transform.position;
+
+        // Setup Rigidbody2D for physics-based pushing
+        rb = GetComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Don't let it rotate
+        rb.gravityScale = 0; // No gravity for top-down
+        rb.drag = 5f; // Friction so it stops when not pushed
+        rb.mass = 10f; // Heavy object
 
         if (correctPositionIndicator != null)
             correctPositionIndicator.SetActive(false);
+
+        lastPosition = transform.position;
     }
 
     public void Initialize(DeskPuzzleManager manager)
@@ -45,125 +52,72 @@ public class DraggableDesk : MonoBehaviour
         puzzleManager = manager;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        // Smooth movement to target position
-        if (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        if (isLocked)
         {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, pushSpeed * Time.deltaTime);
+            rb.velocity = Vector2.zero;
+            return;
         }
-        else
+
+        // Check if desk has stopped moving
+        bool isMoving = rb.velocity.magnitude > stopThreshold;
+
+        if (wasMovingLastFrame && !isMoving)
         {
-            transform.position = targetPosition;
+            // Desk just stopped moving
+            OnDeskStopped();
         }
+
+        wasMovingLastFrame = isMoving;
     }
 
-    private void OnMouseEnter()
+    private void OnDeskStopped()
     {
-        if (!isLocked && !isDragging)
-        {
-            deskRenderer.color = highlightColor;
-        }
-    }
-
-    private void OnMouseExit()
-    {
-        if (!isLocked && !isDragging)
-        {
-            deskRenderer.color = originalColor;
-        }
-    }
-
-    private void OnMouseDown()
-    {
-        if (isLocked) return;
-        isDragging = true;
-    }
-
-    private void OnMouseDrag()
-    {
-        if (isLocked || !isDragging) return;
-
-        // Get mouse position in world space
-        Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        mousePos.z = 0;
-
-        // Calculate push direction
-        Vector3 pushDirection = (mousePos - transform.position).normalized;
-
-        // Try to push in the dominant direction (4-directional movement)
-        Vector3 snapDirection = GetSnapDirection(pushDirection);
-
-        // Check if we can move in that direction
-        Vector3 newTargetPos = transform.position + snapDirection * pushDistance;
-
-        if (!IsPositionBlocked(newTargetPos))
-        {
-            targetPosition = newTargetPos;
-        }
-    }
-
-    private void OnMouseUp()
-    {
-        if (isLocked) return;
-        isDragging = false;
-        deskRenderer.color = originalColor;
-
-        // Snap to grid if close to correct position
+        // Check if close to correct position and snap
         if (Vector3.Distance(transform.position, correctPosition) <= puzzleManager.GetSnapThreshold())
         {
-            targetPosition = correctPosition;
+            transform.position = correctPosition;
+            rb.velocity = Vector2.zero;
 
             if (correctPositionIndicator != null)
                 correctPositionIndicator.SetActive(true);
+
+            Debug.Log($"Desk {deskInitials} snapped to correct position!");
         }
 
         // Check if puzzle is complete
         puzzleManager?.CheckPuzzleComplete();
     }
 
-    private Vector3 GetSnapDirection(Vector3 direction)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        // Snap to 4 cardinal directions
-        float absX = Mathf.Abs(direction.x);
-        float absY = Mathf.Abs(direction.y);
+        if (isLocked) return;
 
-        if (absX > absY)
+        // Check if player is pushing this desk
+        if (collision.gameObject.CompareTag("Player"))
         {
-            return new Vector3(Mathf.Sign(direction.x), 0, 0);
-        }
-        else
-        {
-            return new Vector3(0, Mathf.Sign(direction.y), 0);
-        }
-    }
+            // Get player's movement direction
+            Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
 
-    private bool IsPositionBlocked(Vector3 position)
-    {
-        // Check if there's an obstacle at the target position
-        Collider2D hit = Physics2D.OverlapCircle(position, 0.3f, obstacleLayer);
-
-        // Also check other desks
-        Collider2D[] desks = Physics2D.OverlapCircleAll(position, 0.3f);
-        foreach (var desk in desks)
-        {
-            if (desk.gameObject != gameObject && desk.GetComponent<DraggableDesk>() != null)
+            if (playerRb != null && playerRb.velocity.magnitude > 0.1f)
             {
-                return true;
+                // Push desk in the direction player is moving
+                Vector2 pushDirection = playerRb.velocity.normalized;
+                rb.AddForce(pushDirection * pushForce, ForceMode2D.Force);
             }
         }
-
-        return hit != null;
     }
 
     public bool IsInCorrectPosition()
     {
-        return Vector3.Distance(transform.position, correctPosition) < 0.1f;
+        return Vector3.Distance(transform.position, correctPosition) < 0.15f;
     }
 
     public void LockDesk()
     {
         isLocked = true;
+        rb.bodyType = RigidbodyType2D.Static; // Make it immovable
         deskRenderer.color = originalColor;
     }
 
