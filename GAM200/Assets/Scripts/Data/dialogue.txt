@@ -20,3 +20,5 @@ well_key_pickup_3,Player,"I'll go there next.",,find_faculty_office
 faculty_room_locked,Player,"The door is locked...I need a key.",, 
 torn_class_photo_preview,Player,"Class photo... why is it torn?",,
 seating_chart_intro,Player,"lOREM IPSUM",,
+desk_wrong_placement,Player, "That doesn't look right...the seating chart should help."
+desk_puzzle_failed,Player, "I feel off right now..something is comming over here"

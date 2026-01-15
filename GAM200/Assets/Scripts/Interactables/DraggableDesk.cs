@@ -25,6 +25,7 @@ public class DraggableDesk : MonoBehaviour
     private Rigidbody2D rb;
     private Vector3 lastPosition;
     private bool wasMovingLastFrame = false;
+    private Vector3 startPosition; // Store the initial scattered position
 
     private void Awake()
     {
@@ -45,6 +46,7 @@ public class DraggableDesk : MonoBehaviour
             correctPositionIndicator.SetActive(false);
 
         lastPosition = transform.position;
+        startPosition = transform.position; // Save starting position
     }
 
     public void Initialize(DeskPuzzleManager manager)
@@ -85,6 +87,11 @@ public class DraggableDesk : MonoBehaviour
 
             Debug.Log($"Desk {deskInitials} snapped to correct position!");
         }
+        else
+        {
+            // Desk stopped but NOT in correct position - notify puzzle manager
+            puzzleManager?.OnDeskPlaced(this);
+        }
 
         // Check if puzzle is complete
         puzzleManager?.CheckPuzzleComplete();
@@ -124,6 +131,24 @@ public class DraggableDesk : MonoBehaviour
     public bool IsKayoDesk()
     {
         return isKayoDesk;
+    }
+
+    public bool IsMoving()
+    {
+        return rb.velocity.magnitude > stopThreshold;
+    }
+
+    public void ResetToStartPosition()
+    {
+        transform.position = startPosition;
+        rb.velocity = Vector2.zero;
+        isLocked = false;
+        rb.bodyType = RigidbodyType2D.Dynamic;
+
+        if (correctPositionIndicator != null)
+            correctPositionIndicator.SetActive(false);
+
+        Debug.Log($"Desk {deskInitials} reset to starting position");
     }
 
     // Helper method to set correct position from editor
