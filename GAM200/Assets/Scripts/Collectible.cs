@@ -11,6 +11,8 @@ public class Collectible : MonoBehaviour
     [Header("Mandatory TV Interaction")]
     public TVInteraction tvInteraction;
 
+    private KeyCode interactionKey = KeyCode.E;
+
     private Vector3 originalPosition;
     private Quaternion originalRotation;
     private bool playerNearby = false;
@@ -40,8 +42,7 @@ public class Collectible : MonoBehaviour
 
     private void Update()
     {
-        // Left click to pick up item when player is nearby
-        if (playerNearby && Input.GetMouseButtonDown(0))
+        if (playerNearby && Input.GetKeyDown(interactionKey))
         {
             SoundManager.Instance.PlayPickUpSound();
             Pickup();
