@@ -13,7 +13,7 @@ public class SeatingChart : MonoBehaviour
     public float dialogueDelay = 2f;
 
     
-    private KeyCode interactionKey = KeyCode.Mouse0;
+    private KeyCode interactionKey = KeyCode.E;
     private float interactionRange = 2f;
     private bool isPlayerInRange = false;
     private bool hasTriggeredInitialDialogue = false;

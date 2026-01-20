@@ -16,7 +16,7 @@ public class BulletinBoard : MonoBehaviour
     public ItemData memorabiliaData; // ScriptableObject here
     public bool addToMemorabiliaOnFirstView = true;
 
-    private KeyCode interactionKey = KeyCode.Mouse0;
+    private KeyCode interactionKey = KeyCode.E;
     private float interactionRange = 2f;
     private bool isPlayerInRange = false;
     private bool hasTriggeredInitialDialogue = false;

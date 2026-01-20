@@ -39,7 +39,7 @@ public class DraggableDesk : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Don't let it rotate
         rb.gravityScale = 0; // No gravity for top-down
-        rb.drag = 5f; // Friction so it stops when not pushed
+        rb.linearDamping = 5f; // Friction so it stops when not pushed
         rb.mass = 10f; // Heavy object
 
         if (correctPositionIndicator != null)
@@ -58,12 +58,12 @@ public class DraggableDesk : MonoBehaviour
     {
         if (isLocked)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
         // Check if desk has stopped moving
-        bool isMoving = rb.velocity.magnitude > stopThreshold;
+        bool isMoving = rb.linearVelocity.magnitude > stopThreshold;
 
         if (wasMovingLastFrame && !isMoving)
         {
@@ -80,7 +80,7 @@ public class DraggableDesk : MonoBehaviour
         if (Vector3.Distance(transform.position, correctPosition) <= puzzleManager.GetSnapThreshold())
         {
             transform.position = correctPosition;
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
 
             if (correctPositionIndicator != null)
                 correctPositionIndicator.SetActive(true);
@@ -107,10 +107,10 @@ public class DraggableDesk : MonoBehaviour
             // Get player's movement direction
             Rigidbody2D playerRb = collision.gameObject.GetComponent<Rigidbody2D>();
 
-            if (playerRb != null && playerRb.velocity.magnitude > 0.1f)
+            if (playerRb != null && playerRb.linearVelocity.magnitude > 0.1f)
             {
                 // Push desk in the direction player is moving
-                Vector2 pushDirection = playerRb.velocity.normalized;
+                Vector2 pushDirection = playerRb.linearVelocity.normalized;
                 rb.AddForce(pushDirection * pushForce, ForceMode2D.Force);
             }
         }
@@ -135,13 +135,13 @@ public class DraggableDesk : MonoBehaviour
 
     public bool IsMoving()
     {
-        return rb.velocity.magnitude > stopThreshold;
+        return rb.linearVelocity.magnitude > stopThreshold;
     }
 
     public void ResetToStartPosition()
     {
         transform.position = startPosition;
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
         isLocked = false;
         rb.bodyType = RigidbodyType2D.Dynamic;
 
